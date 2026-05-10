@@ -104,7 +104,7 @@ export default function AdminParticipants() {
             <div>
               <p className="text-[10px] text-atlas-gold-main uppercase tracking-[0.2em] font-bold mb-1">Total a Arrecadar</p>
               <p className="text-3xl font-black text-white leading-none">
-                {formatCurrencyBRL(participants.reduce((acc, p) => acc + (1500 + (p.guestsCount || 0) * 500), 0))}
+                {formatCurrencyBRL(participants.reduce((acc, p) => acc + (ADESAO_TITULAR + (p.guestsCount || 0) * ADESAO_CONVIDADO), 0))}
               </p>
             </div>
           </div>
@@ -141,7 +141,7 @@ export default function AdminParticipants() {
               <p className="text-[10px] text-red-500 uppercase tracking-[0.2em] font-bold mb-1">Falta</p>
               <p className="text-3xl font-black text-white leading-none">
                 {formatCurrencyBRL(
-                  participants.reduce((acc, p) => acc + Math.max(0, (1500 + (p.guestsCount || 0) * 500) - (p.totalPaid || 0)), 0)
+                  participants.reduce((acc, p) => acc + Math.max(0, (ADESAO_TITULAR + (p.guestsCount || 0) * ADESAO_CONVIDADO) - (p.totalPaid || 0)), 0)
                 )}
               </p>
             </div>
