@@ -39,7 +39,7 @@ export function PublicFooter() {
 
           {/* AREA DE TERMOS */}
           <div className="flex flex-col items-center lg:items-end flex-1">
-            <h4 className="text-atlas-gold-main text-[8px] font-black tracking-[0.3em] uppercase mb-3">
+            <h4 className="text-[#FFD700] text-[8px] font-black tracking-[0.3em] uppercase mb-3 drop-shadow-[0_0_8px_rgba(255,215,0,0.2)]">
               Documentos Oficiais
             </h4>
             
