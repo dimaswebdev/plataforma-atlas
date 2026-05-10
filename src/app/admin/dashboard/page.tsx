@@ -5,12 +5,13 @@ import { collection, query, where, getDocs, getCountFromServer } from "firebase/
 import { db } from "@/lib/firebase";
 import { DEFAULT_EVENT_ID } from "@/lib/constants";
 import { formatCurrencyBRL } from "@/lib/utils";
-import { Users, DollarSign, Wallet, Activity } from "lucide-react";
+import { Users, DollarSign, Wallet, Activity, Shirt } from "lucide-react";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalParticipants: 0,
     confirmedParticipants: 0,
+    kitInterest: 0,
     income: 0,
     expense: 0,
   });
@@ -25,6 +26,9 @@ export default function AdminDashboard() {
         const qConfirmed = query(pRef, where("willAttend", "==", "yes"));
         const confirmedP = await getCountFromServer(qConfirmed);
 
+        const qKit = query(pRef, where("officialKit.interest", "==", "yes"));
+        const kitP = await getCountFromServer(qKit);
+
         const tRef = collection(db, "events", DEFAULT_EVENT_ID, "transactions");
         const tSnap = await getDocs(tRef);
         let income = 0;
@@ -38,6 +42,7 @@ export default function AdminDashboard() {
         setStats({
           totalParticipants: totalP.data().count,
           confirmedParticipants: confirmedP.data().count,
+          kitInterest: kitP.data().count,
           income,
           expense,
         });
@@ -67,7 +72,7 @@ export default function AdminDashboard() {
         <div className="h-px flex-1 bg-gradient-to-r from-atlas-gold-main/50 to-transparent" />
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
         
         {/* Interessados Card */}
         <div className="relative group overflow-hidden bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-atlas-gold-main/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(212,175,55,0.15)]">
@@ -97,6 +102,22 @@ export default function AdminDashboard() {
             <div>
               <p className="text-[10px] text-green-400 uppercase tracking-[0.2em] font-bold mb-1">Confirmados</p>
               <p className="text-3xl font-black text-white leading-none">{stats.confirmedParticipants}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Kits Card */}
+        <div className="relative group overflow-hidden bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-blue-400/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(96,165,250,0.15)]">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+            <Shirt className="w-24 h-24 text-blue-400" />
+          </div>
+          <div className="relative z-10 flex items-center space-x-5">
+            <div className="p-3.5 bg-gradient-to-br from-blue-400/20 to-blue-400/5 rounded-xl border border-blue-400/20 shadow-inner">
+              <Shirt className="w-6 h-6 text-blue-400" />
+            </div>
+            <div>
+              <p className="text-[10px] text-blue-400 uppercase tracking-[0.2em] font-bold mb-1">Kits Oficiais</p>
+              <p className="text-3xl font-black text-white leading-none">{stats.kitInterest}</p>
             </div>
           </div>
         </div>

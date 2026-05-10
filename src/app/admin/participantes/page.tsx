@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { getParticipants, updateParticipantPayment, deleteParticipant } from "@/data/participants";
 import { Participant } from "@/types/participant";
-import { Users, CheckCircle, XCircle, HelpCircle, Edit, Trash2, Eye } from "lucide-react";
+import { Users, CheckCircle, XCircle, HelpCircle, Edit, Trash2, Eye, Shirt } from "lucide-react";
 import { ParticipantEditForm } from "@/components/admin/ParticipantEditForm";
-import { ParticipantProfileModal } from "@/components/admin/ParticipantProfileModal";
 import { calculateAge, formatCurrencyBRL } from "@/lib/utils";
 import { DollarSign, TrendingUp, AlertCircle } from "lucide-react";
+import Link from "next/link";
 
 const ADESAO_TITULAR = 1500; // Valor hipotético titular
 const ADESAO_CONVIDADO = 500; // Valor hipotético convidado
@@ -16,7 +16,6 @@ export default function AdminParticipants() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
-  const [viewingParticipant, setViewingParticipant] = useState<Participant | null>(null);
 
   async function load() {
     setLoading(true);
@@ -130,6 +129,7 @@ export default function AdminParticipants() {
                 <th className="px-2 py-3 font-semibold hidden lg:table-cell">Cidade</th>
                 <th className="px-2 py-3 font-semibold text-center">UF</th>
                 <th className="px-2 py-3 font-semibold text-center">Presença</th>
+                <th className="px-2 py-3 font-semibold text-center" title="Kit Oficial">Kit</th>
                 <th className="px-2 py-3 font-semibold text-center" title="Convidados">Conv.</th>
                 <th className="px-2 py-3 font-semibold text-right">Total a Pagar</th>
                 <th className="px-2 py-3 font-semibold text-right">Já Pago</th>
@@ -181,6 +181,18 @@ export default function AdminParticipants() {
                         </div>
                       </td>
 
+                      <td className="px-2 py-3 text-center">
+                        {p.officialKit?.interest === 'yes' ? (
+                          <span title="Kit: Interesse Confirmado"><Shirt className="w-4 h-4 text-blue-400 mx-auto" /></span>
+                        ) : p.officialKit?.interest === 'maybe' ? (
+                          <span title="Kit: Talvez"><Shirt className="w-4 h-4 text-yellow-400 mx-auto" /></span>
+                        ) : p.officialKit?.interest === 'no' ? (
+                          <span title="Kit: Sem Interesse"><Shirt className="w-4 h-4 text-atlas-text-muted mx-auto opacity-50" /></span>
+                        ) : (
+                          <span title="Kit: Não Respondido"><Shirt className="w-4 h-4 text-atlas-navy-aero mx-auto opacity-30" /></span>
+                        )}
+                      </td>
+
                       <td className="px-2 py-3 text-center font-black">{p.guestsCount || 0}</td>
                       <td className="px-2 py-3 text-right font-bold text-atlas-gold-main whitespace-nowrap">{formatCurrencyBRL(totalAPagar)}</td>
                       <td className="px-2 py-3 text-right font-bold text-green-400 whitespace-nowrap">{formatCurrencyBRL(totalPago)}</td>
@@ -204,13 +216,13 @@ export default function AdminParticipants() {
                       
                       <td className="px-2 py-3 text-center">
                         <div className="flex items-center justify-center space-x-3">
-                          <button 
-                            onClick={() => setViewingParticipant(p)}
+                          <Link 
+                            href={`/admin/participantes/${p.id}`}
                             className="text-atlas-text-light hover:text-white transition-colors"
-                            title="Visualizar Perfil"
+                            title="Visualizar Dossiê"
                           >
                             <Eye className="w-3 h-3" />
-                          </button>
+                          </Link>
                           <button 
                             onClick={() => setEditingParticipant(p)}
                             className="text-atlas-text-light hover:text-atlas-gold-main transition-colors"
@@ -241,17 +253,6 @@ export default function AdminParticipants() {
           participant={editingParticipant} 
           onClose={() => setEditingParticipant(null)} 
           onSuccess={load} 
-        />
-      )}
-
-      {viewingParticipant && (
-        <ParticipantProfileModal 
-          participant={viewingParticipant} 
-          onClose={() => setViewingParticipant(null)} 
-          onEdit={() => {
-            setViewingParticipant(null);
-            setEditingParticipant(viewingParticipant);
-          }}
         />
       )}
     </div>

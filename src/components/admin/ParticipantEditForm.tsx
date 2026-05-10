@@ -17,6 +17,7 @@ interface ParticipantEditFormProps {
 export function ParticipantEditForm({ participant, onClose, onSuccess }: ParticipantEditFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [kitInterest, setKitInterest] = useState<string>(participant.officialKit?.interest || "");
 
   const [phoneInput, setPhoneInput] = useState(participant.phone || "");
   const [zipInput, setZipInput] = useState(participant.zipCode || "");
@@ -81,6 +82,18 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
         totalPaid: totalPaid,
         paymentStatus: paymentStatus,
         notes: formData.get("notes") as string,
+        officialKit: kitInterest ? {
+          interest: kitInterest as "yes" | "maybe" | "no",
+          shirtSize: (formData.get("kitShirtSize") as string) || undefined,
+          jacketSize: (formData.get("kitJacketSize") as string) || undefined,
+          pantsSize: (formData.get("kitPantsSize") as string) || undefined,
+          heightCm: formData.get("kitHeightCm") ? Number(formData.get("kitHeightCm")) : undefined,
+          approximateWeightKg: formData.get("kitWeightKg") ? Number(formData.get("kitWeightKg")) : undefined,
+          needsSpecialSize: formData.get("kitNeedsSpecialSize") === "on",
+          wantsNameCustomization: formData.get("kitWantsCustomization") === "on",
+          customizationName: (formData.get("kitCustomizationName") as string) || undefined,
+          notes: (formData.get("kitNotes") as string) || undefined,
+        } : null,
         updatedAt: new Date()
       });
       onSuccess();
@@ -200,6 +213,46 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
             <div>
               <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Observações / Notas</label>
               <textarea name="notes" defaultValue={participant.notes} rows={2} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none"></textarea>
+            </div>
+
+            {/* Kit Oficial */}
+            <div className="border-t border-atlas-navy-aero/30 pt-4">
+              <p className="text-xs font-bold text-atlas-gold-main uppercase tracking-widest mb-3">Kit Oficial ATLAS</p>
+              <div className="grid grid-cols-3 gap-3 mb-3">
+                {["yes","maybe","no"].map(v => (
+                  <label key={v} className={`flex items-center justify-center gap-2 px-3 py-2 rounded border cursor-pointer text-xs font-bold uppercase tracking-wider transition-all ${
+                    kitInterest === v ? 'bg-atlas-gold-main/10 border-atlas-gold-main/50 text-atlas-gold-main' : 'border-atlas-navy-aero/30 text-atlas-text-muted hover:border-white/20'
+                  }`}>
+                    <input type="radio" name="adminKitInterest" value={v} checked={kitInterest === v} onChange={() => setKitInterest(v)} className="hidden" />
+                    {v === "yes" ? "Sim" : v === "maybe" ? "Talvez" : "Não"}
+                  </label>
+                ))}
+              </div>
+              {kitInterest && kitInterest !== "no" && (
+                <div className="grid grid-cols-3 gap-3 mt-3">
+                  <div>
+                    <label className="block text-[10px] text-atlas-text-muted mb-1 uppercase tracking-wider">Camiseta</label>
+                    <select name="kitShirtSize" defaultValue={participant.officialKit?.shirtSize || ""} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm">
+                      <option value="">-</option>
+                      {["PP","P","M","G","GG","XG","XGG","SPECIAL"].map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-atlas-text-muted mb-1 uppercase tracking-wider">Jaqueta</label>
+                    <select name="kitJacketSize" defaultValue={participant.officialKit?.jacketSize || ""} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm">
+                      <option value="">-</option>
+                      {["PP","P","M","G","GG","XG","XGG","SPECIAL"].map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-atlas-text-muted mb-1 uppercase tracking-wider">Calça</label>
+                    <select name="kitPantsSize" defaultValue={participant.officialKit?.pantsSize || ""} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm">
+                      <option value="">-</option>
+                      {["PP","P","M","G","GG","XG","XGG","SPECIAL"].map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="pt-4 flex justify-end space-x-3">

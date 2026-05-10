@@ -24,6 +24,22 @@ export interface Participant {
   paymentStatus: "not_started" | "partial" | "paid" | "overdue";
   totalPaid: number;
   notes?: string;
+  officialKit?: {
+    interest: "yes" | "maybe" | "no";
+    shirtSize?: "PP" | "P" | "M" | "G" | "GG" | "XG" | "XGG" | "SPECIAL";
+    jacketSize?: "PP" | "P" | "M" | "G" | "GG" | "XG" | "XGG" | "SPECIAL";
+    pantsSize?: "PP" | "P" | "M" | "G" | "GG" | "XG" | "XGG" | "SPECIAL";
+    heightCm?: number;
+    approximateWeightKg?: number;
+    usualShirtSize?: string;
+    usualPantsSize?: string;
+    needsSpecialSize?: boolean;
+    wantsNameCustomization?: boolean;
+    customizationName?: string;
+    additionalKitsInterest?: "yes" | "maybe" | "no";
+    additionalKitsNotes?: string;
+    notes?: string;
+  };
   createdAt: Timestamp | Date;
   updatedAt: Timestamp | Date;
 }
