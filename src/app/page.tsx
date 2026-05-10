@@ -46,7 +46,7 @@ export default function Home() {
 
   return (
     // Homepage: no PublicNav/Footer wrapper — EventHero fills 100vh with nav overlaid inside
-    <div className="h-screen overflow-hidden bg-[#060e1c]">
+    <div className="min-h-screen bg-[#060e1c]">
       <EventHero event={event}>
         {/* Stats cards — rendered in the RIGHT column of EventHero */}
         <div

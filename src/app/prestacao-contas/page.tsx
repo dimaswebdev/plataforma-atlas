@@ -96,8 +96,8 @@ export default function PrestacaoContasPage() {
           <div className="px-6 py-4 border-b border-atlas-navy-aero/30 bg-atlas-navy-base/50">
             <h2 className="text-lg font-bold text-white uppercase tracking-wider">Movimentações Públicas</h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-atlas-text-light">
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left text-sm text-atlas-text-light min-w-[600px]">
               <thead className="bg-atlas-navy-base text-atlas-text-muted uppercase tracking-wider text-xs border-b border-atlas-navy-aero/30">
                 <tr>
                   <th className="px-6 py-4 font-semibold">Data</th>

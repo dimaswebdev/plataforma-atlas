@@ -2,10 +2,10 @@
 
 import { useAuth } from "@/lib/auth-context";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, Home, Users, DollarSign, Gift, Calendar, Settings, ShieldCheck, Megaphone, Briefcase } from "lucide-react";
+import { LogOut, Home, Users, DollarSign, Gift, Calendar, Settings, ShieldCheck, Megaphone, Briefcase, ChevronLeft, ChevronRight, Menu, X } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 
@@ -22,6 +22,8 @@ const MENU_ITEMS = [
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, isAdmin } = useAuth();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -46,80 +48,127 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     return null; // Will redirect
   }
 
+  const SidebarContent = () => (
+    <>
+      <div className={`h-20 flex items-center ${isCollapsed ? 'justify-center' : 'px-6'} border-b border-atlas-gold-main/20 bg-gradient-to-b from-white/5 to-transparent transition-all duration-300`}>
+        <div className="flex items-center gap-3">
+          <Image
+            src="/logo-fab.svg"
+            alt="Logo FAB"
+            width={28}
+            height={28}
+            style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }}
+          />
+          {!isCollapsed && (
+            <div className="flex flex-col animate-in fade-in duration-500">
+              <span className="font-black text-atlas-gold-main uppercase tracking-widest text-sm leading-none">Comando</span>
+              <span className="text-[9px] text-atlas-text-muted tracking-[0.2em] uppercase mt-1">ATLAS 30 Anos</span>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <nav className="flex-1 py-6 overflow-y-auto custom-scrollbar">
+        <ul className={`space-y-1.5 ${isCollapsed ? 'px-2' : 'px-4'}`}>
+          {MENU_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <li key={item.href}>
+                <Link 
+                  href={item.href}
+                  onClick={() => setIsMobileOpen(false)}
+                  className={`flex items-center ${isCollapsed ? 'justify-center py-4' : 'px-4 py-3'} text-sm rounded-lg transition-all duration-300 group ${
+                    isActive 
+                      ? "bg-gradient-to-r from-atlas-gold-main/10 to-transparent text-atlas-gold-main border-l-2 border-atlas-gold-main" 
+                      : "text-atlas-text-muted hover:text-white hover:bg-white/5 border-l-2 border-transparent"
+                  }`}
+                  title={isCollapsed ? item.label : ""}
+                >
+                  <Icon className={`w-4 h-4 ${isCollapsed ? '' : 'mr-3'} transition-colors duration-300 ${isActive ? "text-atlas-gold-main" : "group-hover:text-atlas-gold-main/70"}`} />
+                  {!isCollapsed && <span className="font-medium tracking-wide whitespace-nowrap">{item.label}</span>}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      <div className={`p-4 border-t border-atlas-gold-main/20 space-y-2 bg-black/20 transition-all duration-300`}>
+        <Link 
+          href="/"
+          className={`flex items-center ${isCollapsed ? 'justify-center' : 'px-4'} py-2 text-sm text-atlas-text-muted hover:text-white hover:bg-white/5 rounded-lg transition-all duration-300 group`}
+          title={isCollapsed ? "Site Público" : ""}
+        >
+          <Home className={`w-4 h-4 ${isCollapsed ? '' : 'mr-3'} group-hover:text-atlas-gold-main/70 transition-colors`} />
+          {!isCollapsed && <span className="tracking-wide">Site Público</span>}
+        </Link>
+        <button 
+          onClick={() => signOut(auth)}
+          className={`flex items-center w-full ${isCollapsed ? 'justify-center' : 'px-4'} py-2 text-sm text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-300`}
+          title={isCollapsed ? "Desconectar" : ""}
+        >
+          <LogOut className={`w-4 h-4 ${isCollapsed ? '' : 'mr-3'}`} />
+          {!isCollapsed && <span className="tracking-wide">Desconectar</span>}
+        </button>
+      </div>
+
+      <button 
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="hidden lg:flex absolute -right-3 top-24 bg-atlas-gold-main text-atlas-navy-deep p-1 rounded-full border-2 border-atlas-navy-deep hover:scale-110 transition-transform z-50"
+      >
+        {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+      </button>
+    </>
+  );
+
   return (
-    <div className="flex h-screen bg-[#060e1c] text-white overflow-hidden relative">
-      {/* Background elements for cinematic feel */}
+    <div className="flex h-screen bg-[#060e1c] text-white overflow-hidden relative font-sans">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-atlas-gold-main/5 blur-[150px] rounded-full" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-atlas-navy-aero/10 blur-[150px] rounded-full" />
       </div>
 
-      {/* Sidebar */}
-      <aside className="w-64 bg-[#060e1c]/80 backdrop-blur-xl border-r border-atlas-gold-main/20 flex flex-col z-10 relative shadow-2xl shadow-black/50">
-        <div className="h-20 flex items-center justify-center px-6 border-b border-atlas-gold-main/20 bg-gradient-to-b from-white/5 to-transparent">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/logo-fab.svg"
-              alt="Logo FAB"
-              width={28}
-              height={28}
-              style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }}
-            />
-            <div className="flex flex-col">
-              <span className="font-black text-atlas-gold-main uppercase tracking-widest text-sm leading-none">Comando</span>
-              <span className="text-[9px] text-atlas-text-muted tracking-[0.2em] uppercase mt-1">ATLAS 30 Anos</span>
-            </div>
-          </div>
-        </div>
-        
-        <nav className="flex-1 py-6 overflow-y-auto custom-scrollbar">
-          <ul className="space-y-1.5 px-4">
-            {MENU_ITEMS.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname.startsWith(item.href);
-              return (
-                <li key={item.href}>
-                  <Link 
-                    href={item.href}
-                    className={`flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-300 group ${
-                      isActive 
-                        ? "bg-gradient-to-r from-atlas-gold-main/10 to-transparent text-atlas-gold-main border-l-2 border-atlas-gold-main" 
-                        : "text-atlas-text-muted hover:text-white hover:bg-white/5 border-l-2 border-transparent"
-                    }`}
-                  >
-                    <Icon className={`w-4 h-4 mr-3 transition-colors duration-300 ${isActive ? "text-atlas-gold-main" : "group-hover:text-atlas-gold-main/70"}`} />
-                    <span className="font-medium tracking-wide">{item.label}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-
-        <div className="p-4 border-t border-atlas-gold-main/20 space-y-2 bg-black/20">
-          <Link 
-            href="/"
-            className="flex items-center w-full px-4 py-2 text-sm text-atlas-text-muted hover:text-white hover:bg-white/5 rounded-lg transition-all duration-300 group"
-          >
-            <Home className="w-4 h-4 mr-3 group-hover:text-atlas-gold-main/70 transition-colors" />
-            <span className="tracking-wide">Site Público</span>
-          </Link>
-          <button 
-            onClick={() => signOut(auth)}
-            className="flex items-center w-full px-4 py-2 text-sm text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-300"
-          >
-            <LogOut className="w-4 h-4 mr-3" />
-            <span className="tracking-wide">Desconectar</span>
-          </button>
-        </div>
+      <aside className={`hidden lg:flex flex-col bg-[#060e1c]/80 backdrop-blur-xl border-r border-atlas-gold-main/20 z-40 relative shadow-2xl transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
+        <SidebarContent />
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto relative z-10 custom-scrollbar">
-        <div className="p-8 w-full max-w-[1600px] mx-auto">
-          {children}
-        </div>
-      </main>
+      {isMobileOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[60]"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      <aside className={`lg:hidden fixed left-0 top-0 h-full bg-[#060e1c] border-r border-atlas-gold-main/20 z-[70] transition-transform duration-300 w-64 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <SidebarContent />
+      </aside>
+
+      <div className="flex-1 flex flex-col h-full overflow-hidden relative z-10">
+        <header className="lg:hidden h-16 flex items-center justify-between px-4 bg-[#060e1c]/90 border-b border-atlas-gold-main/20 backdrop-blur-md">
+          <button 
+            onClick={() => setIsMobileOpen(true)}
+            className="p-2 text-atlas-gold-main"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+          
+          <div className="flex items-center gap-2">
+            <Image src="/logo-fab.svg" alt="Logo FAB" width={24} height={24} style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }} />
+            <span className="font-black text-atlas-gold-main uppercase tracking-widest text-[10px]">Administração</span>
+          </div>
+
+          <button onClick={() => signOut(auth)} className="p-2 text-red-400">
+            <LogOut className="w-5 h-5" />
+          </button>
+        </header>
+
+        <main className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="p-4 md:p-8 w-full max-w-[1600px] mx-auto">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

@@ -43,11 +43,11 @@ export default function AdminDashboard() {
 
   return (
     <div className="animate-in fade-in duration-700">
-      <div className="flex items-center gap-4 mb-8">
-        <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60 uppercase tracking-tight">
+      <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
+        <h1 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60 uppercase tracking-tight text-center md:text-left w-full md:w-auto">
           Visão Geral
         </h1>
-        <div className="h-px flex-1 bg-gradient-to-r from-atlas-gold-main/50 to-transparent" />
+        <div className="h-px w-full md:flex-1 bg-gradient-to-r from-atlas-gold-main/50 to-transparent" />
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
@@ -134,14 +134,14 @@ export default function AdminDashboard() {
       </div>
 
       {/* Saldo em Caixa */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-atlas-gold-main/10 to-transparent backdrop-blur-xl p-8 rounded-2xl border border-atlas-gold-main/30 shadow-[0_0_50px_rgba(212,175,55,0.05)]">
+      <div className="relative overflow-hidden bg-gradient-to-br from-atlas-gold-main/10 to-transparent backdrop-blur-xl p-6 md:p-8 rounded-2xl border border-atlas-gold-main/30 shadow-[0_0_50px_rgba(212,175,55,0.05)]">
         <div className="absolute top-0 right-0 w-64 h-64 bg-atlas-gold-main/10 blur-[80px] rounded-full pointer-events-none" />
-        <div className="relative z-10">
-          <h2 className="text-xs font-bold text-atlas-gold-main mb-2 uppercase tracking-[0.3em]">Resumo Financeiro Atual</h2>
-          <div className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-atlas-gold-main to-white tracking-tighter">
+        <div className="relative z-10 text-center md:text-left">
+          <h2 className="text-[10px] md:text-xs font-bold text-atlas-gold-main mb-2 uppercase tracking-[0.3em]">Resumo Financeiro Atual</h2>
+          <div className="text-4xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-atlas-gold-main to-white tracking-tighter">
             {formatCurrencyBRL(stats.income - stats.expense)}
           </div>
-          <p className="text-sm text-atlas-text-light/80 mt-3 font-medium tracking-wide">Saldo em caixa consolidado disponível para o evento.</p>
+          <p className="text-xs md:text-sm text-atlas-text-light/80 mt-3 font-medium tracking-wide">Saldo em caixa consolidado disponível para o evento.</p>
         </div>
       </div>
     </div>

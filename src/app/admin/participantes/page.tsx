@@ -151,8 +151,8 @@ export default function AdminParticipants() {
       </div>
 
       <div className="bg-atlas-navy-deep rounded-lg border border-atlas-navy-aero/30 shadow-lg overflow-hidden">
-        <div className="w-full">
-          <table className="w-full text-left text-xs text-atlas-text-light">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left text-xs text-atlas-text-light min-w-[1000px] lg:min-w-full">
             <thead className="bg-atlas-navy-base text-atlas-text-muted uppercase tracking-wider text-[10px] border-b border-atlas-navy-aero/30">
               <tr>
                 <th className="px-2 py-3 font-semibold">Nome Completo</th>

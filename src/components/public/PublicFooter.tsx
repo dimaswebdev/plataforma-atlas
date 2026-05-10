@@ -38,12 +38,12 @@ export function PublicFooter() {
           <div className="hidden lg:block w-px h-10 bg-gradient-to-b from-transparent via-[#D4AF37]/50 to-transparent self-center"></div>
 
           {/* AREA DE TERMOS */}
-          <div className="flex flex-col items-center lg:items-end flex-1">
-            <h4 className="!text-[#D4AF37] text-[8px] font-black tracking-[0.3em] uppercase mb-3 drop-shadow-[0_0_8px_rgba(212,175,55,0.25)]">
+          <div className="flex flex-col items-center lg:items-end flex-1 w-full lg:w-auto">
+            <h4 className="!text-[#D4AF37] text-[8px] font-black tracking-[0.3em] uppercase mb-4 drop-shadow-[0_0_8px_rgba(212,175,55,0.25)]">
               Documentos Oficiais
             </h4>
 
-            <div className="flex flex-wrap justify-center lg:justify-end gap-x-5 gap-y-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-wrap justify-center lg:justify-end gap-x-6 gap-y-4 w-full">
               {[
                 { label: "Adesão", href: "/termos/adesao" },
                 { label: "Privacidade", href: "/politica-privacidade" },
@@ -56,7 +56,7 @@ export function PublicFooter() {
                 <Link
                   key={idx}
                   href={link.href}
-                  className="text-atlas-text-muted/40 hover:text-atlas-gold-main text-[9px] font-bold uppercase tracking-widest transition-colors duration-300"
+                  className="text-atlas-text-muted/50 hover:text-atlas-gold-main text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 py-1 flex items-center justify-center lg:justify-start"
                 >
                   {link.label}
                 </Link>
