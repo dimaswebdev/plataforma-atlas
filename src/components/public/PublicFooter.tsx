@@ -6,37 +6,37 @@ export function PublicFooter() {
   const currentYear = new Date().getFullYear();
   
   return (
-    <footer className="relative z-40 border-t border-white/5 bg-[#030812] w-full pt-12 pb-6">
+    <footer className="relative z-40 border-t border-atlas-gold-main/50 bg-[#030812] w-full pt-8 pb-4">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
-        <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-10 lg:gap-8">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8">
           
-          {/* AREA INSTITUCIONAL */}
+          {/* AREA INSTITUCIONAL (Centralizada Internamente) */}
           <div className="flex flex-col items-center lg:items-start flex-1 text-center lg:text-left">
-            <div className="mb-4 group opacity-40 hover:opacity-80 transition-opacity duration-500">
+            <div className="flex flex-col items-center lg:items-start group opacity-60 hover:opacity-100 transition-opacity duration-500">
               <Image
                 src="/logo-fab.svg"
                 alt="Logo FAB"
-                width={32}
-                height={32}
+                width={28}
+                height={28}
+                className="mb-3"
                 style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }}
               />
+              <p className="text-atlas-gold-main text-[10px] font-black tracking-[0.4em] uppercase mb-1">
+                ATLAS &nbsp;·&nbsp; BINFA &nbsp;·&nbsp; BRASIL
+              </p>
             </div>
             
-            <p className="text-atlas-gold-main text-[10px] font-black tracking-[0.4em] uppercase mb-1 opacity-70">
-              ATLAS &nbsp;·&nbsp; BINFA &nbsp;·&nbsp; BRASIL
-            </p>
-            
-            <p className="text-atlas-text-muted/30 text-[9px] tracking-widest font-medium uppercase">
+            <p className="text-atlas-text-muted/30 text-[8px] tracking-widest font-medium uppercase mt-1">
               &copy; {currentYear} Dimas Designer
             </p>
           </div>
 
-          {/* BARRA VERTICAL (Desktop Only) */}
-          <div className="hidden lg:block w-[1px] h-16 bg-white/5 self-center"></div>
+          {/* BARRA VERTICAL (Sutil) */}
+          <div className="hidden lg:block w-[1px] h-10 bg-white/5 self-center"></div>
 
           {/* AREA DE TERMOS */}
           <div className="flex flex-col items-center lg:items-end flex-1">
-            <h4 className="text-white text-[8px] font-black tracking-[0.3em] uppercase mb-4 opacity-20">
+            <h4 className="text-atlas-gold-main text-[8px] font-black tracking-[0.3em] uppercase mb-3 opacity-60">
               Documentos Oficiais
             </h4>
             
@@ -62,9 +62,6 @@ export function PublicFooter() {
           </div>
 
         </div>
-
-        {/* Decorative divider for mobile */}
-        <div className="lg:hidden w-16 h-[1px] bg-white/5 mx-auto my-6"></div>
       </div>
     </footer>
   );
