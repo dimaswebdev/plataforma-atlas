@@ -1,0 +1,57 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Funções de ajuda
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isEventAdmin(eventId) {
+      return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/admins/$(request.auth.uid));
+    }
+
+    // Eventos
+    match /events/{eventId} {
+      // Público pode ler o evento
+      allow read: if true;
+      // Admin pode escrever
+      allow write: if isEventAdmin(eventId);
+
+      // Subcoleção de participantes
+      match /participants/{participantId} {
+        // Público pode apenas criar
+        allow create: if true;
+        // Público não pode ler, apenas admins
+        allow read, update, delete: if isEventAdmin(eventId);
+      }
+
+      // Subcoleção de transações
+      match /transactions/{transactionId} {
+        // Público lê apenas transações públicas
+        allow read: if isEventAdmin(eventId) || resource.data.isPublic == true;
+        allow write: if isEventAdmin(eventId);
+      }
+
+      // Subcoleção de souvenirs
+      match /souvenirs/{souvenirId} {
+        // Público lê souvenirs disponíveis
+        allow read: if isEventAdmin(eventId) || resource.data.available == true;
+        allow write: if isEventAdmin(eventId);
+      }
+
+      // Subcoleção de programação
+      match /schedule/{scheduleId} {
+        // Público lê apenas as públicas
+        allow read: if isEventAdmin(eventId) || resource.data.isPublic == true;
+        allow write: if isEventAdmin(eventId);
+      }
+
+      // Outras subcoleções (updates, suppliers, guests, admins, etc)
+      match /{collection}/{document=**} {
+        allow read, write: if isEventAdmin(eventId);
+      }
+    }
+  }
+}

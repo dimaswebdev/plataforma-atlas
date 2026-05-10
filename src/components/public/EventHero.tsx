@@ -1,0 +1,207 @@
+import Link from "next/link";
+import { Event } from "@/types/event";
+import { Shield } from "lucide-react";
+import Image from "next/image";
+import { PublicNav } from "@/components/public/PublicNav";
+
+export function EventHero({ event, children }: { event: Event; children?: React.ReactNode }) {
+  return (
+    // h-screen: hero must fill exactly the viewport — PublicNav is sticky on top so we add pt-16
+    <section className="relative h-screen flex flex-col overflow-hidden bg-[#060e1c]">
+      
+      {/* ── CINEMATIC BACKGROUND (flipped horizontally so jet nose faces left) ── */}
+      <div
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('/images/hero-bg.png')",
+          transform: "scaleX(-1)",
+        }}
+      />
+      {/* left gradient overlay — darkens left side so text is readable */}
+      <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#060e1c] via-[#060e1c]/80 to-[#060e1c]/10" />
+      {/* bottom vignette */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 z-10 bg-gradient-to-t from-[#060e1c] to-transparent" />
+      {/* subtle scanline texture */}
+      <div
+        className="absolute inset-0 z-10 opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,1) 2px, rgba(255,255,255,1) 3px)",
+        }}
+      />
+
+      {/* ── NAVBAR overlaid absolutely so it doesn't break h-screen ── */}
+      <div className="absolute top-0 left-0 right-0 z-50">
+        <PublicNav />
+      </div>
+
+      {/* ── HERO CONTENT ── pt-16 clears the 64px overlaid navbar */}
+      <div className="relative z-20 flex-1 flex pt-16 pb-2">
+
+        {/* LEFT COLUMN — text content */}
+        <div className="flex flex-col justify-center px-8 md:px-16 lg:px-24 max-w-[52%]">
+
+        {/* FAB institutional line with real SVG logo tinted gold */}
+        <div className="flex items-center gap-3 mb-5">
+          <Image
+            src="/logo-fab.svg"
+            alt="Logo Força Aérea Brasileira"
+            width={36}
+            height={36}
+            className="opacity-90"
+            style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }}
+          />
+          <p className="text-atlas-gold-main text-xs font-bold tracking-[0.3em] uppercase">
+            Força Aérea Brasileira&nbsp;&nbsp;|&nbsp;&nbsp;1997–2027
+          </p>
+        </div>
+
+        {/* Main headline + divider — wrapped so divider aligns to text width */}
+        <div className="w-fit mb-6">
+          <h1 className="font-black text-white uppercase tracking-tight mb-3" style={{ fontSize: 'clamp(2.6rem, 6vw, 5rem)', lineHeight: '1.0' }}>
+            {/* Line 1 */}
+            <div className="block">Reencontro</div>
+
+            {/* Line 2 — gold bars flanking 30 ANOS in gold */}
+            <div className="flex items-center gap-3 my-1">
+              <span className="inline-block h-[5px] w-16 md:w-24 rounded-sm bg-atlas-gold-main shrink-0" />
+              <span className="text-atlas-gold-main">30 Anos</span>
+              <span className="inline-block h-[5px] w-16 md:w-24 rounded-sm bg-atlas-gold-main shrink-0" />
+            </div>
+
+            {/* Line 3 */}
+            <div className="block">Turma Atlas</div>
+          </h1>
+
+          {/* Decorative divider — full width of title block, stars centered */}
+          <div className="flex flex-col items-center gap-1.5 w-full">
+            <div className="w-full h-px bg-gradient-to-r from-atlas-gold-main via-atlas-gold-main/50 to-transparent" />
+            <span className="text-atlas-gold-main text-xs tracking-[0.6em]">★ ★ ★</span>
+          </div>
+        </div>
+
+        {/* Description */}
+        <p className="text-atlas-text-muted text-sm leading-relaxed mb-10 max-w-md">
+          {event.heroDescription}
+        </p>
+
+        {/* CTA Buttons */}
+        <div className="flex flex-wrap gap-4 mb-8">
+          <Link
+            href="/confirmar-interesse"
+            className="group flex items-center gap-2 bg-atlas-gold-main text-atlas-navy-deep px-6 py-3 rounded font-black uppercase tracking-widest text-sm hover:bg-atlas-gold-dark transition-all duration-300 shadow-lg shadow-atlas-gold-main/20"
+          >
+            <Shield className="w-4 h-4" />
+            Confirmar Interesse
+          </Link>
+          <Link
+            href="/programacao"
+            className="flex items-center gap-2 border border-atlas-gold-main/50 text-white px-6 py-3 rounded font-bold uppercase tracking-widest text-sm hover:bg-atlas-gold-main/10 hover:border-atlas-gold-main transition-all duration-300"
+          >
+            Ver Programação
+            <span aria-hidden="true" className="text-atlas-gold-main">→</span>
+          </Link>
+        </div>
+
+        {/* Tagline */}
+        <div className="flex items-center gap-2 text-atlas-text-muted text-xs">
+          <Shield className="w-3.5 h-3.5 text-atlas-gold-main" />
+          <span>Sua participação fortalece nossa história.</span>
+        </div>
+        </div>{/* end LEFT COLUMN */}
+
+        {/* RIGHT COLUMN — stats cards, vertically centered on the right side */}
+        {children && (
+          <div className="absolute right-8 md:right-14 lg:right-20 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-30">
+            {children}
+
+            {/* Social Icons vertically aligned to the right, below cards */}
+            <div className="flex flex-col items-end gap-5 mt-4">
+              {/* Instagram */}
+              <a
+                href="https://instagram.com/turmaatlas30anos"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Instagram — @turmaatlas30anos"
+                className="text-atlas-text-muted/50 hover:text-atlas-gold-main transition-colors duration-300 bg-[#060e1c]/40 p-2.5 rounded-full border border-atlas-navy-aero/20 hover:border-atlas-gold-main/50 backdrop-blur-sm"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                  <circle cx="12" cy="12" r="4"/>
+                  <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/>
+                </svg>
+              </a>
+
+              {/* Facebook */}
+              <a
+                href="https://facebook.com/turmaatlas30anos"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Facebook — Turma ATLAS 30 Anos"
+                className="text-atlas-text-muted/50 hover:text-atlas-gold-main transition-colors duration-300 bg-[#060e1c]/40 p-2.5 rounded-full border border-atlas-navy-aero/20 hover:border-atlas-gold-main/50 backdrop-blur-sm"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                </svg>
+              </a>
+
+              {/* YouTube */}
+              <a
+                href="https://youtube.com/@turmaatlas30anos"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="YouTube — Turma ATLAS 30 Anos"
+                className="text-atlas-text-muted/50 hover:text-atlas-gold-main transition-colors duration-300 bg-[#060e1c]/40 p-2.5 rounded-full border border-atlas-navy-aero/20 hover:border-atlas-gold-main/50 backdrop-blur-sm"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58a2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/>
+                  <polygon fill="#060e1c" points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/>
+                </svg>
+              </a>
+
+              {/* WhatsApp */}
+              <a
+                href="https://wa.me/5567999999999"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="WhatsApp — Comissão ATLAS"
+                className="text-atlas-text-muted/50 hover:text-atlas-gold-main transition-colors duration-300 bg-[#060e1c]/40 p-2.5 rounded-full border border-atlas-navy-aero/20 hover:border-atlas-gold-main/50 backdrop-blur-sm"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        )}
+      </div>{/* end two-col wrapper */}
+
+      {/* ── FOOTER BAND ── */}
+      <div className="relative z-20 border-t border-atlas-gold-main/60 bg-[#060e1c]/90 backdrop-blur-md">
+        <div className="flex flex-col items-center justify-center py-6 gap-2">
+          
+          {/* Center: branding logo */}
+          <div className="mb-1">
+            <Image
+              src="/logo-fab.svg"
+              alt="Logo FAB"
+              width={26}
+              height={26}
+              style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }}
+            />
+          </div>
+
+          {/* Center: branding text */}
+          <p className="text-atlas-gold-main text-[11px] font-bold tracking-[0.5em] uppercase">
+            ATLAS &nbsp;·&nbsp; BINFA &nbsp;·&nbsp; BRASIL
+          </p>
+
+          {/* Center: copyright */}
+          <p className="text-atlas-text-muted/70 text-[11px] tracking-wide mt-1">
+            &copy; Desenvolvido por Dimas Designer - 2026
+          </p>
+
+        </div>
+      </div>
+    </section>
+  );
+}
