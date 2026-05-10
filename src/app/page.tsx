@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getEventData } from "@/data/events";
-import { getConfirmedParticipantsCount } from "@/data/participants";
 import { EventHero } from "@/components/public/EventHero";
 import { Countdown } from "@/components/public/Countdown";
 import { Event } from "@/types/event";
@@ -15,12 +13,11 @@ export default function Home() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [eventData, count] = await Promise.all([
-          getEventData(),
-          getConfirmedParticipantsCount()
-        ]);
-        setEvent(eventData);
-        setConfirmedCount(count);
+        const res = await fetch("/api/event-data");
+        if (!res.ok) throw new Error("API error");
+        const data = await res.json();
+        setEvent(data.event);
+        setConfirmedCount(data.confirmedCount ?? 0);
       } catch (err) {
         console.error("Error loading data", err);
       } finally {
