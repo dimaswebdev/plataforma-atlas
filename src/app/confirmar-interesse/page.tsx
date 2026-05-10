@@ -123,7 +123,14 @@ export default function ConfirmarInteressePage() {
     setShowConfirmModal(false);
     setLoading(true);
     try {
-      await createParticipant(pendingPayload);
+      const res = await fetch("/api/data?collection=participants", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pendingPayload)
+      });
+      
+      if (!res.ok) throw new Error("Failed to save");
+      
       setCompletedSteps(prev => prev.includes(3) ? prev : [...prev, 3]);
       setSuccess(true);
       window.scrollTo(0, 0);
