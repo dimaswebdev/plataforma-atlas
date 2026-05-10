@@ -61,7 +61,7 @@ export default function AdminParticipants() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-white uppercase tracking-wider flex items-center">
           <Users className="w-6 h-6 mr-3 text-atlas-gold-main" />
-          Compêndio de Membros
+          Lista de Membros
         </h1>
       </div>
 
@@ -98,24 +98,24 @@ export default function AdminParticipants() {
       </div>
 
       <div className="bg-atlas-navy-deep rounded-lg border border-atlas-navy-aero/30 shadow-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-atlas-text-light whitespace-nowrap">
+        <div className="w-full">
+          <table className="w-full text-left text-xs text-atlas-text-light">
             <thead className="bg-atlas-navy-base text-atlas-text-muted uppercase tracking-wider text-[10px] border-b border-atlas-navy-aero/30">
               <tr>
-                <th className="px-4 py-3 font-semibold">Nome Completo</th>
-                <th className="px-4 py-3 font-semibold">Apelido</th>
-                <th className="px-4 py-3 font-semibold text-center">Idade</th>
-                <th className="px-4 py-3 font-semibold">Profissão Atual</th>
-                <th className="px-4 py-3 font-semibold">Contato</th>
-                <th className="px-4 py-3 font-semibold">Cidade</th>
-                <th className="px-4 py-3 font-semibold text-center">UF</th>
-                <th className="px-4 py-3 font-semibold text-center">Presença</th>
-                <th className="px-4 py-3 font-semibold text-center">Conv.</th>
-                <th className="px-4 py-3 font-semibold text-right text-atlas-gold-main">Total a Pagar</th>
-                <th className="px-4 py-3 font-semibold text-right text-green-400">Já Pago</th>
-                <th className="px-4 py-3 font-semibold text-right text-red-400">Restante</th>
-                <th className="px-4 py-3 font-semibold text-center">Status</th>
-                <th className="px-4 py-3 font-semibold text-center">Ações</th>
+                <th className="px-2 py-3 font-semibold">Nome Completo</th>
+                <th className="px-2 py-3 font-semibold">Apelido</th>
+                <th className="px-2 py-3 font-semibold text-center">Idade</th>
+                <th className="px-2 py-3 font-semibold hidden md:table-cell">Profissão Atual</th>
+                <th className="px-2 py-3 font-semibold">Contato</th>
+                <th className="px-2 py-3 font-semibold hidden lg:table-cell">Cidade</th>
+                <th className="px-2 py-3 font-semibold text-center">UF</th>
+                <th className="px-2 py-3 font-semibold text-center">Presença</th>
+                <th className="px-2 py-3 font-semibold text-center" title="Convidados">Conv.</th>
+                <th className="px-2 py-3 font-semibold text-right text-atlas-gold-main">Total a Pagar</th>
+                <th className="px-2 py-3 font-semibold text-right text-green-400">Já Pago</th>
+                <th className="px-2 py-3 font-semibold text-right text-red-400">Restante</th>
+                <th className="px-2 py-3 font-semibold text-center">Status</th>
+                <th className="px-2 py-3 font-semibold text-center">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-atlas-navy-aero/20">
@@ -143,37 +143,37 @@ export default function AdminParticipants() {
                   };
 
                   return (
-                    <tr key={p.id} className="hover:bg-atlas-navy-base/40 transition-colors text-xs">
-                      <td className="px-4 py-3 font-bold text-white">
-                        <button onClick={() => setViewingParticipant(p)} className="hover:text-atlas-gold-main flex items-center gap-1 transition-colors">
-                          {p.name}
-                          <Eye className="w-3 h-3 text-atlas-text-muted" />
+                    <tr key={p.id} className="hover:bg-atlas-navy-base/40 transition-colors text-xs border-b border-white/5 last:border-0">
+                      <td className="px-2 py-3 font-bold text-white max-w-[140px] truncate">
+                        <button onClick={() => setViewingParticipant(p)} className="hover:text-atlas-gold-main flex items-center gap-1 transition-colors w-full text-left truncate">
+                          <span className="truncate">{p.name}</span>
+                          <Eye className="w-3 h-3 text-atlas-text-muted shrink-0" />
                         </button>
                       </td>
-                      <td className="px-4 py-3 text-atlas-gold-main font-bold uppercase tracking-wider">{p.nickname || "-"}</td>
-                      <td className="px-4 py-3 text-center">{age !== null ? `${age} Anos` : "-"}</td>
-                      <td className="px-4 py-3">{p.currentFunction || "-"}</td>
-                      <td className="px-4 py-3">{p.phone}</td>
-                      <td className="px-4 py-3">{p.city || "-"}</td>
-                      <td className="px-4 py-3 text-center font-bold uppercase">{p.state || "-"}</td>
+                      <td className="px-2 py-3 text-atlas-gold-main font-bold uppercase tracking-wider truncate max-w-[100px]">{p.nickname || "-"}</td>
+                      <td className="px-2 py-3 text-center whitespace-nowrap">{age !== null ? `${age} Anos` : "-"}</td>
+                      <td className="px-2 py-3 hidden md:table-cell truncate max-w-[120px]">{p.currentFunction || "-"}</td>
+                      <td className="px-2 py-3 whitespace-nowrap">{p.phone}</td>
+                      <td className="px-2 py-3 hidden lg:table-cell truncate max-w-[100px]">{p.city || "-"}</td>
+                      <td className="px-2 py-3 text-center font-bold uppercase">{p.state || "-"}</td>
                       
-                      <td className="px-4 py-3">
+                      <td className="px-2 py-3">
                         <div className="flex items-center justify-center gap-1">
                           {getStatusIcon(p.willAttend)}
-                          <span className="text-[10px] uppercase tracking-wider font-bold hidden xl:inline">{getStatusLabel(p.willAttend)}</span>
+                          <span className="text-[10px] uppercase tracking-wider font-bold hidden xl:inline whitespace-nowrap">{getStatusLabel(p.willAttend)}</span>
                         </div>
                       </td>
 
-                      <td className="px-4 py-3 text-center font-black">{p.guestsCount || 0}</td>
-                      <td className="px-4 py-3 text-right font-bold text-atlas-gold-main">{formatCurrencyBRL(totalAPagar)}</td>
-                      <td className="px-4 py-3 text-right font-bold text-green-400">{formatCurrencyBRL(totalPago)}</td>
-                      <td className="px-4 py-3 text-right font-bold text-red-400">{formatCurrencyBRL(restante)}</td>
+                      <td className="px-2 py-3 text-center font-black">{p.guestsCount || 0}</td>
+                      <td className="px-2 py-3 text-right font-bold text-atlas-gold-main whitespace-nowrap">{formatCurrencyBRL(totalAPagar)}</td>
+                      <td className="px-2 py-3 text-right font-bold text-green-400 whitespace-nowrap">{formatCurrencyBRL(totalPago)}</td>
+                      <td className="px-2 py-3 text-right font-bold text-red-400 whitespace-nowrap">{formatCurrencyBRL(restante)}</td>
                       
-                      <td className="px-4 py-3 text-center">
+                      <td className="px-2 py-3 text-center whitespace-nowrap">
                         {getPaymentBadge()}
                       </td>
                       
-                      <td className="px-4 py-3 text-center">
+                      <td className="px-2 py-3 text-center">
                         <div className="flex items-center justify-center space-x-3">
                           <button 
                             onClick={() => setEditingParticipant(p)}
