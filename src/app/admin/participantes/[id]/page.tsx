@@ -25,10 +25,10 @@ export default function ParticipantDetailsPage() {
     async function loadParticipant() {
       if (!params.id) return;
       try {
-        const docRef = doc(db, "events", DEFAULT_EVENT_ID, "participants", params.id as string);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setParticipant({ id: docSnap.id, ...docSnap.data() } as Participant);
+        const res = await fetch(`/api/data?collection=participants&id=${params.id}`);
+        const data = await res.json();
+        if (data) {
+          setParticipant(data as Participant);
         } else {
           router.push("/admin/participantes");
         }

@@ -20,18 +20,26 @@ export default function PrestacaoContasPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [eventData, fin, trans] = await Promise.all([
-          getEventData(),
-          getFinancialSummary(),
-          getPublicTransactions()
+        const [eventRes, statsRes, transRes] = await Promise.all([
+          fetch("/api/event-data"),
+          fetch("/api/admin/stats"),
+          fetch("/api/data?collection=transactions")
         ]);
         
-        // Sort descending by date
-        trans.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        const eventData = await eventRes.json();
+        const stats = await statsRes.json();
+        const trans = await transRes.json();
         
-        setEvent(eventData);
-        setFinancial(fin);
-        setTransactions(trans);
+        // Sort descending by date
+        trans.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        
+        setEvent(eventData.event);
+        setFinancial({
+          totalIncome: stats.income,
+          totalExpense: stats.expense,
+          balance: stats.income - stats.expense
+        });
+        setTransactions(trans.filter((t: any) => t.isPublic !== false));
       } catch (err) {
         console.error("Error loading data", err);
       } finally {

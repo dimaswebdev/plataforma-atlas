@@ -18,22 +18,27 @@ export default function AdminFinanceiro() {
 
   async function load() {
     setLoading(true);
-    // Fetching all transactions for admin
-    const q = query(collection(db, "events", DEFAULT_EVENT_ID, "transactions"));
-    const snap = await getDocs(q);
-    const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Transaction));
-    
-    data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    
-    let total = 0;
-    data.forEach(t => {
-      if(t.type === 'income') total += t.amount;
-      if(t.type === 'expense') total -= t.amount;
-    });
+    try {
+      const res = await fetch("/api/data?collection=transactions");
+      if (!res.ok) throw new Error("Failed to fetch transactions");
+      const data = await res.json();
+      
+      data.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      
+      let total = 0;
+      data.forEach((t: any) => {
+        if(t.type === 'income') total += t.amount;
+        if(t.type === 'expense') total -= t.amount;
+      });
 
-    setTransactions(data);
-    setBalance(total);
-    setLoading(false);
+      setTransactions(data);
+      setBalance(total);
+    } catch (err) {
+      console.error("Error loading transactions", err);
+      setTransactions([]);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
