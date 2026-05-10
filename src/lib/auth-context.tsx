@@ -30,10 +30,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (currentUser) {
         console.log("User Logged In:", currentUser.uid, currentUser.email);
         try {
-          const adminDoc = await getDoc(doc(db, "events", DEFAULT_EVENT_ID, "admins", currentUser.uid));
-          const exists = adminDoc.exists();
-          console.log("Admin Check for UID:", currentUser.uid, "Result:", exists);
-          setIsAdmin(exists);
+          // Use server-side API to check admin status (bypasses browser SDK offline issues)
+          const res = await fetch(`/api/admin/check?uid=${currentUser.uid}`);
+          const data = await res.json();
+          console.log("Admin Check for UID:", currentUser.uid, "Result:", data.isAdmin);
+          setIsAdmin(data.isAdmin);
         } catch (error) {
           console.error("Error checking admin status:", error);
           setIsAdmin(false);

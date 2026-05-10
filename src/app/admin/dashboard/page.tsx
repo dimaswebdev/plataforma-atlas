@@ -20,32 +20,10 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function loadStats() {
       try {
-        const pRef = collection(db, "events", DEFAULT_EVENT_ID, "participants");
-        const totalP = await getCountFromServer(pRef);
-        
-        const qConfirmed = query(pRef, where("willAttend", "==", "yes"));
-        const confirmedP = await getCountFromServer(qConfirmed);
-
-        const qKit = query(pRef, where("officialKit.interest", "==", "yes"));
-        const kitP = await getCountFromServer(qKit);
-
-        const tRef = collection(db, "events", DEFAULT_EVENT_ID, "transactions");
-        const tSnap = await getDocs(tRef);
-        let income = 0;
-        let expense = 0;
-        tSnap.forEach(doc => {
-          const data = doc.data();
-          if (data.type === "income") income += data.amount;
-          if (data.type === "expense") expense += data.amount;
-        });
-
-        setStats({
-          totalParticipants: totalP.data().count,
-          confirmedParticipants: confirmedP.data().count,
-          kitInterest: kitP.data().count,
-          income,
-          expense,
-        });
+        const res = await fetch("/api/admin/stats");
+        if (!res.ok) throw new Error("Failed to fetch stats");
+        const data = await res.json();
+        setStats(data);
       } catch (error) {
         console.error("Failed to load stats", error);
       } finally {
