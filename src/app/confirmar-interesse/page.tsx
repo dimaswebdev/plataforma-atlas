@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { createParticipant } from "@/data/participants";
+import { Participant } from "@/types/participant";
 import { PublicNav } from "@/components/public/PublicNav";
 import { PublicFooter } from "@/components/public/PublicFooter";
-import { ShieldCheck, ArrowRight, ArrowLeft } from "lucide-react";
+import { ShieldCheck, ArrowRight, ArrowLeft, CheckCircle, AlertTriangle } from "lucide-react";
 import { capitalizeName, formatPhone, formatZipCode } from "@/lib/utils";
 import { PageHeader } from "@/components/public/PageHeader";
 
@@ -12,6 +13,10 @@ export default function ConfirmarInteressePage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [pendingPayload, setPendingPayload] = useState<Omit<Participant, 'id'|'createdAt'|'updatedAt'> | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   // Auto-formatters and conditionals
   const [phoneInput, setPhoneInput] = useState("");
@@ -19,11 +24,12 @@ export default function ConfirmarInteressePage() {
   const [cityInput, setCityInput] = useState("");
   const [stateInput, setStateInput] = useState("MS");
 
+  const isFromCampoGrande = cityInput.toLowerCase().includes("campo") && cityInput.toLowerCase().includes("grande") && stateInput === "MS";
+  const progressPercentage = (completedSteps.length / 3) * 100;
+
   // Kit State
   const [kitInterest, setKitInterest] = useState<"yes" | "maybe" | "no" | "">("");
   const [wantsNameCustomization, setWantsNameCustomization] = useState(false);
-
-  const isFromCampoGrande = cityInput.toLowerCase().includes("campo") && cityInput.toLowerCase().includes("grande") && stateInput === "MS";
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/\D/g, "");
@@ -43,8 +49,15 @@ export default function ConfirmarInteressePage() {
     }
   };
 
-  const nextStep = () => setCurrentStep(prev => prev + 1);
-  const prevStep = () => setCurrentStep(prev => prev - 1);
+  const nextStep = () => {
+    setCompletedSteps(prev => prev.includes(currentStep) ? prev : [...prev, currentStep]);
+    setCurrentStep(prev => prev + 1);
+    window.scrollTo(0, 0);
+  };
+  const prevStep = () => {
+    setCurrentStep(prev => prev - 1);
+    window.scrollTo(0, 0);
+  };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,64 +66,70 @@ export default function ConfirmarInteressePage() {
       return;
     }
 
-    setLoading(true);
-
+    // Build payload from form
     const formData = new FormData(e.currentTarget);
     const willAttend = formData.get("willAttend") as "yes" | "maybe" | "no";
-    
-    // SANITIZATION
     const rawName = formData.get("name") as string;
     const rawNickname = formData.get("nickname") as string;
     const rawCity = formData.get("city") as string;
     const rawFunction = formData.get("currentFunction") as string;
-    
+
     const officialKit = kitInterest ? {
       interest: kitInterest as "yes" | "maybe" | "no",
-      shirtSize: formData.get("shirtSize") as any || undefined,
-      jacketSize: formData.get("jacketSize") as any || undefined,
-      pantsSize: formData.get("pantsSize") as any || undefined,
+      shirtSize: (formData.get("shirtSize") as any) || undefined,
+      jacketSize: (formData.get("jacketSize") as any) || undefined,
+      pantsSize: (formData.get("pantsSize") as any) || undefined,
       heightCm: formData.get("heightCm") ? Number(formData.get("heightCm")) : undefined,
       approximateWeightKg: formData.get("approximateWeightKg") ? Number(formData.get("approximateWeightKg")) : undefined,
-      usualShirtSize: formData.get("usualShirtSize") as string || undefined,
-      usualPantsSize: formData.get("usualPantsSize") as string || undefined,
       needsSpecialSize: formData.get("needsSpecialSize") === "on",
       wantsNameCustomization: formData.get("wantsNameCustomization") === "on",
-      customizationName: formData.get("customizationName") as string || undefined,
-      additionalKitsInterest: formData.get("additionalKitsInterest") as "yes" | "maybe" | "no" || undefined,
-      additionalKitsNotes: formData.get("additionalKitsNotes") as string || undefined,
-      notes: formData.get("kitNotes") as string || undefined,
+      customizationName: (formData.get("customizationName") as string) || undefined,
+      additionalKitsInterest: (formData.get("additionalKitsInterest") as "yes" | "maybe" | "no") || undefined,
+      notes: (formData.get("kitNotes") as string) || undefined,
     } : undefined;
 
+    const payload = {
+      name: capitalizeName(rawName),
+      nickname: rawNickname ? capitalizeName(rawNickname) : "",
+      email: ((formData.get("email") as string) || "").toLowerCase(),
+      phone: formatPhone(formData.get("phone") as string),
+      instagram: (formData.get("instagram") as string) || "",
+      linkedin: (formData.get("linkedin") as string) || "",
+      birthDate: formData.get("birthDate") as string,
+      currentFunction: rawFunction ? capitalizeName(rawFunction) : "",
+      zipCode: formatZipCode(formData.get("zipCode") as string),
+      address: (formData.get("address") as string) || "",
+      city: rawCity ? capitalizeName(rawCity) : "",
+      state: ((formData.get("state") as string) || "").toUpperCase(),
+      country: ((formData.get("country") as string) || "").toUpperCase(),
+      willAttend,
+      isFromOutOfState: formData.get("state") !== "MS",
+      guestsCount: Number(formData.get("guestsCount") || 0),
+      needsHotelInfo: formData.get("needsHotelInfo") === "on",
+      needsTransportInfo: formData.get("needsTransportInfo") === "on",
+      wantsToHelpCommittee: formData.get("wantsToHelpCommittee") === "on",
+      notes: (formData.get("notes") as string) || "",
+      paymentStatus: "not_started" as const,
+      totalPaid: 0,
+      officialKit,
+    };
+
+    setPendingPayload(payload);
+    setShowConfirmModal(true);
+  }
+
+  async function handleConfirmedSubmit() {
+    if (!pendingPayload) return;
+    setShowConfirmModal(false);
+    setLoading(true);
     try {
-      await createParticipant({
-        name: capitalizeName(rawName),
-        nickname: rawNickname ? capitalizeName(rawNickname) : "",
-        email: (formData.get("email") as string).toLowerCase(),
-        phone: formatPhone(formData.get("phone") as string),
-        instagram: formData.get("instagram") as string,
-        linkedin: formData.get("linkedin") as string,
-        birthDate: formData.get("birthDate") as string,
-        currentFunction: rawFunction ? capitalizeName(rawFunction) : "",
-        zipCode: formatZipCode(formData.get("zipCode") as string),
-        address: formData.get("address") as string,
-        city: rawCity ? capitalizeName(rawCity) : "",
-        state: (formData.get("state") as string).toUpperCase(),
-        country: (formData.get("country") as string).toUpperCase(),
-        willAttend,
-        isFromOutOfState: formData.get("state") !== "MS",
-        guestsCount: Number(formData.get("guestsCount") || 0),
-        needsHotelInfo: formData.get("needsHotelInfo") === "on",
-        needsTransportInfo: formData.get("needsTransportInfo") === "on",
-        wantsToHelpCommittee: formData.get("wantsToHelpCommittee") === "on",
-        notes: formData.get("notes") as string,
-        paymentStatus: "not_started",
-        totalPaid: 0,
-        officialKit,
-      });
+      await createParticipant(pendingPayload);
+      setCompletedSteps(prev => prev.includes(3) ? prev : [...prev, 3]);
       setSuccess(true);
-      window.scrollTo(0,0);
+      window.scrollTo(0, 0);
     } catch (error) {
-      alert("Erro ao enviar formulário. Tente novamente.");
+      console.error("Erro ao salvar participante:", error);
+      alert("Erro ao salvar cadastro. Verifique sua conexão e tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -121,9 +140,9 @@ export default function ConfirmarInteressePage() {
       <PublicNav />
       <PageHeader
         bgImage="/images/hero-bg.png"
-        accent="Compêndio da Turma"
-        title="Compêndio e Presença"
-        subtitle="Preencha seus dados para atualizar o Compêndio Oficial da Turma ATLAS e ajudar a comissão a dimensionar o evento de 30 anos."
+        accent="Portal ATLAS"
+        title="Cadastro e Presença"
+        subtitle="Preencha seus dados para realizar seu cadastro oficial e confirmar sua presença no evento de 30 anos da Turma ATLAS."
       />
       <main className="flex-grow py-12 px-4 md:px-8 max-w-4xl mx-auto w-full">
         <div className="bg-atlas-navy-deep p-8 rounded-lg border border-atlas-navy-aero/30 shadow-lg relative overflow-hidden">
@@ -147,17 +166,31 @@ export default function ConfirmarInteressePage() {
             </div>
           ) : (
             <>
+              {/* Top progress line */}
+              <div className="absolute top-0 left-0 h-1 bg-atlas-gold-main/20 w-full">
+                <div 
+                  className="h-full bg-atlas-gold-main transition-all duration-700 ease-out shadow-[0_0_10px_rgba(212,175,55,0.5)]"
+                  style={{ width: `${progressPercentage}%` }}
+                ></div>
+              </div>
+
               {/* Stepper Progress */}
               <div className="flex justify-between items-center mb-8 relative z-10">
                 {[1, 2, 3].map((step) => (
-                  <div key={step} className={`flex items-center \${step !== 3 ? 'w-full' : ''}`}>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs \${
-                      currentStep >= step ? 'bg-atlas-gold-main text-atlas-navy-deep' : 'bg-atlas-navy-base border border-atlas-navy-aero/50 text-atlas-text-muted'
+                  <div key={step} className={`flex items-center ${step !== 3 ? 'flex-1' : ''}`}>
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-sm transition-all duration-300 shrink-0 ${
+                      completedSteps.includes(step)
+                        ? 'bg-green-500 text-white shadow-[0_0_12px_rgba(34,197,94,0.5)]'
+                        : currentStep === step
+                        ? 'bg-atlas-gold-main text-atlas-navy-deep shadow-[0_0_12px_rgba(212,175,55,0.5)]'
+                        : 'bg-atlas-navy-base border border-atlas-navy-aero/50 text-atlas-text-muted'
                     }`}>
-                      {step}
+                      {completedSteps.includes(step) ? <CheckCircle className="w-4 h-4" /> : step}
                     </div>
                     {step !== 3 && (
-                      <div className={`flex-1 h-1 mx-2 \${currentStep > step ? 'bg-atlas-gold-main' : 'bg-atlas-navy-aero/30'}`}></div>
+                      <div className={`flex-1 h-0.5 mx-3 transition-all duration-500 ${
+                        completedSteps.includes(step) ? 'bg-green-500' : currentStep > step ? 'bg-atlas-gold-main' : 'bg-atlas-navy-aero/30'
+                      }`}></div>
                     )}
                   </div>
                 ))}
@@ -241,11 +274,23 @@ export default function ConfirmarInteressePage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-atlas-text-light mb-1">Cidade atual *</label>
-                        <input required={currentStep===1} name="city" type="text" value={cityInput} onChange={(e) => setCityInput(e.target.value)} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-4 py-2 text-white focus:outline-none focus:border-atlas-gold-main" />
+                        <input 
+                          required={currentStep===1} 
+                          name="city" 
+                          type="text" 
+                          value={cityInput} 
+                          onChange={(e) => setCityInput(e.target.value)} 
+                          className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-4 py-2 text-white focus:outline-none focus:border-atlas-gold-main" 
+                        />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-atlas-text-light mb-1">Estado</label>
-                        <select name="state" value={stateInput} onChange={(e) => setStateInput(e.target.value)} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-4 py-2 text-white focus:outline-none focus:border-atlas-gold-main">
+                        <select 
+                          name="state" 
+                          value={stateInput} 
+                          onChange={(e) => setStateInput(e.target.value)} 
+                          className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-4 py-2 text-white focus:outline-none focus:border-atlas-gold-main"
+                        >
                           <option value="MS">MS</option>
                           <option value="SP">SP</option>
                           <option value="RJ">RJ</option>
@@ -463,6 +508,49 @@ export default function ConfirmarInteressePage() {
         </div>
       </main>
       <PublicFooter />
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-[#060e1c]/95 backdrop-blur-md z-50 flex items-center justify-center p-6">
+          <div className="bg-atlas-navy-deep w-full max-w-md rounded-2xl border border-atlas-gold-main/30 shadow-[0_0_60px_rgba(212,175,55,0.15)] overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-[#030712] via-[#0a192f] to-[#030712] px-8 py-6 border-b border-atlas-gold-main/20 flex items-center gap-4">
+              <div className="p-3 bg-atlas-gold-main/10 rounded-xl border border-atlas-gold-main/20">
+                <AlertTriangle className="w-6 h-6 text-atlas-gold-main" />
+              </div>
+              <div>
+                <h3 className="text-white font-black tracking-widest uppercase text-base">Confirmar Cadastro</h3>
+                <p className="text-atlas-gold-main/70 text-xs tracking-wider font-bold mt-0.5">Turma ATLAS 30 Anos</p>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="px-8 py-8">
+              <p className="text-white text-base font-medium mb-2">Deseja salvar os dados de <span className="text-atlas-gold-main font-bold">"{pendingPayload?.name}"</span> no Compêndio Oficial?</p>
+              <p className="text-atlas-text-muted text-sm leading-relaxed">
+                Confirme se todas as informações (incluindo tamanhos do Kit Oficial) estão corretas antes de finalizar.
+              </p>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-8 pb-8 flex gap-4">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-atlas-text-light hover:text-white border border-white/10 rounded-xl font-bold uppercase tracking-widest transition-all text-sm"
+              >
+                Revisar
+              </button>
+              <button
+                onClick={handleConfirmedSubmit}
+                disabled={loading}
+                className="flex-1 py-3 bg-atlas-gold-main hover:bg-atlas-gold-dark text-atlas-navy-deep font-black uppercase tracking-widest rounded-xl transition-all text-sm disabled:opacity-70 shadow-[0_0_20px_rgba(212,175,55,0.3)] flex items-center justify-center gap-2"
+              >
+                {loading ? "Salvando..." : <><CheckCircle className="w-4 h-4" /> Confirmar e Salvar</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

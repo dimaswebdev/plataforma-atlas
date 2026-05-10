@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore, getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -18,6 +18,18 @@ if (process.env.NODE_ENV === "development" && !firebaseConfig.apiKey) {
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
-const db = getFirestore(app);
+
+// initializeFirestore must only be called once (before getFirestore).
+// If the app is freshly initialized, we apply long-polling settings.
+// Otherwise we fall back to the already-initialized instance.
+let db: ReturnType<typeof getFirestore>;
+try {
+  db = initializeFirestore(app, {
+    experimentalForceLongPolling: true,
+  });
+} catch {
+  // Already initialized — just retrieve the existing instance
+  db = getFirestore(app);
+}
 
 export { app, auth, db };

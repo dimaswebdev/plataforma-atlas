@@ -11,11 +11,29 @@ export default function SeedPage() {
   const [uid, setUid] = useState("");
 
   async function handleSeed() {
+    if (!db) {
+      setStatus("Erro: Firebase não inicializado corretamente.");
+      return;
+    }
+    
     setLoading(true);
-    setStatus("Executando seed no banco de dados...");
+    setStatus("1/4: Iniciando conexão com Firestore...");
+    console.log("Firebase Config:", {
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    });
+
+    const timeoutId = setTimeout(() => {
+      if (loading) {
+        setStatus("ERRO: Tempo esgotado (Timeout). O Firebase não respondeu a tempo.");
+        setLoading(false);
+      }
+    }, 15000);
 
     try {
       // 1. Create Event
+      setStatus("1/4: Criando documento principal do evento...");
+      console.log("Step 1: Creating event doc...");
       await setDoc(doc(db, "events", DEFAULT_EVENT_ID), {
         title: "Reencontro 30 Anos — Turma ATLAS",
         subtitle: "Força Aérea Brasileira | 1997–2027",
@@ -32,6 +50,8 @@ export default function SeedPage() {
 
       // 1.5 Create Admin if UID is provided
       if (uid.trim()) {
+        setStatus("1.5/4: Registrando seu usuário como Administrador...");
+        console.log("Step 1.5: Adding admin...");
         await setDoc(doc(db, "events", DEFAULT_EVENT_ID, "admins", uid.trim()), {
           uid: uid.trim(),
           email: "admin@atlas.com",
@@ -40,6 +60,8 @@ export default function SeedPage() {
       }
 
       // 2. Clear Existing Schedule (if any) and Create New Initial Schedule
+      setStatus("2/4: Configurando cronograma inicial...");
+      console.log("Step 2: Schedule...");
       const scheduleRef = collection(db, "events", DEFAULT_EVENT_ID, "schedule");
       const existingSchedule = await getDocs(scheduleRef);
       for (const d of existingSchedule.docs) {
@@ -95,6 +117,8 @@ export default function SeedPage() {
       });
 
       // 3. Create Initial Souvenirs
+      setStatus("3/4: Cadastrando souvenirs iniciais...");
+      console.log("Step 3: Souvenirs...");
       const souvenirsRef = collection(db, "events", DEFAULT_EVENT_ID, "souvenirs");
       await setDoc(doc(souvenirsRef), {
         name: "Patch Bordado ATLAS 30 Anos",
@@ -123,10 +147,13 @@ export default function SeedPage() {
         updatedAt: new Date()
       });
 
-      setStatus("Seed finalizado com sucesso! Seu usuário foi promovido a Administrador.");
+      setStatus("4/4: Seed finalizado com sucesso!");
+      console.log("Seed Success!");
+      clearTimeout(timeoutId);
     } catch (error: any) {
-      console.error(error);
-      setStatus("Erro ao rodar seed: " + error.message);
+      console.error("Seed Error:", error);
+      setStatus("ERRO: " + (error.code || error.message));
+      clearTimeout(timeoutId);
     } finally {
       setLoading(false);
     }
@@ -154,7 +181,7 @@ export default function SeedPage() {
 
         <button 
           onClick={handleSeed} 
-          disabled={loading || !uid.trim()}
+          disabled={loading}
           className="w-full py-3 bg-atlas-gold-main text-atlas-navy-deep font-bold uppercase tracking-widest rounded disabled:opacity-50 hover:bg-atlas-gold-dark transition"
         >
           {loading ? "Processando..." : "Rodar Seed do Firebase"}
@@ -165,6 +192,16 @@ export default function SeedPage() {
             Voltar para a Home
           </a>
         )}
+
+        {/* Debug Info */}
+        <div className="mt-8 pt-6 border-t border-white/10 text-left">
+          <p className="text-[10px] text-atlas-navy-aero uppercase tracking-widest mb-2">Debug Info (Vercel Config)</p>
+          <div className="space-y-1 font-mono text-[10px] text-atlas-text-muted">
+            <p>API Key: {process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? `${process.env.NEXT_PUBLIC_FIREBASE_API_KEY.substring(0, 8)}...` : "NÃO CARREGADO"}</p>
+            <p>Project ID: {process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "NÃO CARREGADO"}</p>
+            <p>Auth Domain: {process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "NÃO CARREGADO"}</p>
+          </div>
+        </div>
       </div>
     </div>
   );
