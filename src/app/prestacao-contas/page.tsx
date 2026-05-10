@@ -10,6 +10,8 @@ import { PageHeader } from "@/components/public/PageHeader";
 import { formatCurrencyBRL, formatDateBR } from "@/lib/utils";
 import { Event } from "@/types/event";
 import { Transaction } from "@/types/transaction";
+import { ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 export default function PrestacaoContasPage() {
   const [event, setEvent] = useState<Event | null>(null);
@@ -68,9 +70,19 @@ export default function PrestacaoContasPage() {
         title="Prestação de Contas"
         subtitle="Acompanhe a evolução financeira do nosso reencontro. A transparência é um compromisso da comissão organizadora."
       />
-      <main className="flex-grow py-12 px-4 md:px-8 max-w-7xl mx-auto w-full">
+        {/* AVISO DE TRANSPARÊNCIA */}
+        <div className="mb-8 p-4 bg-atlas-gold-main/5 border border-atlas-gold-main/20 rounded-lg flex items-center gap-4">
+          <div className="p-2 bg-atlas-gold-main/10 rounded-full shrink-0">
+            <ShieldCheck className="w-5 h-5 text-atlas-gold-main" />
+          </div>
+          <p className="text-xs text-atlas-text-light leading-relaxed">
+            <span className="font-bold text-atlas-gold-main uppercase tracking-widest block mb-1">Aviso de Privacidade</span>
+            A prestação de contas pública apresenta dados consolidados e não expõe informações individuais de participantes, pagadores ou inadimplentes, em conformidade com nossa <Link href="/politica-privacidade" className="text-atlas-gold-main underline hover:text-atlas-gold-dark">Política de Privacidade</Link>.
+          </p>
+        </div>
 
         <div className="mb-12">
+
           <FinancialSummary 
             goal={event.budgetGoal} 
             income={financial.totalIncome}

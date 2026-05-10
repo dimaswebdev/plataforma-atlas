@@ -361,7 +361,61 @@ export default function ParticipantDetailsPage() {
                 )}
               </section>
 
+              {/* TERMOS E AUTORIZAÇÕES */}
+              <section className="bg-atlas-navy-deep/50 p-6 rounded-xl border border-atlas-navy-aero/20 shadow-xl">
+                <div className="flex items-center gap-3 mb-6 border-b border-atlas-navy-aero/30 pb-3">
+                  <ShieldCheck className="w-5 h-5 text-atlas-gold-main" />
+                  <h3 className="text-white text-sm font-black uppercase tracking-[0.2em]">Termos e Autorizações</h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    {[
+                      { label: "Adesão", status: participant.termsAcceptance?.adhesionTermAccepted, version: participant.termsAcceptance?.adhesionTermVersion },
+                      { label: "Privacidade", status: participant.termsAcceptance?.privacyPolicyAccepted, version: participant.termsAcceptance?.privacyPolicyVersion },
+                      { label: "Uso", status: participant.termsAcceptance?.platformTermsAccepted, version: participant.termsAcceptance?.platformTermsVersion },
+                      { label: "Financeiro", status: participant.termsAcceptance?.financialTermsAccepted, version: participant.termsAcceptance?.financialTermsVersion }
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-2.5 bg-atlas-navy-base/50 rounded border border-white/5">
+                        <div>
+                          <p className="text-[10px] font-bold text-white uppercase tracking-wider">{item.label}</p>
+                          <p className="text-[8px] text-atlas-text-muted uppercase">v{item.version || "000"}</p>
+                        </div>
+                        <div className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${item.status ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
+                          {item.status ? 'OK' : 'N/A'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="space-y-3">
+                     <div className="p-3 bg-atlas-navy-base/80 rounded border border-atlas-gold-main/20">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[9px] text-white uppercase font-bold">Imagem</span>
+                          <span className={`text-[9px] font-black ${participant.termsAcceptance?.imageUseAuthorized ? 'text-green-400' : 'text-red-400'}`}>
+                            {participant.termsAcceptance?.imageUseAuthorized ? 'SIM' : 'NÃO'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] text-white uppercase font-bold">Souvenirs</span>
+                          <span className={`text-[9px] font-black ${participant.termsAcceptance?.souvenirsInfoAccepted ? 'text-green-400' : 'text-red-400'}`}>
+                            {participant.termsAcceptance?.souvenirsInfoAccepted ? 'SIM' : 'NÃO'}
+                          </span>
+                        </div>
+                     </div>
+
+                     <div className="p-3 bg-atlas-navy-base/30 rounded border border-white/5">
+                        <p className="text-[8px] text-atlas-text-muted uppercase tracking-widest font-black mb-1">Aceite em:</p>
+                        <p className="text-[10px] text-white font-mono leading-none">
+                          {participant.termsAcceptance?.acceptedAt ? new Date(participant.termsAcceptance.acceptedAt as any).toLocaleString('pt-BR') : 'Sem registro'}
+                        </p>
+                     </div>
+                  </div>
+                </div>
+              </section>
+
               {/* Financeiro Detalhado */}
+
               <section>
                 <div className="flex items-center gap-3 mb-5 border-b border-white/10 pb-3">
                   <DollarSign className="w-5 h-5 text-atlas-gold-main" />

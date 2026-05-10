@@ -8,6 +8,15 @@ import { PublicFooter } from "@/components/public/PublicFooter";
 import { ShieldCheck, ArrowRight, ArrowLeft, CheckCircle, AlertTriangle } from "lucide-react";
 import { capitalizeName, formatPhone, formatZipCode } from "@/lib/utils";
 import { PageHeader } from "@/components/public/PageHeader";
+import { 
+  ADHESION_TERM_VERSION, 
+  PRIVACY_POLICY_VERSION, 
+  PLATFORM_TERMS_VERSION, 
+  FINANCIAL_TERMS_VERSION, 
+  IMAGE_USE_TERM_VERSION, 
+  SOUVENIRS_TERM_VERSION 
+} from "@/lib/legal-constants";
+import Link from "next/link";
 
 export default function ConfirmarInteressePage() {
   const [loading, setLoading] = useState(false);
@@ -112,6 +121,22 @@ export default function ConfirmarInteressePage() {
       paymentStatus: "not_started" as const,
       totalPaid: 0,
       officialKit,
+      termsAcceptance: {
+        adhesionTermAccepted: formData.get("adhesionTerm") === "on",
+        privacyPolicyAccepted: formData.get("privacyPolicy") === "on",
+        platformTermsAccepted: formData.get("platformTerms") === "on",
+        financialTermsAccepted: formData.get("financialTerms") === "on",
+        imageUseAuthorized: formData.get("imageUse") === "on",
+        souvenirsInfoAccepted: formData.get("souvenirsInfo") === "on",
+        acceptedAt: new Date().toISOString(),
+        userAgent: typeof window !== "undefined" ? window.navigator.userAgent : undefined,
+        adhesionTermVersion: ADHESION_TERM_VERSION,
+        privacyPolicyVersion: PRIVACY_POLICY_VERSION,
+        platformTermsVersion: PLATFORM_TERMS_VERSION,
+        financialTermsVersion: FINANCIAL_TERMS_VERSION,
+        imageUseTermVersion: IMAGE_USE_TERM_VERSION,
+        souvenirsTermVersion: SOUVENIRS_TERM_VERSION
+      }
     };
 
     setPendingPayload(payload);
@@ -476,6 +501,37 @@ export default function ConfirmarInteressePage() {
                       </div>
                     )}
 
+                  </div>
+
+                  {/* TERMOS E AUTORIZAÇÕES */}
+                  <div className="mt-12 p-6 bg-atlas-navy-base/50 rounded border border-atlas-navy-aero/20">
+                    <h3 className="text-lg font-bold text-atlas-gold-main uppercase tracking-wider mb-4 border-b border-atlas-navy-aero/30 pb-2">Termos e Autorizações</h3>
+                    <p className="text-xs text-atlas-text-muted mb-6 italic">Para concluir seu cadastro oficial, é necessário ler e aceitar os documentos abaixo.</p>
+                    
+                    <div className="space-y-4">
+                      {[
+                        { name: "adhesionTerm", label: "Li e aceito o Termo de Adesão ao Reencontro 30 Anos — Turma ATLAS.", required: true, href: "/termos/adesao" },
+                        { name: "privacyPolicy", label: "Li e aceito a Política de Privacidade do Portal ATLAS.", required: true, href: "/politica-privacidade" },
+                        { name: "platformTerms", label: "Li e aceito os Termos de Uso da Plataforma.", required: true, href: "/termos/uso" },
+                        { name: "financialTerms", label: "Estou ciente das regras de pagamento, desistência, reembolso e prestação de contas.", required: true, href: "/termos/transparencia-financeira" },
+                        { name: "imageUse", label: "Autorizo o uso da minha imagem em registros oficiais do evento, galeria, vídeo comemorativo e materiais da Turma ATLAS.", required: false, href: "/termos/uso-imagem" },
+                        { name: "souvenirsInfo", label: "Aceito receber informações sobre souvenirs, produtos personalizados e Kit Oficial ATLAS 30 Anos.", required: false, href: "/termos/souvenirs" }
+                      ].map((term) => (
+                        <div key={term.name} className="flex items-start gap-3">
+                          <input 
+                            type="checkbox" 
+                            name={term.name}
+                            id={term.name}
+                            required={term.required}
+                            className="mt-1 w-5 h-5 rounded text-atlas-gold-main focus:ring-atlas-gold-main bg-atlas-navy-base border-atlas-navy-aero/50"
+                          />
+                          <label htmlFor={term.name} className="text-white text-sm leading-tight cursor-pointer">
+                            {term.label} {term.required && <span className="text-red-500">*</span>}
+                            <Link href={term.href} target="_blank" className="ml-1 text-atlas-gold-main hover:underline opacity-80 text-[10px] uppercase font-bold tracking-tighter">Ler Termo</Link>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 

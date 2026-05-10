@@ -40,8 +40,24 @@ export interface Participant {
     additionalKitsNotes?: string;
     notes?: string;
   };
-  createdAt: Timestamp | Date;
-  updatedAt: Timestamp | Date;
+  termsAcceptance?: {
+    adhesionTermAccepted: boolean;
+    privacyPolicyAccepted: boolean;
+    platformTermsAccepted: boolean;
+    financialTermsAccepted: boolean;
+    imageUseAuthorized: boolean;
+    souvenirsInfoAccepted: boolean;
+    acceptedAt: Timestamp | Date | string;
+    userAgent?: string;
+    adhesionTermVersion: string;
+    privacyPolicyVersion: string;
+    platformTermsVersion: string;
+    financialTermsVersion: string;
+    imageUseTermVersion: string;
+    souvenirsTermVersion: string;
+  };
+  createdAt: Timestamp | Date | string;
+  updatedAt: Timestamp | Date | string;
 }
 
 export interface Guest {
