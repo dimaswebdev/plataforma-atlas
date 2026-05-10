@@ -74,8 +74,24 @@ export default function AdminParticipants() {
       </div>
 
       {/* DASHBOARD FINANCEIRO */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         
+        {/* Total de Membros Card */}
+        <div className="relative group overflow-hidden bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-blue-500/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+            <Users className="w-24 h-24 text-blue-400" />
+          </div>
+          <div className="relative z-10 flex items-center space-x-5">
+            <div className="p-3.5 bg-gradient-to-br from-blue-500/20 to-blue-500/5 rounded-xl border border-blue-500/20 shadow-inner">
+              <Users className="w-6 h-6 text-blue-400" />
+            </div>
+            <div>
+              <p className="text-[10px] text-blue-400 uppercase tracking-[0.2em] font-bold mb-1">Total de Membros</p>
+              <p className="text-3xl font-black text-white leading-none">{participants.length}</p>
+            </div>
+          </div>
+        </div>
+
         {/* Total a Arrecadar Card */}
         <div className="relative group overflow-hidden bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-atlas-gold-main/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(212,175,55,0.15)]">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
@@ -87,7 +103,9 @@ export default function AdminParticipants() {
             </div>
             <div>
               <p className="text-[10px] text-atlas-gold-main uppercase tracking-[0.2em] font-bold mb-1">Total a Arrecadar</p>
-              <p className="text-3xl font-black text-white leading-none">{formatCurrencyBRL(0)}</p>
+              <p className="text-3xl font-black text-white leading-none">
+                {formatCurrencyBRL(participants.reduce((acc, p) => acc + (1500 + (p.guestsCount || 0) * 500), 0))}
+              </p>
             </div>
           </div>
         </div>
@@ -103,7 +121,9 @@ export default function AdminParticipants() {
             </div>
             <div>
               <p className="text-[10px] text-green-400 uppercase tracking-[0.2em] font-bold mb-1">Arrecadado</p>
-              <p className="text-3xl font-black text-white leading-none">{formatCurrencyBRL(0)}</p>
+              <p className="text-3xl font-black text-white leading-none">
+                {formatCurrencyBRL(participants.reduce((acc, p) => acc + (p.totalPaid || 0), 0))}
+              </p>
             </div>
           </div>
         </div>
@@ -119,7 +139,11 @@ export default function AdminParticipants() {
             </div>
             <div>
               <p className="text-[10px] text-red-500 uppercase tracking-[0.2em] font-bold mb-1">Falta</p>
-              <p className="text-3xl font-black text-white leading-none">{formatCurrencyBRL(0)}</p>
+              <p className="text-3xl font-black text-white leading-none">
+                {formatCurrencyBRL(
+                  participants.reduce((acc, p) => acc + Math.max(0, (1500 + (p.guestsCount || 0) * 500) - (p.totalPaid || 0)), 0)
+                )}
+              </p>
             </div>
           </div>
         </div>
@@ -203,9 +227,9 @@ export default function AdminParticipants() {
                       </td>
 
                       <td className="px-2 py-3 text-center font-black">{p.guestsCount || 0}</td>
-                      <td className="px-2 py-3 text-right font-bold text-atlas-gold-main whitespace-nowrap">{formatCurrencyBRL(0)}</td>
+                      <td className="px-2 py-3 text-right font-bold text-atlas-gold-main whitespace-nowrap">{formatCurrencyBRL(totalAPagar)}</td>
                       <td className="px-2 py-3 text-right font-bold text-green-400 whitespace-nowrap">{formatCurrencyBRL(totalPago)}</td>
-                      <td className="px-2 py-3 text-right font-bold text-red-400 whitespace-nowrap">{formatCurrencyBRL(0)}</td>
+                      <td className="px-2 py-3 text-right font-bold text-red-400 whitespace-nowrap">{formatCurrencyBRL(restante)}</td>
                       
                       <td className="px-2 py-3 text-center whitespace-nowrap">
                         {getPaymentBadge()}
