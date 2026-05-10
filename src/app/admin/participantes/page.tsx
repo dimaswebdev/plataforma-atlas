@@ -105,16 +105,16 @@ export default function AdminParticipants() {
                 <th className="px-2 py-3 font-semibold">Nome Completo</th>
                 <th className="px-2 py-3 font-semibold">Apelido</th>
                 <th className="px-2 py-3 font-semibold text-center">Idade</th>
-                <th className="px-2 py-3 font-semibold hidden md:table-cell">Profissão Atual</th>
                 <th className="px-2 py-3 font-semibold">Contato</th>
                 <th className="px-2 py-3 font-semibold hidden lg:table-cell">Cidade</th>
                 <th className="px-2 py-3 font-semibold text-center">UF</th>
                 <th className="px-2 py-3 font-semibold text-center">Presença</th>
                 <th className="px-2 py-3 font-semibold text-center" title="Convidados">Conv.</th>
-                <th className="px-2 py-3 font-semibold text-right text-atlas-gold-main">Total a Pagar</th>
-                <th className="px-2 py-3 font-semibold text-right text-green-400">Já Pago</th>
-                <th className="px-2 py-3 font-semibold text-right text-red-400">Restante</th>
+                <th className="px-2 py-3 font-semibold text-right">Total a Pagar</th>
+                <th className="px-2 py-3 font-semibold text-right">Já Pago</th>
+                <th className="px-2 py-3 font-semibold text-right">Restante</th>
                 <th className="px-2 py-3 font-semibold text-center">Status</th>
+                <th className="px-2 py-3 font-semibold text-center w-24">Progresso</th>
                 <th className="px-2 py-3 font-semibold text-center">Ações</th>
               </tr>
             </thead>
@@ -144,15 +144,11 @@ export default function AdminParticipants() {
 
                   return (
                     <tr key={p.id} className="hover:bg-atlas-navy-base/40 transition-colors text-xs border-b border-white/5 last:border-0">
-                      <td className="px-2 py-3 font-bold text-white max-w-[250px] truncate">
-                        <button onClick={() => setViewingParticipant(p)} className="hover:text-atlas-gold-main flex items-center gap-1 transition-colors w-full text-left truncate">
-                          <span className="truncate">{p.name}</span>
-                          <Eye className="w-3 h-3 text-atlas-text-muted shrink-0" />
-                        </button>
+                      <td className="px-2 py-3 font-bold text-white max-w-[250px] truncate" title={p.name}>
+                        {p.name}
                       </td>
                       <td className="px-2 py-3 text-atlas-gold-main font-bold uppercase tracking-wider truncate max-w-[150px]">{p.nickname || "-"}</td>
                       <td className="px-2 py-3 text-center whitespace-nowrap">{age !== null ? `${age} Anos` : "-"}</td>
-                      <td className="px-2 py-3 hidden md:table-cell truncate max-w-[180px]">{p.currentFunction || "-"}</td>
                       <td className="px-2 py-3 whitespace-nowrap">{p.phone}</td>
                       <td className="px-2 py-3 hidden lg:table-cell truncate max-w-[150px]">{p.city || "-"}</td>
                       <td className="px-2 py-3 text-center font-bold uppercase">{p.state || "-"}</td>
@@ -172,9 +168,25 @@ export default function AdminParticipants() {
                       <td className="px-2 py-3 text-center whitespace-nowrap">
                         {getPaymentBadge()}
                       </td>
+
+                      <td className="px-2 py-3 text-center">
+                        <div className="w-16 mx-auto bg-black/50 rounded-full h-1.5 border border-white/5 overflow-hidden">
+                          <div 
+                            className={`h-full rounded-full transition-all duration-500 ${progressPct >= 100 ? 'bg-green-400' : progressPct > 0 ? 'bg-atlas-gold-main' : 'bg-red-400'}`} 
+                            style={{ width: `${progressPct}%` }} 
+                          />
+                        </div>
+                      </td>
                       
                       <td className="px-2 py-3 text-center">
                         <div className="flex items-center justify-center space-x-3">
+                          <button 
+                            onClick={() => setViewingParticipant(p)}
+                            className="text-atlas-text-light hover:text-white transition-colors"
+                            title="Visualizar Perfil"
+                          >
+                            <Eye className="w-3 h-3" />
+                          </button>
                           <button 
                             onClick={() => setEditingParticipant(p)}
                             className="text-atlas-text-light hover:text-atlas-gold-main transition-colors"
