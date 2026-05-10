@@ -11,7 +11,7 @@ import Link from "next/link";
 import { 
   X, Edit, MapPin, Phone, Mail, AtSign, Globe, Calendar, Briefcase, 
   DollarSign, Users, Activity, FileText, CheckCircle, CreditCard, 
-  ArrowLeft, Shirt, Scissors, Ruler, Loader2
+  ArrowLeft, Shirt, Scissors, Ruler, Loader2, ShieldCheck
 } from "lucide-react";
 import { calculateAge, formatCurrencyBRL } from "@/lib/utils";
 
