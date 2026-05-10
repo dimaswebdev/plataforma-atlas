@@ -55,7 +55,8 @@ export default function AdminParticipants() {
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`Tem certeza que deseja EXCLUIR permanentemente o cadastro de ${name}?`)) {
       try {
-        await deleteParticipant(id);
+        const res = await fetch(`/api/data?collection=participants&id=${id}`, { method: "DELETE" });
+        if (!res.ok) throw new Error("Failed to delete");
         await load();
       } catch (error) {
         alert("Erro ao excluir participante.");

@@ -82,6 +82,66 @@ export async function POST(request: Request) {
   }
 }
 
+export async function PATCH(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const collection = searchParams.get("collection");
+  const id = searchParams.get("id");
+
+  if (!collection || !id) return NextResponse.json({ error: "Missing collection or id" }, { status: 400 });
+
+  try {
+    const body = await request.json();
+    const fields: any = {};
+    const updateMask: string[] = [];
+
+    for (const [key, value] of Object.entries(body)) {
+      if (value === null || value === undefined) continue;
+      updateMask.push(key);
+      if (typeof value === 'string') fields[key] = { stringValue: value };
+      else if (typeof value === 'number') {
+        if (Number.isInteger(value)) fields[key] = { integerValue: value.toString() };
+        else fields[key] = { doubleValue: value };
+      }
+      else if (typeof value === 'boolean') fields[key] = { booleanValue: value };
+      else if (typeof value === 'object') fields[key] = { stringValue: JSON.stringify(value) };
+    }
+
+    const maskParams = updateMask.map(f => `updateMask.fieldPaths=${f}`).join('&');
+    const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/events/${EVENT_ID}/${collection}/${id}?${maskParams}&key=${API_KEY}`;
+    
+    const res = await fetch(url, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fields })
+    });
+
+    if (!res.ok) throw new Error("Failed to update document");
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error(`API Error updating ${collection}:`, error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const collection = searchParams.get("collection");
+  const id = searchParams.get("id");
+
+  if (!collection || !id) return NextResponse.json({ error: "Missing collection or id" }, { status: 400 });
+
+  try {
+    const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/events/${EVENT_ID}/${collection}/${id}?key=${API_KEY}`;
+    const res = await fetch(url, { method: "DELETE" });
+
+    if (!res.ok) throw new Error("Failed to delete document");
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error(`API Error deleting ${collection}:`, error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
 function parseFields(fields: any): any {
   const result: any = {};
   for (const [key, value] of Object.entries(fields || {})) {

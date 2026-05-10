@@ -21,7 +21,7 @@ export function TransactionForm({ onClose, onSuccess }: TransactionFormProps) {
     const formData = new FormData(e.currentTarget);
     
     try {
-      await createTransaction({
+      const payload = {
         type: formData.get("type") as "income" | "expense",
         date: formData.get("date") as string,
         description: formData.get("description") as string,
@@ -29,7 +29,16 @@ export function TransactionForm({ onClose, onSuccess }: TransactionFormProps) {
         category: formData.get("category") as any,
         paymentMethod: formData.get("paymentMethod") as any,
         isPublic: formData.get("isPublic") === "true"
+      };
+
+      const res = await fetch("/api/data?collection=transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       });
+
+      if (!res.ok) throw new Error("Failed to save transaction");
+
       onSuccess();
       onClose();
     } catch (err: any) {

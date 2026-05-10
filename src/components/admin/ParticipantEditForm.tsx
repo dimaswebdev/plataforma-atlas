@@ -62,8 +62,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
         paymentStatus = "partial";
       }
 
-      const pRef = doc(db, "events", DEFAULT_EVENT_ID, "participants", participant.id!);
-      await updateDoc(pRef, {
+      const payload = {
         name: capitalizeName(rawName),
         nickname: rawNickname ? capitalizeName(rawNickname) : "",
         email: (formData.get("email") as string).toLowerCase(),
@@ -93,9 +92,17 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
           wantsNameCustomization: formData.get("kitWantsCustomization") === "on",
           customizationName: (formData.get("kitCustomizationName") as string) || undefined,
           notes: (formData.get("kitNotes") as string) || undefined,
-        } : null,
-        updatedAt: new Date()
+        } : null
+      };
+
+      const res = await fetch(`/api/data?collection=participants&id=${participant.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       });
+
+      if (!res.ok) throw new Error("Failed to update");
+
       onSuccess();
       onClose();
     } catch (err: any) {
