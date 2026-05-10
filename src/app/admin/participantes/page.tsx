@@ -67,34 +67,55 @@ export default function AdminParticipants() {
 
       {/* DASHBOARD FINANCEIRO */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-atlas-navy-deep p-6 rounded-lg border border-atlas-navy-aero/30 shadow-lg relative overflow-hidden">
-          <DollarSign className="absolute -right-4 -bottom-4 w-24 h-24 text-atlas-gold-main/10" />
-          <h3 className="text-xs font-bold text-atlas-text-muted uppercase tracking-wider mb-2">Total a Arrecadar</h3>
-          <div className="text-3xl font-black text-white">
-            {formatCurrencyBRL(participants.reduce((acc, p) => acc + (ADESAO_TITULAR + (p.guestsCount || 0) * ADESAO_CONVIDADO), 0))}
+        
+        {/* Total a Arrecadar Card */}
+        <div className="relative group overflow-hidden bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-atlas-gold-main/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(212,175,55,0.15)]">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+            <DollarSign className="w-24 h-24 text-atlas-gold-main" />
+          </div>
+          <div className="relative z-10 flex items-center space-x-5">
+            <div className="p-3.5 bg-gradient-to-br from-atlas-gold-main/20 to-atlas-gold-main/5 rounded-xl border border-atlas-gold-main/20 shadow-inner">
+              <DollarSign className="w-6 h-6 text-atlas-gold-main" />
+            </div>
+            <div>
+              <p className="text-[10px] text-atlas-gold-main uppercase tracking-[0.2em] font-bold mb-1">Total a Arrecadar</p>
+              <p className="text-3xl font-black text-white leading-none">{formatCurrencyBRL(0)}</p>
+            </div>
           </div>
         </div>
 
-        <div className="bg-atlas-navy-deep p-6 rounded-lg border border-atlas-navy-aero/30 shadow-lg relative overflow-hidden border-b-4 border-b-green-500">
-          <TrendingUp className="absolute -right-4 -bottom-4 w-24 h-24 text-green-500/10" />
-          <h3 className="text-xs font-bold text-atlas-text-muted uppercase tracking-wider mb-2">Arrecadado</h3>
-          <div className="text-3xl font-black text-green-400">
-            {formatCurrencyBRL(participants.reduce((acc, p) => acc + (p.totalPaid || 0), 0))}
+        {/* Arrecadado Card */}
+        <div className="relative group overflow-hidden bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-green-500/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)]">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+            <TrendingUp className="w-24 h-24 text-green-400" />
+          </div>
+          <div className="relative z-10 flex items-center space-x-5">
+            <div className="p-3.5 bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-xl border border-green-500/20 shadow-inner">
+              <TrendingUp className="w-6 h-6 text-green-400" />
+            </div>
+            <div>
+              <p className="text-[10px] text-green-400 uppercase tracking-[0.2em] font-bold mb-1">Arrecadado</p>
+              <p className="text-3xl font-black text-white leading-none">{formatCurrencyBRL(0)}</p>
+            </div>
           </div>
         </div>
 
-        <div className="bg-atlas-navy-deep p-6 rounded-lg border border-atlas-navy-aero/30 shadow-lg relative overflow-hidden border-b-4 border-b-red-500">
-          <AlertCircle className="absolute -right-4 -bottom-4 w-24 h-24 text-red-500/10" />
-          <h3 className="text-xs font-bold text-atlas-text-muted uppercase tracking-wider mb-2">Falta</h3>
-          <div className="text-3xl font-black text-red-400">
-            {formatCurrencyBRL(
-              Math.max(0, 
-                participants.reduce((acc, p) => acc + (ADESAO_TITULAR + (p.guestsCount || 0) * ADESAO_CONVIDADO), 0) - 
-                participants.reduce((acc, p) => acc + (p.totalPaid || 0), 0)
-              )
-            )}
+        {/* Falta Card */}
+        <div className="relative group overflow-hidden bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(239,68,68,0.15)]">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+            <AlertCircle className="w-24 h-24 text-red-500" />
+          </div>
+          <div className="relative z-10 flex items-center space-x-5">
+            <div className="p-3.5 bg-gradient-to-br from-red-500/20 to-red-500/5 rounded-xl border border-red-500/20 shadow-inner">
+              <AlertCircle className="w-6 h-6 text-red-500" />
+            </div>
+            <div>
+              <p className="text-[10px] text-red-500 uppercase tracking-[0.2em] font-bold mb-1">Falta</p>
+              <p className="text-3xl font-black text-white leading-none">{formatCurrencyBRL(0)}</p>
+            </div>
           </div>
         </div>
+
       </div>
 
       <div className="bg-atlas-navy-deep rounded-lg border border-atlas-navy-aero/30 shadow-lg overflow-hidden">
@@ -170,11 +191,14 @@ export default function AdminParticipants() {
                       </td>
 
                       <td className="px-2 py-3 text-center">
-                        <div className="w-16 mx-auto bg-black/50 rounded-full h-1.5 border border-white/5 overflow-hidden">
-                          <div 
-                            className={`h-full rounded-full transition-all duration-500 ${progressPct >= 100 ? 'bg-green-400' : progressPct > 0 ? 'bg-atlas-gold-main' : 'bg-red-400'}`} 
-                            style={{ width: `${progressPct}%` }} 
-                          />
+                        <div className="flex flex-col items-center justify-center gap-1">
+                          <span className="text-[9px] font-bold text-atlas-text-muted">{progressPct}%</span>
+                          <div className="w-16 bg-white/10 rounded-full h-1.5 border border-white/5 overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full transition-all duration-500 ${progressPct >= 100 ? 'bg-green-400' : progressPct > 0 ? 'bg-atlas-gold-main' : 'bg-red-400'}`} 
+                              style={{ width: `${progressPct}%` }} 
+                            />
+                          </div>
                         </div>
                       </td>
                       

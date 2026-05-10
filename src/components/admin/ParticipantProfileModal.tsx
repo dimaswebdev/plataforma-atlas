@@ -1,6 +1,7 @@
 "use client";
 
 import { Participant } from "@/types/participant";
+import Image from "next/image";
 import { X, Edit, MapPin, Phone, Mail, AtSign, Globe, Calendar, Briefcase, ShieldCheck, DollarSign, Users, Activity, FileText, CheckCircle, CreditCard } from "lucide-react";
 import { calculateAge, formatCurrencyBRL } from "@/lib/utils";
 
@@ -42,17 +43,25 @@ export function ParticipantProfileModal({ participant, onClose, onEdit }: Partic
   };
 
   return (
-    <div className="fixed inset-0 bg-[#060e1c]/90 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-      <div className="bg-atlas-navy-deep w-full max-w-4xl rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col relative border border-atlas-navy-aero/30 my-8">
+    <div className="fixed inset-0 bg-[#060e1c]/90 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-8 overflow-y-auto custom-scrollbar">
+      <div className="bg-atlas-navy-deep w-full max-w-4xl rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col relative border border-atlas-navy-aero/30 my-auto mt-12 mb-12 sm:mt-16 sm:mb-16">
         
         {/* Header Institucional */}
-        <div className="relative bg-gradient-to-r from-[#030712] via-[#0a192f] to-[#030712] border-b border-atlas-gold-main/30 px-8 py-6 overflow-hidden">
+        <div className="relative bg-gradient-to-r from-[#030712] via-[#0a192f] to-[#030712] border-b border-atlas-gold-main/30 px-8 py-6 rounded-t-2xl overflow-hidden shrink-0">
           {/* Fundo decorativo header */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-atlas-gold-main/5 rounded-full -mr-32 -mt-32 blur-[80px] pointer-events-none"></div>
           
           <div className="flex justify-between items-start relative z-10">
             <div className="flex items-center gap-4">
-              <ShieldCheck className="w-10 h-10 text-atlas-gold-main opacity-80" />
+              <div className="w-10 h-10 flex items-center justify-center bg-transparent">
+                <Image 
+                  src="/logo-fab.svg" 
+                  alt="Logo FAB" 
+                  width={32} 
+                  height={32} 
+                  style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }}
+                />
+              </div>
               <div>
                 <h1 className="text-white font-black tracking-widest uppercase text-lg sm:text-xl">Registro Oficial — Turma ATLAS 30 Anos</h1>
                 <p className="text-atlas-gold-main/80 text-xs tracking-[0.2em] font-bold uppercase mt-1">Força Aérea Brasileira | 1997–2027</p>
