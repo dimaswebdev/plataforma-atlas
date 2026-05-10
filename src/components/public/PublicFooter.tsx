@@ -12,25 +12,29 @@ export function PublicFooter() {
           
           {/* AREA INSTITUCIONAL */}
           <div className="flex flex-col items-center lg:items-start flex-1">
-            <div className="flex items-center gap-4 group opacity-80 hover:opacity-100 transition-opacity duration-500">
+            <div className="flex items-center gap-4 group opacity-90 hover:opacity-100 transition-opacity duration-500">
               <Image
                 src="/logo-fab.svg"
                 alt="Logo FAB"
-                width={24}
-                height={24}
+                width={32}
+                height={32}
                 style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }}
               />
-              <p className="text-atlas-gold-main text-[10px] font-black tracking-[0.4em] uppercase">
+              
+              {/* Pequeno divisor vertical */}
+              <div className="w-[1px] h-6 bg-atlas-gold-main/30"></div>
+              
+              <p className="text-atlas-gold-main text-[11px] font-black tracking-[0.4em] uppercase whitespace-nowrap">
                 ATLAS &nbsp;·&nbsp; BINFA &nbsp;·&nbsp; BRASIL
               </p>
             </div>
             
-            <p className="text-atlas-text-muted/30 text-[8px] tracking-widest font-medium uppercase mt-2 lg:ml-[40px]">
+            <p className="text-atlas-text-muted/30 text-[8px] tracking-widest font-medium uppercase mt-2 lg:ml-[48px]">
               &copy; {currentYear} Dimas Designer
             </p>
           </div>
 
-          {/* BARRA VERTICAL */}
+          {/* BARRA VERTICAL PRINCIPAL */}
           <div className="hidden lg:block w-[1px] h-8 bg-white/5 self-center"></div>
 
           {/* AREA DE TERMOS */}
