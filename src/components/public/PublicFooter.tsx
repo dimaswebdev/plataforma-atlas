@@ -4,12 +4,12 @@ export function PublicFooter() {
   return (
     <footer className="relative z-40 border-t border-atlas-gold-main/60 bg-[#060e1c]/95 backdrop-blur-md w-full mt-8">
       {/* Absolute positioned icon acting as a transition marker cutting the border */}
-      <div className="absolute left-1/2 -top-6 -translate-x-1/2 bg-[#060e1c] px-3 py-1 rounded-full border border-atlas-gold-main/30 shadow-lg flex items-center justify-center">
+      <div className="absolute left-1/2 -top-7 -translate-x-1/2 bg-[#060e1c] w-14 h-14 rounded-full border border-atlas-gold-main/60 shadow-lg flex items-center justify-center">
         <Image
           src="/logo-fab.svg"
           alt="Logo FAB"
-          width={40}
-          height={40}
+          width={36}
+          height={36}
           style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }}
         />
       </div>
