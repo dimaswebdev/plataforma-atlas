@@ -116,7 +116,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto relative z-10 custom-scrollbar">
-        <div className="p-8 max-w-7xl mx-auto">
+        <div className="p-8 w-full max-w-[1600px] mx-auto">
           {children}
         </div>
       </main>
