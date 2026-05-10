@@ -3,25 +3,8 @@
 import { useEffect, useState } from "react";
 
 export function Countdown({ targetDateStr, compact }: { targetDateStr: string; compact?: boolean }) {
-  const [daysLeft, setDaysLeft] = useState(0);
+  const daysLeft = 0; // Event date not yet defined
 
-  useEffect(() => {
-    const targetDate = new Date(targetDateStr).getTime();
-    
-    const calculate = () => {
-      const now = new Date().getTime();
-      const difference = targetDate - now;
-      if (difference > 0) {
-        setDaysLeft(Math.floor(difference / (1000 * 60 * 60 * 24)));
-      } else {
-        setDaysLeft(0);
-      }
-    };
-
-    calculate();
-    const interval = setInterval(calculate, 1000 * 60 * 60 * 24);
-    return () => clearInterval(interval);
-  }, [targetDateStr]);
 
   if (compact) {
     return (

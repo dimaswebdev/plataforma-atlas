@@ -3,6 +3,7 @@ import { Event } from "@/types/event";
 import { Shield } from "lucide-react";
 import Image from "next/image";
 import { PublicNav } from "@/components/public/PublicNav";
+import { PublicFooter } from "@/components/public/PublicFooter";
 
 export function EventHero({ event, children }: { event: Event; children?: React.ReactNode }) {
   return (
@@ -176,32 +177,7 @@ export function EventHero({ event, children }: { event: Event; children?: React.
       </div>{/* end two-col wrapper */}
 
       {/* ── FOOTER BAND ── */}
-      <div className="relative z-20 border-t border-atlas-gold-main/60 bg-[#060e1c]/90 backdrop-blur-md">
-        <div className="flex flex-col items-center justify-center py-6 gap-2">
-          
-          {/* Center: branding logo */}
-          <div className="mb-1">
-            <Image
-              src="/logo-fab.svg"
-              alt="Logo FAB"
-              width={26}
-              height={26}
-              style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }}
-            />
-          </div>
-
-          {/* Center: branding text */}
-          <p className="text-atlas-gold-main text-[11px] font-bold tracking-[0.5em] uppercase">
-            ATLAS &nbsp;·&nbsp; BINFA &nbsp;·&nbsp; BRASIL
-          </p>
-
-          {/* Center: copyright */}
-          <p className="text-atlas-text-muted/70 text-[11px] tracking-wide mt-1">
-            &copy; Desenvolvido por Dimas Designer - 2026
-          </p>
-
-        </div>
-      </div>
+      <PublicFooter />
     </section>
   );
 }
