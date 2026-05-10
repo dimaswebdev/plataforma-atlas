@@ -70,6 +70,7 @@ export default function PrestacaoContasPage() {
         title="Prestação de Contas"
         subtitle="Acompanhe a evolução financeira do nosso reencontro. A transparência é um compromisso da comissão organizadora."
       />
+      <main className="flex-grow py-12 px-4 md:px-8 max-w-7xl mx-auto w-full">
         {/* AVISO DE TRANSPARÊNCIA */}
         <div className="mb-8 p-4 bg-atlas-gold-main/5 border border-atlas-gold-main/20 rounded-lg flex items-center gap-4">
           <div className="p-2 bg-atlas-gold-main/10 rounded-full shrink-0">
