@@ -194,9 +194,9 @@ export default function AdminParticipants() {
                       </td>
 
                       <td className="px-2 py-3 text-center font-black">{p.guestsCount || 0}</td>
-                      <td className="px-2 py-3 text-right font-bold text-atlas-gold-main whitespace-nowrap">{formatCurrencyBRL(totalAPagar)}</td>
+                      <td className="px-2 py-3 text-right font-bold text-atlas-gold-main whitespace-nowrap">{formatCurrencyBRL(0)}</td>
                       <td className="px-2 py-3 text-right font-bold text-green-400 whitespace-nowrap">{formatCurrencyBRL(totalPago)}</td>
-                      <td className="px-2 py-3 text-right font-bold text-red-400 whitespace-nowrap">{formatCurrencyBRL(restante)}</td>
+                      <td className="px-2 py-3 text-right font-bold text-red-400 whitespace-nowrap">{formatCurrencyBRL(0)}</td>
                       
                       <td className="px-2 py-3 text-center whitespace-nowrap">
                         {getPaymentBadge()}

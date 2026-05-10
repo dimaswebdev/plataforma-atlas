@@ -377,11 +377,11 @@ export default function ParticipantDetailsPage() {
                       <div>
                         <div className="text-[10px] text-atlas-gold-main font-bold uppercase tracking-widest mb-1">Total Pago</div>
                         <div className="text-4xl font-black text-white leading-none">{formatCurrencyBRL(totalPago)}</div>
-                        <div className="text-sm text-atlas-text-muted mt-2 font-medium">de {formatCurrencyBRL(totalPrevisto)} previsto</div>
+                        <div className="text-sm text-atlas-text-muted mt-2 font-medium">de {formatCurrencyBRL(0)} previsto</div>
                       </div>
                       <div className="text-right">
                         <div className="text-[10px] text-red-400 font-bold uppercase tracking-widest mb-1">Pendente</div>
-                        <div className="text-2xl font-bold text-red-400">{formatCurrencyBRL(saldoPendente)}</div>
+                        <div className="text-2xl font-bold text-red-400">{formatCurrencyBRL(0)}</div>
                       </div>
                     </div>
 
