@@ -22,7 +22,11 @@ export default function AdminLogin() {
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/admin/dashboard");
     } catch (err: any) {
-      setError("Credenciais inválidas ou sem permissão de acesso.");
+      console.error("Login Error:", err);
+      const msg = err.code === 'auth/invalid-credential' 
+        ? "E-mail ou senha incorretos." 
+        : err.message || "Erro ao autenticar.";
+      setError(msg);
     } finally {
       setLoading(false);
     }

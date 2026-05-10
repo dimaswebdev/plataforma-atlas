@@ -28,11 +28,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(currentUser);
       
       if (currentUser) {
+        console.log("User Logged In:", currentUser.uid, currentUser.email);
         try {
           const adminDoc = await getDoc(doc(db, "events", DEFAULT_EVENT_ID, "admins", currentUser.uid));
-          setIsAdmin(adminDoc.exists());
+          const exists = adminDoc.exists();
+          console.log("Admin Check for UID:", currentUser.uid, "Result:", exists);
+          setIsAdmin(exists);
         } catch (error) {
-          console.error("Error checking admin status", error);
+          console.error("Error checking admin status:", error);
           setIsAdmin(false);
         }
       } else {
