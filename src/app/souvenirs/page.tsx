@@ -15,7 +15,9 @@ export default function SouvenirsPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const data = await getPublicSouvenirs();
+        const res = await fetch("/api/data?collection=souvenirs");
+        if (!res.ok) throw new Error("Failed to fetch souvenirs");
+        const data = await res.json();
         setSouvenirs(data);
       } catch (err) {
         console.error("Error loading souvenirs", err);

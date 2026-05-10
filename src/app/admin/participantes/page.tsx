@@ -19,9 +19,17 @@ export default function AdminParticipants() {
 
   async function load() {
     setLoading(true);
-    const data = await getParticipants();
-    setParticipants(data);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/data?collection=participants");
+      if (!res.ok) throw new Error("Failed to fetch participants");
+      const data = await res.json();
+      setParticipants(data);
+    } catch (err) {
+      console.error("Error loading participants", err);
+      setParticipants([]);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {

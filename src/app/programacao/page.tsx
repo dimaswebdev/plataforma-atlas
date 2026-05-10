@@ -15,8 +15,11 @@ export default function ProgramacaoPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const data = await getPublicSchedule();
-        setSchedule(data);
+        const res = await fetch("/api/data?collection=schedule");
+        if (!res.ok) throw new Error("Failed to fetch schedule");
+        const data = await res.json();
+        // Filter public items manually or update API to handle it
+        setSchedule(data.filter((item: any) => item.isPublic !== false));
       } catch (err) {
         console.error("Error loading schedule", err);
       } finally {
