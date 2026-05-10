@@ -9,8 +9,8 @@ import { calculateAge, formatCurrencyBRL } from "@/lib/utils";
 import { DollarSign, TrendingUp, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
-const ADESAO_TITULAR = 1500; // Valor hipotético titular
-const ADESAO_CONVIDADO = 500; // Valor hipotético convidado
+const ADESAO_TITULAR = 0; 
+const ADESAO_CONVIDADO = 0; 
 
 export default function AdminParticipants() {
   const [participants, setParticipants] = useState<Participant[]>([]);

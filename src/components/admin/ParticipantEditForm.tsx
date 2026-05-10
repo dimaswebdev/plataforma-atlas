@@ -54,7 +54,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
     try {
       const totalPaid = Number(formData.get("totalPaid") || 0);
       let paymentStatus: "not_started" | "partial" | "paid" | "overdue" = "not_started";
-      const META_VALOR = 1500;
+      const META_VALOR = 0;
       
       if (totalPaid >= META_VALOR) {
         paymentStatus = "paid";

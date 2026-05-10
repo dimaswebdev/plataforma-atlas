@@ -55,8 +55,8 @@ export default function ParticipantDetailsPage() {
   if (!participant) return null;
 
   const age = calculateAge(participant.birthDate || "");
-  const ADESAO_TITULAR = 1500;
-  const ADESAO_CONVIDADO = 500;
+  const ADESAO_TITULAR = 0;
+  const ADESAO_CONVIDADO = 0;
   const totalPrevisto = ADESAO_TITULAR + (participant.guestsCount || 0) * ADESAO_CONVIDADO;
   const totalPago = participant.totalPaid || 0;
   const saldoPendente = Math.max(0, totalPrevisto - totalPago);
