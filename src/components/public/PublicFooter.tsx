@@ -10,33 +10,32 @@ export function PublicFooter() {
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8">
           
-          {/* AREA INSTITUCIONAL (Centralizada Internamente) */}
-          <div className="flex flex-col items-center lg:items-start flex-1 text-center lg:text-left">
-            <div className="flex flex-col items-center lg:items-start group opacity-60 hover:opacity-100 transition-opacity duration-500">
+          {/* AREA INSTITUCIONAL */}
+          <div className="flex flex-col items-center lg:items-start flex-1">
+            <div className="flex items-center gap-4 group opacity-80 hover:opacity-100 transition-opacity duration-500">
               <Image
                 src="/logo-fab.svg"
                 alt="Logo FAB"
-                width={28}
-                height={28}
-                className="mb-3"
+                width={24}
+                height={24}
                 style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }}
               />
-              <p className="text-atlas-gold-main text-[10px] font-black tracking-[0.4em] uppercase mb-1">
+              <p className="text-atlas-gold-main text-[10px] font-black tracking-[0.4em] uppercase">
                 ATLAS &nbsp;·&nbsp; BINFA &nbsp;·&nbsp; BRASIL
               </p>
             </div>
             
-            <p className="text-atlas-text-muted/30 text-[8px] tracking-widest font-medium uppercase mt-1">
+            <p className="text-atlas-text-muted/30 text-[8px] tracking-widest font-medium uppercase mt-2 lg:ml-[40px]">
               &copy; {currentYear} Dimas Designer
             </p>
           </div>
 
-          {/* BARRA VERTICAL (Sutil) */}
-          <div className="hidden lg:block w-[1px] h-10 bg-white/5 self-center"></div>
+          {/* BARRA VERTICAL */}
+          <div className="hidden lg:block w-[1px] h-8 bg-white/5 self-center"></div>
 
           {/* AREA DE TERMOS */}
           <div className="flex flex-col items-center lg:items-end flex-1">
-            <h4 className="text-atlas-gold-main text-[8px] font-black tracking-[0.3em] uppercase mb-3 opacity-60">
+            <h4 className="text-atlas-gold-main text-[8px] font-black tracking-[0.3em] uppercase mb-3">
               Documentos Oficiais
             </h4>
             
