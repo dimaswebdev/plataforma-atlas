@@ -44,23 +44,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    
-    // Convert clean JSON to Firestore REST format
-    const fields: any = {};
-    for (const [key, value] of Object.entries(body)) {
-      if (value === null || value === undefined) continue;
-      if (typeof value === 'string') fields[key] = { stringValue: value };
-      else if (typeof value === 'number') {
-        if (Number.isInteger(value)) fields[key] = { integerValue: value.toString() };
-        else fields[key] = { doubleValue: value };
-      }
-      else if (typeof value === 'boolean') fields[key] = { booleanValue: value };
-      else if (value instanceof Date) fields[key] = { timestampValue: value.toISOString() };
-      else if (typeof value === 'object') {
-         // Recursive map or simplified
-         fields[key] = { stringValue: JSON.stringify(value) }; // Simplified for now, can be improved
-      }
-    }
+    const fields = serializeFields(body);
 
     const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/events/${EVENT_ID}/${collection}?key=${API_KEY}`;
     const res = await fetch(url, {
@@ -91,23 +75,10 @@ export async function PATCH(request: Request) {
 
   try {
     const body = await request.json();
-    const fields: any = {};
-    const updateMask: string[] = [];
+    const fields = serializeFields(body);
+    const updateMask = Object.keys(body).map(f => `updateMask.fieldPaths=${f}`).join('&');
 
-    for (const [key, value] of Object.entries(body)) {
-      if (value === null || value === undefined) continue;
-      updateMask.push(key);
-      if (typeof value === 'string') fields[key] = { stringValue: value };
-      else if (typeof value === 'number') {
-        if (Number.isInteger(value)) fields[key] = { integerValue: value.toString() };
-        else fields[key] = { doubleValue: value };
-      }
-      else if (typeof value === 'boolean') fields[key] = { booleanValue: value };
-      else if (typeof value === 'object') fields[key] = { stringValue: JSON.stringify(value) };
-    }
-
-    const maskParams = updateMask.map(f => `updateMask.fieldPaths=${f}`).join('&');
-    const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/events/${EVENT_ID}/${collection}/${id}?${maskParams}&key=${API_KEY}`;
+    const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/events/${EVENT_ID}/${collection}/${id}?${updateMask}&key=${API_KEY}`;
     
     const res = await fetch(url, {
       method: "PATCH",
@@ -115,12 +86,47 @@ export async function PATCH(request: Request) {
       body: JSON.stringify({ fields })
     });
 
-    if (!res.ok) throw new Error("Failed to update document");
+    if (!res.ok) {
+       const err = await res.json();
+       throw new Error(err.error?.message || "Failed to update document");
+    }
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error(`API Error updating ${collection}:`, error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+}
+
+function serializeFields(obj: any): any {
+  const fields: any = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value === null || value === undefined) continue;
+    
+    if (typeof value === 'string') fields[key] = { stringValue: value };
+    else if (typeof value === 'number') {
+      if (Number.isInteger(value)) fields[key] = { integerValue: value.toString() };
+      else fields[key] = { doubleValue: value };
+    }
+    else if (typeof value === 'boolean') fields[key] = { booleanValue: value };
+    else if (Array.isArray(value)) {
+      fields[key] = { arrayValue: { values: value.map(v => serializeValue(v)) } };
+    }
+    else if (typeof value === 'object') {
+      fields[key] = { mapValue: { fields: serializeFields(value) } };
+    }
+  }
+  return fields;
+}
+
+function serializeValue(value: any): any {
+  if (typeof value === 'string') return { stringValue: value };
+  if (typeof value === 'number') {
+    if (Number.isInteger(value)) return { integerValue: value.toString() };
+    return { doubleValue: value };
+  }
+  if (typeof value === 'boolean') return { booleanValue: value };
+  if (typeof value === 'object') return { mapValue: { fields: serializeFields(value) } };
+  return { stringValue: String(value) };
 }
 
 export async function DELETE(request: Request) {
