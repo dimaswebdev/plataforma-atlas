@@ -13,7 +13,7 @@ export function ScheduleCard({ schedule }: { schedule: Schedule }) {
             <CalendarDays className="w-4 h-4 mr-2" />
             {formatDateBR(schedule.date)}
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">{schedule.title}</h3>
+          <h3 className="atlas-card-title mb-2 text-white">{schedule.title}</h3>
           {schedule.description && (
             <p className="text-atlas-text-muted text-sm mb-4">{schedule.description}</p>
           )}

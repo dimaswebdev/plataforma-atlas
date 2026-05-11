@@ -57,7 +57,7 @@ export default function AdminLogin() {
           <div className="w-16 h-16 bg-atlas-navy-base rounded-full flex items-center justify-center border border-atlas-gold-main/50 mb-4 shadow-[0_0_15px_rgba(212,175,55,0.2)]">
             <ShieldCheck className="w-8 h-8 text-atlas-gold-main" />
           </div>
-          <h1 className="text-xl font-bold uppercase tracking-widest text-white sm:text-2xl">Acesso Restrito</h1>
+          <h1 className="atlas-section-title text-white">Acesso Restrito</h1>
           <p className="text-atlas-text-muted text-sm mt-2">Comissão Organizadora ATLAS</p>
           <p className="mt-3 max-w-xs text-center text-xs leading-relaxed text-atlas-text-muted/80">
             Esta entrada é exclusiva para administradores. Participantes devem usar o cadastro público.

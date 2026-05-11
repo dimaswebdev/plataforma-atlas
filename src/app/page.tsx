@@ -32,7 +32,7 @@ export default function Home() {
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen items-center justify-center bg-atlas-navy-base">
-        <h1 className="text-xl text-atlas-gold-main uppercase tracking-wider animate-pulse">Carregando Portal...</h1>
+        <div className="atlas-loading-label animate-pulse">Carregando portal...</div>
       </div>
     );
   }
@@ -41,8 +41,8 @@ export default function Home() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-atlas-navy-base px-4 text-center">
         <div className="w-full max-w-2xl rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-6 shadow-2xl sm:p-8">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.25em] text-atlas-gold-main">Portal ATLAS</p>
-          <h1 className="mb-4 text-2xl font-black uppercase tracking-tight text-white sm:text-4xl">
+          <p className="atlas-kicker mb-3 text-atlas-gold-main">Portal ATLAS</p>
+          <h1 className="atlas-page-title mb-4 text-white">
             Não foi possível carregar os dados públicos do evento
           </h1>
           <p className="mx-auto mb-6 max-w-xl text-sm leading-relaxed text-atlas-text-muted sm:text-base">
@@ -80,9 +80,9 @@ export default function Home() {
                        transition-all duration-300 hover:border-atlas-gold-main hover:bg-white/5 hover:shadow-atlas-gold-main/20 hover:shadow-2xl
                        cursor-default"
           >
-            <p className="text-[10px] text-atlas-gold-main uppercase tracking-[0.22em] sm:tracking-[0.3em] font-bold mb-3">Confirmados</p>
+            <p className="atlas-kicker mb-3 text-atlas-gold-main">Confirmados</p>
             <div className="flex items-end gap-2">
-              <span className="text-4xl sm:text-5xl font-black text-white leading-none">{confirmedCount}</span>
+              <span className="atlas-feature-value text-white">{confirmedCount}</span>
               <span className="text-atlas-text-muted text-sm mb-1">presenças</span>
             </div>
           </div>

@@ -52,7 +52,7 @@ export default function PrestacaoContasPage() {
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen items-center justify-center bg-atlas-navy-base">
-        <h1 className="text-xl text-atlas-gold-main uppercase tracking-wider animate-pulse">Carregando...</h1>
+        <div className="atlas-loading-label animate-pulse">Carregando...</div>
       </div>
     );
   }
@@ -92,7 +92,7 @@ export default function PrestacaoContasPage() {
 
         <div className="overflow-hidden rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep shadow-lg">
           <div className="px-6 py-4 border-b border-atlas-navy-aero/30 bg-atlas-navy-base/50">
-            <h2 className="text-lg font-bold text-white uppercase tracking-wider">Movimentações Públicas</h2>
+            <h2 className="atlas-section-title text-white">Movimentações Públicas</h2>
           </div>
           <div className="space-y-3 p-4 md:hidden">
             {transactions.length === 0 ? (

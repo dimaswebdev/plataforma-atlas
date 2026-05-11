@@ -18,8 +18,8 @@ export function FinancialSummary({ goal, income, expense, balance }: FinancialSu
           <Wallet className="w-6 h-6 text-atlas-gold-main" />
         </div>
         <div className="min-w-0">
-          <p className="text-sm text-atlas-text-muted uppercase tracking-wider">Meta</p>
-          <p className="break-words text-lg font-bold text-white sm:text-xl">{formatCurrencyBRL(goal)}</p>
+          <p className="atlas-kicker text-atlas-text-muted">Meta</p>
+          <p className="atlas-metric-value break-words text-white">{formatCurrencyBRL(goal)}</p>
         </div>
       </div>
       
@@ -28,8 +28,8 @@ export function FinancialSummary({ goal, income, expense, balance }: FinancialSu
           <TrendingUp className="w-6 h-6 text-green-400" />
         </div>
         <div className="min-w-0">
-          <p className="text-sm text-atlas-text-muted uppercase tracking-wider">Arrecadado</p>
-          <p className="break-words text-lg font-bold text-white sm:text-xl">{formatCurrencyBRL(income)}</p>
+          <p className="atlas-kicker text-atlas-text-muted">Arrecadado</p>
+          <p className="atlas-metric-value break-words text-white">{formatCurrencyBRL(income)}</p>
         </div>
       </div>
 
@@ -38,8 +38,8 @@ export function FinancialSummary({ goal, income, expense, balance }: FinancialSu
           <DollarSign className="w-6 h-6 text-red-400" />
         </div>
         <div className="min-w-0">
-          <p className="text-sm text-atlas-text-muted uppercase tracking-wider">Despesas</p>
-          <p className="break-words text-lg font-bold text-white sm:text-xl">{formatCurrencyBRL(expense)}</p>
+          <p className="atlas-kicker text-atlas-text-muted">Despesas</p>
+          <p className="atlas-metric-value break-words text-white">{formatCurrencyBRL(expense)}</p>
         </div>
       </div>
 
@@ -48,8 +48,8 @@ export function FinancialSummary({ goal, income, expense, balance }: FinancialSu
           <Wallet className="w-6 h-6 text-blue-400" />
         </div>
         <div className="min-w-0">
-          <p className="text-sm text-atlas-text-muted uppercase tracking-wider">Saldo</p>
-          <p className="break-words text-lg font-bold text-white sm:text-xl">{formatCurrencyBRL(balance)}</p>
+          <p className="atlas-kicker text-atlas-text-muted">Saldo</p>
+          <p className="atlas-metric-value break-words text-white">{formatCurrencyBRL(balance)}</p>
         </div>
       </div>
 

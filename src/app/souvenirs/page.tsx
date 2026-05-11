@@ -30,7 +30,7 @@ export default function SouvenirsPage() {
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen items-center justify-center bg-atlas-navy-base">
-        <h1 className="text-xl text-atlas-gold-main uppercase tracking-wider animate-pulse">Carregando...</h1>
+        <div className="atlas-loading-label animate-pulse">Carregando...</div>
       </div>
     );
   }

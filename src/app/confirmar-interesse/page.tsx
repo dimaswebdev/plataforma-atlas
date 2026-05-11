@@ -197,7 +197,7 @@ export default function ConfirmarInteressePage() {
               <div className="w-16 h-16 bg-green-900/50 rounded-full flex items-center justify-center mb-4 border border-green-500/50">
                 <ShieldCheck className="w-8 h-8 text-green-400" />
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">Confirmação Recebida!</h2>
+              <h2 className="atlas-section-title mb-2 text-white">Confirmação Recebida!</h2>
               <p className="text-atlas-text-muted mb-6">
                 Seus dados foram salvos no Compêndio da Turma com sucesso. A comissão organizadora entrará em contato em breve.
               </p>
@@ -241,7 +241,7 @@ export default function ConfirmarInteressePage() {
               </div>
 
               <div className="text-center mb-8 relative z-10">
-                <h2 className="text-xl font-black text-white uppercase tracking-widest">
+                <h2 className="atlas-section-title text-white">
                   {currentStep === 1 && "Passo 1: Identificação"}
                   {currentStep === 2 && "Passo 2: Evento & Presença"}
                   {currentStep === 3 && "Passo 3: Kit Oficial ATLAS"}
@@ -268,7 +268,7 @@ export default function ConfirmarInteressePage() {
                 <div className={currentStep === 1 ? "block animate-in fade-in slide-in-from-right-4 duration-500" : "hidden"}>
                   
                   <div className="bg-atlas-navy-base/50 p-6 rounded border border-atlas-navy-aero/20 mb-6">
-                    <h3 className="text-lg font-bold text-atlas-gold-main uppercase tracking-wider mb-4 border-b border-atlas-navy-aero/30 pb-2">Dados Pessoais</h3>
+                    <h3 className="atlas-card-title mb-4 border-b border-atlas-navy-aero/30 pb-2 text-atlas-gold-main">Dados Pessoais</h3>
 
                     <div className="mb-6 rounded-lg border border-atlas-gold-main/20 bg-atlas-gold-main/5 p-4">
                       <label className="block text-sm font-medium text-atlas-text-light mb-1">Código de acesso do grupo</label>
@@ -330,7 +330,7 @@ export default function ConfirmarInteressePage() {
                   </div>
 
                   <div className="bg-atlas-navy-base/50 p-6 rounded border border-atlas-navy-aero/20">
-                    <h3 className="text-lg font-bold text-atlas-gold-main uppercase tracking-wider mb-4 border-b border-atlas-navy-aero/30 pb-2">Localização</h3>
+                    <h3 className="atlas-card-title mb-4 border-b border-atlas-navy-aero/30 pb-2 text-atlas-gold-main">Localização</h3>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
                       <div className="md:col-span-2">
@@ -382,7 +382,7 @@ export default function ConfirmarInteressePage() {
                 {/* STEP 2 */}
                 <div className={currentStep === 2 ? "block animate-in fade-in slide-in-from-right-4 duration-500" : "hidden"}>
                   <div className="bg-atlas-navy-base/50 p-6 rounded border border-atlas-navy-aero/20">
-                    <h3 className="text-lg font-bold text-atlas-gold-main uppercase tracking-wider mb-4 border-b border-atlas-navy-aero/30 pb-2">Sobre o Evento</h3>
+                    <h3 className="atlas-card-title mb-4 border-b border-atlas-navy-aero/30 pb-2 text-atlas-gold-main">Sobre o Evento</h3>
 
                     <div className="mb-6">
                       <label className="block text-sm font-medium text-atlas-text-light mb-3">Você pretende participar do reencontro? *</label>
@@ -437,7 +437,7 @@ export default function ConfirmarInteressePage() {
                 {/* STEP 3 - KIT OFICIAL */}
                 <div className={currentStep === 3 ? "block animate-in fade-in slide-in-from-right-4 duration-500" : "hidden"}>
                   <div className="bg-gradient-to-b from-atlas-navy-base/80 to-atlas-navy-deep p-6 rounded border border-atlas-gold-main/30 shadow-[0_0_30px_rgba(212,175,55,0.05)]">
-                    <h3 className="text-lg font-bold text-atlas-gold-main uppercase tracking-wider mb-2 border-b border-atlas-navy-aero/30 pb-2 flex items-center gap-2">
+                    <h3 className="atlas-card-title mb-2 flex items-center gap-2 border-b border-atlas-navy-aero/30 pb-2 text-atlas-gold-main">
                       <ShieldCheck className="w-5 h-5" /> Kit Oficial ATLAS 30 Anos
                     </h3>
                     <p className="text-sm text-atlas-text-light mb-6">A comissão está avaliando fornecer um souvenir premium composto por jaqueta, camiseta e calça, inspirado em uniformes esportivos de delegações. Gostaríamos de mapear o interesse geral.</p>
@@ -545,7 +545,7 @@ export default function ConfirmarInteressePage() {
 
                   {/* TERMOS E AUTORIZAÇÕES */}
                   <div className="mt-12 p-6 bg-atlas-navy-base/50 rounded border border-atlas-navy-aero/20">
-                    <h3 className="text-lg font-bold text-atlas-gold-main uppercase tracking-wider mb-4 border-b border-atlas-navy-aero/30 pb-2">Termos e Autorizações</h3>
+                    <h3 className="atlas-card-title mb-4 border-b border-atlas-navy-aero/30 pb-2 text-atlas-gold-main">Termos e Autorizações</h3>
                     <p className="text-xs text-atlas-text-muted mb-6 italic">Para concluir seu cadastro oficial, é necessário ler e aceitar os documentos abaixo.</p>
                     
                     <div className="space-y-4">
@@ -567,7 +567,7 @@ export default function ConfirmarInteressePage() {
                           />
                           <label htmlFor={term.name} className="text-white text-sm leading-tight cursor-pointer">
                             {term.label} {term.required && <span className="text-red-500">*</span>}
-                            <Link href={term.href} target="_blank" className="ml-1 text-atlas-gold-main hover:underline opacity-80 text-[10px] uppercase font-bold tracking-tighter">Ler Termo</Link>
+                            <Link href={term.href} target="_blank" className="ml-1 text-atlas-gold-main hover:underline opacity-80 text-[10px] uppercase font-bold tracking-normal">Ler Termo</Link>
                           </label>
                         </div>
                       ))}
@@ -622,7 +622,7 @@ export default function ConfirmarInteressePage() {
                 <AlertTriangle className="w-6 h-6 text-atlas-gold-main" />
               </div>
               <div>
-                <h3 className="text-white font-black tracking-widest uppercase text-base">Confirmar Cadastro</h3>
+                <h3 className="atlas-card-title text-white">Confirmar Cadastro</h3>
                 <p className="text-atlas-gold-main/70 text-xs tracking-wider font-bold mt-0.5">Turma ATLAS 30 Anos</p>
               </div>
             </div>

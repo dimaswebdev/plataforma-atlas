@@ -70,7 +70,7 @@ export default function AdminParticipants() {
   return (
     <div className="min-w-0">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="flex items-center text-xl font-bold uppercase tracking-wider text-white sm:text-2xl">
+        <h1 className="atlas-admin-title flex items-center text-white">
           <Users className="w-6 h-6 mr-3 text-atlas-gold-main" />
           Lista de Membros
         </h1>
@@ -90,7 +90,7 @@ export default function AdminParticipants() {
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-blue-400 uppercase tracking-[0.2em] font-bold mb-1">Total de Membros</p>
-              <p className="text-3xl font-black text-white leading-none">{participants.length}</p>
+              <p className="atlas-metric-value text-white">{participants.length}</p>
             </div>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function AdminParticipants() {
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-atlas-gold-main uppercase tracking-[0.2em] font-bold mb-1">Total a Arrecadar</p>
-              <p className="break-words text-2xl font-black leading-none text-white sm:text-3xl">
+              <p className="atlas-metric-value break-words text-white">
                 {formatCurrencyBRL(participants.reduce((acc, p) => acc + (ADESAO_TITULAR + (p.guestsCount || 0) * ADESAO_CONVIDADO), 0))}
               </p>
             </div>
@@ -124,7 +124,7 @@ export default function AdminParticipants() {
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-green-400 uppercase tracking-[0.2em] font-bold mb-1">Arrecadado</p>
-              <p className="break-words text-2xl font-black leading-none text-white sm:text-3xl">
+              <p className="atlas-metric-value break-words text-white">
                 {formatCurrencyBRL(participants.reduce((acc, p) => acc + (p.totalPaid || 0), 0))}
               </p>
             </div>
@@ -142,7 +142,7 @@ export default function AdminParticipants() {
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-red-500 uppercase tracking-[0.2em] font-bold mb-1">Falta</p>
-              <p className="break-words text-2xl font-black leading-none text-white sm:text-3xl">
+              <p className="atlas-metric-value break-words text-white">
                 {formatCurrencyBRL(
                   participants.reduce((acc, p) => acc + Math.max(0, (ADESAO_TITULAR + (p.guestsCount || 0) * ADESAO_CONVIDADO) - (p.totalPaid || 0)), 0)
                 )}
@@ -180,7 +180,7 @@ export default function AdminParticipants() {
               <article key={p.id} className="rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-4 shadow-lg">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <h2 className="truncate text-base font-black uppercase tracking-wide text-white">{p.name}</h2>
+                    <h2 className="atlas-card-title truncate text-white">{p.name}</h2>
                     <p className="mt-1 text-xs font-bold uppercase tracking-wider text-atlas-gold-main">{p.nickname || "Sem apelido"}</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">

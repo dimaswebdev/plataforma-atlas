@@ -22,7 +22,7 @@ export default function VisitantesPage() {
               <div className="p-3 bg-atlas-gold-main/10 rounded-full border border-atlas-gold-main/30 mr-4">
                 <Plane className="w-6 h-6 text-atlas-gold-main" />
               </div>
-              <h2 className="text-xl font-bold text-white uppercase tracking-wider">Chegada a Campo Grande</h2>
+              <h2 className="atlas-card-title text-white">Chegada a Campo Grande</h2>
             </div>
             <p className="text-atlas-text-muted mb-4">
               O Aeroporto Internacional de Campo Grande (CGR) recebe voos diários das principais capitais. Recomendamos a compra de passagens com antecedência.
@@ -38,13 +38,13 @@ export default function VisitantesPage() {
               <div className="p-3 bg-blue-900/30 rounded-full border border-blue-500/30 mr-4">
                 <Hotel className="w-6 h-6 text-blue-400" />
               </div>
-              <h2 className="text-xl font-bold text-white uppercase tracking-wider">Hospedagem Parceira</h2>
+              <h2 className="atlas-card-title text-white">Hospedagem Parceira</h2>
             </div>
             <p className="text-atlas-text-muted mb-4">
               A comissão organizadora está em negociação com hotéis locais para tarifas especiais à Turma ATLAS.
             </p>
             <div className="bg-atlas-navy-base p-4 rounded border border-atlas-navy-aero/50 border-dashed text-center">
-              <span className="text-atlas-text-light font-medium tracking-widest uppercase text-sm">Status: Em Negociação</span>
+              <span className="text-sm font-medium uppercase tracking-normal text-atlas-text-light">Status: Em Negociação</span>
             </div>
           </div>
 
@@ -53,7 +53,7 @@ export default function VisitantesPage() {
               <div className="p-3 bg-green-900/30 rounded-full border border-green-500/30 mr-4">
                 <Car className="w-6 h-6 text-green-400" />
               </div>
-              <h2 className="text-xl font-bold text-white uppercase tracking-wider">Transporte Local</h2>
+              <h2 className="atlas-card-title text-white">Transporte Local</h2>
             </div>
             <p className="text-atlas-text-muted mb-4">
               Aplicativos como Uber e 99 funcionam muito bem em Campo Grande. Aluguel de veículos também está disponível no aeroporto.
@@ -65,7 +65,7 @@ export default function VisitantesPage() {
               <div className="p-3 bg-red-900/30 rounded-full border border-red-500/30 mr-4">
                 <Map className="w-6 h-6 text-red-400" />
               </div>
-              <h2 className="text-xl font-bold text-white uppercase tracking-wider">Apoio da Comissão</h2>
+              <h2 className="atlas-card-title text-white">Apoio da Comissão</h2>
             </div>
             <p className="text-atlas-text-muted mb-6">
               Se você precisa de ajuda específica com logística, não deixe de marcar as opções no formulário de confirmação.

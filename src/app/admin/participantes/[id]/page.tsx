@@ -44,7 +44,7 @@ export default function ParticipantDetailsPage() {
       <div className="flex items-center justify-center h-[50vh]">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-8 h-8 text-atlas-gold-main animate-spin" />
-          <div className="text-atlas-gold-main text-sm font-bold animate-pulse tracking-widest uppercase">Carregando Dossiê...</div>
+          <div className="atlas-loading-label animate-pulse">Carregando Dossiê...</div>
         </div>
       </div>
     );
@@ -124,8 +124,8 @@ export default function ParticipantDetailsPage() {
                 />
               </div>
               <div>
-                <h1 className="text-white font-black tracking-widest uppercase text-xl sm:text-2xl">Registro Oficial — Turma ATLAS 30 Anos</h1>
-                <p className="text-atlas-gold-main/80 text-xs sm:text-sm tracking-[0.2em] font-bold uppercase mt-1">Força Aérea Brasileira | 1997–2027</p>
+                <h1 className="atlas-section-title text-white">Registro Oficial — Turma ATLAS 30 Anos</h1>
+                <p className="atlas-kicker mt-1 text-atlas-gold-main/80">Força Aérea Brasileira | 1997–2027</p>
               </div>
             </div>
             <div className="hidden sm:block text-right">
@@ -145,20 +145,20 @@ export default function ParticipantDetailsPage() {
             <div className="flex flex-col items-center shrink-0">
               <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-2xl bg-gradient-to-br from-[#060e1c] to-[#0a192f] border border-atlas-gold-main/40 flex items-center justify-center shadow-[0_0_30px_rgba(212,175,55,0.1)] relative overflow-hidden group">
                 <div className="absolute inset-0 bg-atlas-gold-main/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <span className="text-6xl sm:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-atlas-gold-main to-white tracking-tighter">
+                <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-atlas-gold-main to-white tracking-normal sm:text-5xl">
                   {getInitials(participant.name)}
                 </span>
               </div>
-              <span className="mt-4 text-[10px] sm:text-xs font-black tracking-[0.3em] text-atlas-gold-main/70 uppercase">ATLAS</span>
+              <span className="atlas-kicker mt-4 text-atlas-gold-main/70">ATLAS</span>
             </div>
 
             {/* Dados Principais */}
             <div className="flex-1 text-center md:text-left w-full mt-4 md:mt-0">
-              <h2 className="mb-3 break-words text-3xl font-black uppercase leading-tight tracking-tight text-white sm:text-5xl sm:leading-none">
+              <h2 className="atlas-profile-title mb-3 break-words text-white">
                 {participant.name}
               </h2>
               {participant.nickname && (
-                <div className="text-atlas-gold-main font-bold text-xl sm:text-2xl uppercase tracking-widest mb-6">
+                <div className="mb-6 text-base font-bold uppercase tracking-normal text-atlas-gold-main sm:text-lg">
                   &quot;{participant.nickname}&quot;
                 </div>
               )}
@@ -211,7 +211,7 @@ export default function ParticipantDetailsPage() {
               <section>
                 <div className="flex items-center gap-3 mb-5 border-b border-white/10 pb-3">
                   <Briefcase className="w-5 h-5 text-atlas-gold-main" />
-                  <h3 className="text-white text-sm font-black uppercase tracking-[0.2em]">Identificação e Atuação</h3>
+                  <h3 className="atlas-card-title text-white">Identificação e Atuação</h3>
                 </div>
                 <div className="space-y-5">
                   <div>
@@ -229,7 +229,7 @@ export default function ParticipantDetailsPage() {
               <section>
                 <div className="flex items-center gap-3 mb-5 border-b border-white/10 pb-3">
                   <Phone className="w-5 h-5 text-atlas-gold-main" />
-                  <h3 className="text-white text-sm font-black uppercase tracking-[0.2em]">Canais de Contato</h3>
+                  <h3 className="atlas-card-title text-white">Canais de Contato</h3>
                 </div>
                 <div className="space-y-5">
                   <div className="flex items-center gap-4">
@@ -271,7 +271,7 @@ export default function ParticipantDetailsPage() {
               <section>
                 <div className="flex items-center gap-3 mb-5 border-b border-white/10 pb-3">
                   <MapPin className="w-5 h-5 text-atlas-gold-main" />
-                  <h3 className="text-white text-sm font-black uppercase tracking-[0.2em]">Localização Atual</h3>
+                  <h3 className="atlas-card-title text-white">Localização Atual</h3>
                 </div>
                 <div className="space-y-5">
                   <div>
@@ -300,7 +300,7 @@ export default function ParticipantDetailsPage() {
               <section>
                 <div className="flex items-center gap-3 mb-5 border-b border-white/10 pb-3">
                   <Shirt className="w-5 h-5 text-atlas-gold-main" />
-                  <h3 className="text-white text-sm font-black uppercase tracking-[0.2em]">Kit Oficial ATLAS 30 Anos</h3>
+                  <h3 className="atlas-card-title text-white">Kit Oficial ATLAS 30 Anos</h3>
                 </div>
                 
                 {hasKitInterest ? (
@@ -362,7 +362,7 @@ export default function ParticipantDetailsPage() {
               <section className="bg-atlas-navy-deep/50 p-6 rounded-xl border border-atlas-navy-aero/20 shadow-xl">
                 <div className="flex items-center gap-3 mb-6 border-b border-atlas-navy-aero/30 pb-3">
                   <ShieldCheck className="w-5 h-5 text-atlas-gold-main" />
-                  <h3 className="text-white text-sm font-black uppercase tracking-[0.2em]">Termos e Autorizações</h3>
+                  <h3 className="atlas-card-title text-white">Termos e Autorizações</h3>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -416,7 +416,7 @@ export default function ParticipantDetailsPage() {
               <section>
                 <div className="flex items-center gap-3 mb-5 border-b border-white/10 pb-3">
                   <DollarSign className="w-5 h-5 text-atlas-gold-main" />
-                  <h3 className="text-white text-sm font-black uppercase tracking-[0.2em]">Resumo Financeiro</h3>
+                  <h3 className="atlas-card-title text-white">Resumo Financeiro</h3>
                 </div>
                 
                 <div className="relative overflow-hidden rounded-xl border border-atlas-gold-main/20 bg-gradient-to-br from-[#0a192f] to-[#060e1c] p-5 shadow-[0_0_40px_rgba(212,175,55,0.05)] sm:p-8">
@@ -427,12 +427,12 @@ export default function ParticipantDetailsPage() {
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                       <div>
                         <div className="text-[10px] text-atlas-gold-main font-bold uppercase tracking-widest mb-1">Total Pago</div>
-                        <div className="break-words text-3xl font-black leading-none text-white sm:text-4xl">{formatCurrencyBRL(totalPago)}</div>
+                        <div className="atlas-feature-value break-words text-white">{formatCurrencyBRL(totalPago)}</div>
                         <div className="text-sm text-atlas-text-muted mt-2 font-medium">de {formatCurrencyBRL(0)} previsto</div>
                       </div>
                       <div className="text-right">
                         <div className="text-[10px] text-red-400 font-bold uppercase tracking-widest mb-1">Pendente</div>
-                        <div className="text-2xl font-bold text-red-400">{formatCurrencyBRL(0)}</div>
+                        <div className="atlas-metric-value text-red-400">{formatCurrencyBRL(0)}</div>
                       </div>
                     </div>
 
@@ -458,7 +458,7 @@ export default function ParticipantDetailsPage() {
                 <section>
                   <div className="flex items-center gap-3 mb-5 border-b border-white/10 pb-3">
                     <FileText className="w-5 h-5 text-atlas-gold-main" />
-                    <h3 className="text-white text-sm font-black uppercase tracking-[0.2em]">Observações da Comissão</h3>
+                    <h3 className="atlas-card-title text-white">Observações da Comissão</h3>
                   </div>
                   <div className="bg-[#030712]/50 rounded-xl p-6 border border-white/5 relative shadow-inner">
                     <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-atlas-gold-main/50 rounded-l-xl"></div>

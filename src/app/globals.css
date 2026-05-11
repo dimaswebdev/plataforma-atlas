@@ -31,15 +31,152 @@ body {
   min-height: 100vh;
 }
 
-/* Base heading styles with fluid typography */
+/* Base heading color only. Component-level classes control responsive scale. */
 h1, h2, h3, h4, h5, h6 {
   color: var(--color-atlas-text-light);
 }
 
-h1 { font-size: clamp(2.2rem, 5vw, 4.5rem); line-height: 1.1; font-weight: 900; }
-h2 { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.2; font-weight: 800; }
-h3 { font-size: clamp(1.4rem, 3vw, 2.25rem); line-height: 1.3; font-weight: 700; }
-h4 { font-size: 1.25rem; font-weight: 600; }
+/* Keep stretched text out of the interface; premium pages read cleaner at neutral tracking. */
+[class*="tracking-"] {
+  letter-spacing: 0;
+}
+
+/* Atlas typography scale: discreet, responsive by breakpoint, and reusable. */
+.atlas-hero-title,
+.atlas-page-title,
+.atlas-admin-title,
+.atlas-section-title,
+.atlas-card-title,
+.atlas-profile-title {
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.atlas-hero-title {
+  font-size: 2.25rem;
+  line-height: 1;
+}
+
+.atlas-page-title {
+  font-size: 1.9rem;
+  line-height: 1.08;
+}
+
+.atlas-admin-title {
+  font-size: 1.55rem;
+  line-height: 1.12;
+}
+
+.atlas-section-title {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.atlas-card-title {
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+.atlas-profile-title {
+  font-size: 1.9rem;
+  line-height: 1.08;
+}
+
+.atlas-kicker,
+.atlas-loading-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.atlas-loading-label {
+  color: var(--color-atlas-gold-main);
+}
+
+.atlas-metric-value {
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.atlas-feature-value {
+  font-size: 1.85rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.prose-gold h2 {
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+  color: var(--color-atlas-gold-main);
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+@media (min-width: 640px) {
+  .atlas-hero-title {
+    font-size: 2.8rem;
+  }
+
+  .atlas-page-title {
+    font-size: 2.25rem;
+  }
+
+  .atlas-admin-title {
+    font-size: 1.9rem;
+  }
+
+  .atlas-section-title {
+    font-size: 1.15rem;
+  }
+
+  .atlas-profile-title {
+    font-size: 2.25rem;
+  }
+
+  .atlas-metric-value {
+    font-size: 1.55rem;
+  }
+
+  .atlas-feature-value {
+    font-size: 2.2rem;
+  }
+
+  .prose-gold h2 {
+    font-size: 1.1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .atlas-hero-title {
+    font-size: 3.25rem;
+  }
+
+  .atlas-page-title {
+    font-size: 2.55rem;
+  }
+
+  .atlas-admin-title {
+    font-size: 2.15rem;
+  }
+
+  .atlas-profile-title {
+    font-size: 2.55rem;
+  }
+
+  .atlas-feature-value {
+    font-size: 2.5rem;
+  }
+}
 
 /* Responsive Container Adjustments */
 @layer utilities {

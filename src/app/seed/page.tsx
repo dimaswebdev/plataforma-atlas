@@ -15,7 +15,7 @@ export default function SeedPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-atlas-navy-base p-8 text-white text-center">
         <div className="max-w-md w-full bg-atlas-navy-deep p-8 rounded border border-atlas-navy-aero/30 shadow-lg">
-          <h1 className="text-2xl font-bold mb-4 text-atlas-gold-main uppercase tracking-wider">Configuração Inicial Desativada</h1>
+          <h1 className="atlas-section-title mb-4 text-atlas-gold-main">Configuração Inicial Desativada</h1>
           <p className="text-atlas-text-muted text-sm">
             Esta rota é bloqueada em produção para proteger a configuração do evento. Use o painel administrativo ou o Firebase Console para ajustes.
           </p>
@@ -177,7 +177,7 @@ export default function SeedPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-atlas-navy-base p-8 text-white text-center">
       <div className="max-w-md w-full bg-atlas-navy-deep p-8 rounded border border-atlas-navy-aero/30 shadow-lg">
-        <h1 className="text-2xl font-bold mb-4 text-atlas-gold-main uppercase tracking-wider">Configuração Inicial</h1>
+        <h1 className="atlas-section-title mb-4 text-atlas-gold-main">Configuração Inicial</h1>
         <p className="text-atlas-text-muted text-sm mb-6">
           Cole abaixo o &quot;User UID&quot; que você acabou de criar no painel do Firebase para que o sistema te cadastre como o Administrador Principal.
         </p>

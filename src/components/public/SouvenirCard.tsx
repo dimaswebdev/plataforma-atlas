@@ -19,12 +19,12 @@ export function SouvenirCard({ souvenir }: { souvenir: Souvenir }) {
         )}
       </div>
       <div className="p-5 flex flex-col flex-grow">
-        <h3 className="text-lg font-bold text-white mb-2">{souvenir.name}</h3>
+        <h3 className="atlas-card-title mb-2 text-white">{souvenir.name}</h3>
         {souvenir.description && (
           <p className="text-sm text-atlas-text-muted mb-4 flex-grow">{souvenir.description}</p>
         )}
         <div className="mt-auto flex flex-col gap-3 border-t border-atlas-navy-aero/30 pt-4 sm:flex-row sm:items-center sm:justify-between">
-          <span className="text-xl font-bold text-atlas-gold-main">{formatCurrencyBRL(souvenir.price)}</span>
+          <span className="atlas-metric-value text-atlas-gold-main">{formatCurrencyBRL(souvenir.price)}</span>
           <button 
             disabled={!souvenir.available}
             className="w-full rounded bg-atlas-navy-secondary px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-atlas-navy-aero disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"

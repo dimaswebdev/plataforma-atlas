@@ -7,7 +7,7 @@ import { PublicFooter } from "@/components/public/PublicFooter";
 
 export function EventHero({ event, children }: { event: Event; children?: React.ReactNode }) {
   return (
-    <section className="relative flex min-h-[100svh] flex-col overflow-x-hidden bg-[#060e1c] lg:h-screen lg:min-h-screen lg:overflow-hidden">
+    <section className="relative flex min-h-[100svh] flex-col overflow-x-hidden bg-[#060e1c]">
       
       {/* ── CINEMATIC BACKGROUND ── */}
       <div
@@ -32,12 +32,12 @@ export function EventHero({ event, children }: { event: Event; children?: React.
       </div>
 
       {/* ── HERO CONTENT ── */}
-      <div className="relative z-20 flex flex-1 flex-col pb-10 pt-24 sm:pb-12 lg:flex-row lg:pb-2 lg:pt-16">
+      <div className="relative z-20 flex flex-1 flex-col pb-12 pt-24 sm:pb-14 lg:flex-row lg:pb-8 lg:pt-20">
 
         {/* LEFT COLUMN */}
-        <div className="flex w-full flex-col items-center justify-center px-4 text-center sm:px-6 md:px-16 lg:max-w-[55%] lg:items-start lg:px-24 lg:text-left">
+        <div className="flex w-full flex-col items-center justify-center px-4 text-center sm:px-6 md:px-16 lg:max-w-[58%] lg:items-start lg:px-20 xl:px-24 lg:text-left">
 
-          <div className="mb-5 flex flex-wrap items-center justify-center gap-3 sm:mb-6 lg:justify-start">
+          <div className="mb-4 flex flex-wrap items-center justify-center gap-3 sm:mb-5 lg:justify-start">
             <Image
               src="/logo-fab.svg"
               alt="Logo FAB"
@@ -46,18 +46,18 @@ export function EventHero({ event, children }: { event: Event; children?: React.
               className="opacity-90 w-[32px] h-[32px] md:w-[40px] md:h-[40px]"
               style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }}
             />
-            <p className="text-atlas-gold-main text-[9px] font-bold uppercase tracking-[0.22em] sm:text-[10px] sm:tracking-[0.32em] md:text-xs">
+            <p className="atlas-kicker text-atlas-gold-main">
               FAB&nbsp;&nbsp;|&nbsp;&nbsp;1997–2027
             </p>
           </div>
 
-          <div className="mb-7 w-full lg:mb-8 lg:w-fit">
-            <h1 className="mb-4 font-black uppercase tracking-tight text-white" style={{ fontSize: 'clamp(2rem, 12vw, 5.5rem)', lineHeight: '1.02' }}>
+          <div className="mb-5 w-full lg:mb-6 lg:w-fit">
+            <h1 className="atlas-hero-title mb-4 text-white">
               <div className="block">Reencontro</div>
-              <div className="my-2 flex items-center justify-center gap-2 sm:gap-4 lg:justify-start">
-                <span className="hidden sm:inline-block h-[3px] md:h-[6px] w-12 md:w-28 rounded-sm bg-atlas-gold-main shrink-0" />
+              <div className="my-1.5 flex items-center justify-center gap-2 sm:gap-3 lg:justify-start">
+                <span className="hidden sm:inline-block h-[3px] md:h-[4px] w-10 md:w-20 rounded-sm bg-atlas-gold-main shrink-0" />
                 <span className="text-atlas-gold-main">30 Anos</span>
-                <span className="hidden sm:inline-block h-[3px] md:h-[6px] w-12 md:w-28 rounded-sm bg-atlas-gold-main shrink-0" />
+                <span className="hidden sm:inline-block h-[3px] md:h-[4px] w-10 md:w-20 rounded-sm bg-atlas-gold-main shrink-0" />
               </div>
               <div className="block">Turma Atlas</div>
             </h1>
@@ -68,11 +68,11 @@ export function EventHero({ event, children }: { event: Event; children?: React.
             </div>
           </div>
 
-          <p className="mx-auto mb-8 max-w-lg text-sm leading-relaxed text-atlas-text-muted sm:text-base lg:mx-0 lg:mb-10">
+          <p className="mx-auto mb-6 max-w-xl text-sm leading-relaxed text-atlas-text-muted sm:text-base lg:mx-0 lg:mb-8">
             {event.heroDescription}
           </p>
 
-          <div className="mb-8 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-4 lg:mb-10 lg:justify-start">
+          <div className="mb-6 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-4 lg:mb-8 lg:justify-start">
             <Link
               href="/confirmar-interesse"
               className="group flex w-full items-center justify-center gap-2 rounded bg-atlas-gold-main px-5 py-4 text-xs font-black uppercase tracking-widest text-atlas-navy-deep shadow-xl shadow-atlas-gold-main/20 transition-all duration-300 hover:bg-atlas-gold-dark sm:w-auto sm:px-8 md:text-sm"
@@ -97,7 +97,7 @@ export function EventHero({ event, children }: { event: Event; children?: React.
 
         {/* RIGHT COLUMN */}
         {children && (
-          <div className="z-30 flex w-full flex-col items-center justify-center gap-6 px-4 pt-8 sm:px-6 lg:absolute lg:right-12 lg:top-1/2 lg:w-auto lg:-translate-y-1/2 lg:items-end lg:gap-6 lg:pt-0 xl:right-24">
+          <div className="z-30 flex w-full flex-col items-center justify-center gap-6 px-4 pt-6 sm:px-6 lg:absolute lg:right-10 lg:top-1/2 lg:w-auto lg:-translate-y-1/2 lg:items-end lg:gap-5 lg:pt-0 xl:right-20">
             <div className="flex w-full max-w-[22rem] flex-col gap-4 sm:max-w-[26rem] lg:max-w-none lg:gap-5">
               {children}
             </div>

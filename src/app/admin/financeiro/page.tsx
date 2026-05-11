@@ -48,7 +48,7 @@ export default function AdminFinanceiro() {
   return (
     <div className="min-w-0">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="flex items-center text-xl font-bold uppercase tracking-wider text-white sm:text-2xl">
+        <h1 className="atlas-admin-title flex items-center text-white">
           <DollarSign className="w-6 h-6 mr-3 text-atlas-gold-main" />
           Controle Financeiro
         </h1>
@@ -64,7 +64,7 @@ export default function AdminFinanceiro() {
       <div className="mb-8 flex items-center justify-between rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-5 sm:p-6">
         <div>
           <p className="text-sm text-atlas-text-muted uppercase tracking-wider">Saldo Atual</p>
-          <p className={`break-words text-2xl font-bold sm:text-3xl ${balance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+          <p className={`atlas-feature-value break-words ${balance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
             {formatCurrencyBRL(balance)}
           </p>
         </div>

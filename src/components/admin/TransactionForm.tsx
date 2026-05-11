@@ -53,7 +53,7 @@ export function TransactionForm({ onClose, onSuccess }: TransactionFormProps) {
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center sm:p-4">
       <div className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-md flex-col overflow-hidden rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep shadow-2xl">
         <div className="flex items-center justify-between border-b border-atlas-navy-aero/30 bg-atlas-navy-base p-4">
-          <h2 className="text-lg font-bold text-white uppercase tracking-wider">Nova Transação</h2>
+          <h2 className="atlas-section-title text-white">Nova Transação</h2>
           <button onClick={onClose} className="rounded-lg p-2 text-atlas-text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label="Fechar modal">
             <X className="w-5 h-5" />
           </button>

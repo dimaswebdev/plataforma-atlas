@@ -23,14 +23,14 @@ export function PageHeader({ title, subtitle, bgImage, accent }: PageHeaderProps
       <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#060e1c] via-transparent to-[#060e1c]/60" />
 
       {/* Content */}
-      <div className="relative z-20 mx-auto max-w-7xl px-4 py-10 sm:px-6 md:px-12 md:py-16 lg:py-20">
+      <div className="relative z-20 mx-auto max-w-7xl px-4 py-9 sm:px-6 md:px-10 md:py-12 lg:px-12 lg:py-14">
         {accent && (
-          <p className="mb-3 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.18em] text-atlas-gold-main sm:tracking-[0.28em] md:text-[10px]">
+          <p className="atlas-kicker mb-3 flex items-center gap-2 text-atlas-gold-main">
             <span className="inline-block h-px w-4 bg-atlas-gold-main md:w-6" />
             {accent}
           </p>
         )}
-        <h1 className="mb-3 text-3xl font-black uppercase leading-tight tracking-tight text-white sm:text-4xl md:text-5xl">
+        <h1 className="atlas-page-title mb-3 max-w-4xl text-white">
           {title}
         </h1>
         {subtitle && (

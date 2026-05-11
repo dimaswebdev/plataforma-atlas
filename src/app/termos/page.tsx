@@ -79,7 +79,7 @@ export default function TermosIndexPage() {
                   <doc.icon className={`w-8 h-8 ${doc.color}`} />
                 </div>
                 
-                <h3 className="text-xl font-black text-white mb-3 uppercase tracking-wider group-hover:text-atlas-gold-main transition-colors">
+                <h3 className="atlas-section-title mb-3 text-white transition-colors group-hover:text-atlas-gold-main">
                   {doc.title}
                 </h3>
                 
@@ -87,7 +87,7 @@ export default function TermosIndexPage() {
                   {doc.desc}
                 </p>
                 
-                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-atlas-gold-main group-hover:translate-x-2 transition-transform duration-500">
+                <div className="atlas-kicker flex items-center gap-2 text-atlas-gold-main transition-transform duration-500 group-hover:translate-x-2">
                   Acessar Documento <ChevronRight className="w-3 h-3" />
                 </div>
               </div>

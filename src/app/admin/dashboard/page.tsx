@@ -34,7 +34,7 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
-        <div className="text-atlas-gold-main text-xl font-bold animate-pulse tracking-widest uppercase">Carregando métricas...</div>
+        <div className="atlas-loading-label animate-pulse">Carregando métricas...</div>
       </div>
     );
   }
@@ -42,7 +42,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-w-0 animate-in fade-in duration-700">
       <div className="mb-6 flex flex-col items-start gap-3 sm:mb-8 md:flex-row md:items-center md:gap-4">
-        <h1 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60 uppercase tracking-tight text-center md:text-left w-full md:w-auto">
+        <h1 className="atlas-admin-title w-full bg-gradient-to-r from-white to-white/60 bg-clip-text text-center text-transparent md:w-auto md:text-left">
           Visão Geral
         </h1>
         <div className="h-px w-full md:flex-1 bg-gradient-to-r from-atlas-gold-main/50 to-transparent" />
@@ -61,7 +61,7 @@ export default function AdminDashboard() {
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-atlas-gold-main uppercase tracking-[0.2em] font-bold mb-1">Interessados</p>
-              <p className="text-3xl font-black text-white leading-none">{stats.totalParticipants}</p>
+              <p className="atlas-metric-value text-white">{stats.totalParticipants}</p>
             </div>
           </div>
         </div>
@@ -77,7 +77,7 @@ export default function AdminDashboard() {
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-green-400 uppercase tracking-[0.2em] font-bold mb-1">Confirmados</p>
-              <p className="text-3xl font-black text-white leading-none">{stats.confirmedParticipants}</p>
+              <p className="atlas-metric-value text-white">{stats.confirmedParticipants}</p>
             </div>
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-blue-400 uppercase tracking-[0.2em] font-bold mb-1">Kits Oficiais</p>
-              <p className="text-3xl font-black text-white leading-none">{stats.kitInterest}</p>
+              <p className="atlas-metric-value text-white">{stats.kitInterest}</p>
             </div>
           </div>
         </div>
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-blue-400 uppercase tracking-[0.2em] font-bold mb-1">Arrecadado</p>
-              <p className="break-words text-xl font-black leading-none tracking-tight text-white sm:text-2xl">{formatCurrencyBRL(stats.income)}</p>
+              <p className="atlas-metric-value break-words text-white">{formatCurrencyBRL(stats.income)}</p>
             </div>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function AdminDashboard() {
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-red-400 uppercase tracking-[0.2em] font-bold mb-1">Despesas</p>
-              <p className="break-words text-xl font-black leading-none tracking-tight text-white sm:text-2xl">{formatCurrencyBRL(stats.expense)}</p>
+              <p className="atlas-metric-value break-words text-white">{formatCurrencyBRL(stats.expense)}</p>
             </div>
           </div>
         </div>
@@ -135,8 +135,8 @@ export default function AdminDashboard() {
       <div className="relative min-w-0 overflow-hidden rounded-2xl border border-atlas-gold-main/30 bg-gradient-to-br from-atlas-gold-main/10 to-transparent p-5 shadow-[0_0_50px_rgba(212,175,55,0.05)] backdrop-blur-xl sm:p-6 md:p-8">
         <div className="absolute top-0 right-0 w-64 h-64 bg-atlas-gold-main/10 blur-[80px] rounded-full pointer-events-none" />
         <div className="relative z-10 text-center md:text-left">
-          <h2 className="mb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-atlas-gold-main sm:tracking-[0.3em] md:text-xs">Resumo Financeiro Atual</h2>
-          <div className="break-words bg-gradient-to-r from-atlas-gold-main to-white bg-clip-text text-3xl font-black tracking-tighter text-transparent sm:text-5xl md:text-6xl">
+          <h2 className="atlas-section-title mb-3 text-atlas-gold-main">Resumo Financeiro Atual</h2>
+          <div className="atlas-feature-value break-words bg-gradient-to-r from-atlas-gold-main to-white bg-clip-text text-transparent">
             {formatCurrencyBRL(stats.income - stats.expense)}
           </div>
           <p className="text-xs md:text-sm text-atlas-text-light/80 mt-3 font-medium tracking-wide">Saldo em caixa consolidado disponível para o evento.</p>
