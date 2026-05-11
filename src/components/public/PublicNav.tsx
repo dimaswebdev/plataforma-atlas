@@ -20,8 +20,8 @@ export function PublicNav() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-atlas-navy-aero/30 bg-atlas-navy-base/95 backdrop-blur supports-[backdrop-filter]:bg-atlas-navy-base/80">
-      <div className="container mx-auto flex h-16 items-center px-4 justify-between">
-        <Link href="/" className="flex items-center space-x-2 text-atlas-gold-main hover:text-atlas-gold-dark transition-colors shrink-0">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-3 sm:px-4 lg:px-6">
+        <Link href="/" className="flex min-w-0 shrink items-center gap-2 text-atlas-gold-main transition-colors hover:text-atlas-gold-dark">
           <Image
             src="/logo-fab.svg"
             alt="Logo FAB"
@@ -29,20 +29,20 @@ export function PublicNav() {
             height={28}
             style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }}
           />
-          <span className="font-bold uppercase tracking-wider text-[11px] sm:text-sm">
+          <span className="max-w-[11rem] truncate text-[10px] font-bold uppercase tracking-[0.14em] sm:max-w-none sm:text-sm sm:tracking-wider">
             Turma ATLAS 30 Anos
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center space-x-6 text-sm font-medium">
+        <nav className="hidden items-center gap-4 text-sm font-medium xl:flex xl:gap-6">
           {menuLinks.map((link) => (
             <Link key={link.href} href={link.href} className="transition-colors hover:text-atlas-gold-main text-atlas-text-light/90">
               {link.label}
             </Link>
           ))}
           
-          <div className="flex items-center space-x-4 border-l border-atlas-navy-aero/30 pl-4 ml-2">
+          <div className="ml-1 flex items-center gap-3 border-l border-atlas-navy-aero/30 pl-4">
             {user && isAdmin ? (
               <Link href="/admin/dashboard" className="flex items-center text-xs uppercase tracking-wider text-atlas-gold-main hover:text-atlas-gold-dark font-bold transition-colors">
                 <ShieldCheck className="w-4 h-4 mr-1" />
@@ -51,11 +51,11 @@ export function PublicNav() {
             ) : (
               <Link href="/admin/login" className="flex items-center text-xs uppercase tracking-wider text-atlas-text-muted hover:text-white transition-colors">
                 <Lock className="w-3 h-3 mr-1" />
-                Entrar
+                Comissão
               </Link>
             )}
             <Link href="/confirmar-interesse" className="px-4 py-2 rounded bg-atlas-gold-main text-atlas-navy-deep font-bold hover:bg-atlas-gold-dark transition-all uppercase text-xs tracking-wider shadow-lg shadow-atlas-gold-main/20">
-              Confirmar Presença
+              Cadastro
             </Link>
           </div>
         </nav>
@@ -63,8 +63,10 @@ export function PublicNav() {
         {/* Mobile Toggle Button */}
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          className="lg:hidden p-2 text-atlas-text-light hover:text-atlas-gold-main transition-colors"
-          aria-label="Toggle Menu"
+          className="rounded-lg p-2 text-atlas-text-light transition-colors hover:bg-white/5 hover:text-atlas-gold-main xl:hidden"
+          aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
+          aria-controls="public-mobile-menu"
+          aria-expanded={isOpen}
         >
           {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -72,24 +74,27 @@ export function PublicNav() {
 
       {/* Mobile Navigation Overlay */}
       {isOpen && (
-        <div className="lg:hidden absolute top-16 left-0 w-full bg-atlas-navy-deep/95 backdrop-blur-xl border-b border-atlas-navy-aero/50 shadow-2xl animate-in slide-in-from-top-4 duration-300">
-          <nav className="flex flex-col p-6 space-y-4">
+        <div
+          id="public-mobile-menu"
+          className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-atlas-navy-aero/50 bg-atlas-navy-deep/95 shadow-2xl backdrop-blur-xl animate-in slide-in-from-top-4 duration-300 xl:hidden"
+        >
+          <nav className="mx-auto flex w-full max-w-7xl flex-col gap-3 p-4 sm:p-6">
             {menuLinks.map((link) => (
               <Link 
                 key={link.href} 
                 href={link.href} 
                 onClick={() => setIsOpen(false)}
-                className="text-lg font-bold text-atlas-text-light hover:text-atlas-gold-main transition-colors border-b border-white/5 pb-2"
+                className="rounded-lg border border-white/5 bg-white/[0.03] px-4 py-3 text-base font-bold text-atlas-text-light transition-colors hover:border-atlas-gold-main/30 hover:text-atlas-gold-main sm:text-lg"
               >
                 {link.label}
               </Link>
             ))}
-            <div className="pt-4 flex flex-col space-y-4">
+            <div className="flex flex-col gap-3 pt-2">
               {user && isAdmin ? (
                 <Link 
                   href="/admin/dashboard" 
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-center p-3 rounded-lg border border-atlas-gold-main/30 text-atlas-gold-main font-black uppercase tracking-widest text-xs"
+                  className="flex items-center justify-center rounded-lg border border-atlas-gold-main/30 p-3 text-xs font-black uppercase tracking-widest text-atlas-gold-main"
                 >
                   <ShieldCheck className="w-4 h-4 mr-2" />
                   Painel Administrativo
@@ -98,18 +103,18 @@ export function PublicNav() {
                 <Link 
                   href="/admin/login" 
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-center p-3 rounded-lg border border-white/10 text-atlas-text-muted font-bold uppercase tracking-widest text-xs"
+                  className="flex items-center justify-center rounded-lg border border-white/10 p-3 text-xs font-bold uppercase tracking-widest text-atlas-text-muted"
                 >
                   <Lock className="w-4 h-4 mr-2" />
-                  Acesso Comissão
+                  Acesso da Comissão
                 </Link>
               )}
               <Link 
                 href="/confirmar-interesse" 
                 onClick={() => setIsOpen(false)}
-                className="flex items-center justify-center p-4 rounded-lg bg-atlas-gold-main text-atlas-navy-deep font-black uppercase tracking-widest text-xs shadow-xl"
+                className="flex items-center justify-center rounded-lg bg-atlas-gold-main p-4 text-xs font-black uppercase tracking-widest text-atlas-navy-deep shadow-xl"
               >
-                Confirmar Presença
+                Cadastro de Participante
               </Link>
             </div>
           </nav>

@@ -17,10 +17,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className="scroll-smooth">
+    <html lang="pt-BR" className={cn("scroll-smooth overflow-x-hidden", inter.variable)}>
       <body className={cn(
-        "min-h-screen bg-[var(--color-atlas-navy-base)] font-sans antialiased text-[var(--color-atlas-text-light)] selection:bg-[var(--color-atlas-gold-main)] selection:text-[var(--color-atlas-navy-deep)]",
-        inter.variable
+        "min-h-screen overflow-x-hidden bg-[var(--color-atlas-navy-base)] font-sans antialiased text-[var(--color-atlas-text-light)] selection:bg-[var(--color-atlas-gold-main)] selection:text-[var(--color-atlas-navy-deep)]"
       )}>
         <AuthProvider>
           {children}
@@ -29,4 +28,3 @@ export default function RootLayout({
     </html>
   );
 }
-

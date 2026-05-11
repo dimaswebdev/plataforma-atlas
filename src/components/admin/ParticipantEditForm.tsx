@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import { Participant } from "@/types/participant";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { DEFAULT_EVENT_ID } from "@/lib/constants";
 import { X, Save } from "lucide-react";
 import { capitalizeName, formatPhone, formatZipCode } from "@/lib/utils";
+import { fetchWithAdminAuth } from "@/lib/client-auth";
 
 interface ParticipantEditFormProps {
   participant: Participant;
@@ -95,7 +93,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
         } : null
       };
 
-      const res = await fetch(`/api/data?collection=participants&id=${participant.id}`, {
+      const res = await fetchWithAdminAuth(`/api/data?collection=participants&id=${participant.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -105,23 +103,24 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
 
       onSuccess();
       onClose();
-    } catch (err: any) {
-      setError("Erro ao atualizar participante: " + err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erro desconhecido";
+      setError("Erro ao atualizar participante: " + message);
       setLoading(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-atlas-navy-deep w-full max-w-2xl rounded-lg border border-atlas-navy-aero/30 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="flex justify-between items-center p-4 border-b border-atlas-navy-aero/30 bg-atlas-navy-base">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center sm:p-4">
+      <div className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep shadow-2xl">
+        <div className="flex items-center justify-between border-b border-atlas-navy-aero/30 bg-atlas-navy-base p-4">
           <h2 className="text-lg font-bold text-white uppercase tracking-wider">Editar Participante</h2>
-          <button onClick={onClose} className="text-atlas-text-muted hover:text-white transition-colors">
+          <button onClick={onClose} className="rounded-lg p-2 text-atlas-text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label="Fechar modal">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto">
+        <div className="overflow-y-auto p-4 sm:p-6">
           {error && (
             <div className="bg-red-900/30 border border-red-500/50 text-red-200 p-3 rounded mb-4 text-sm text-center">
               {error}
@@ -129,7 +128,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Nome</label>
                 <input type="text" name="name" defaultValue={participant.name} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" required />
@@ -140,7 +139,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Telefone</label>
                 <input type="text" name="phone" value={phoneInput} onChange={handlePhoneChange} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" required />
@@ -151,7 +150,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Instagram</label>
                 <input type="text" name="instagram" defaultValue={participant.instagram} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
@@ -162,7 +161,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Nascimento</label>
                 <input type="date" name="birthDate" defaultValue={participant.birthDate} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
@@ -173,8 +172,8 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="col-span-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="sm:col-span-2">
                 <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Endereço</label>
                 <input type="text" name="address" defaultValue={participant.address} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
               </div>
@@ -184,7 +183,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div>
                 <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Cidade</label>
                 <input type="text" name="city" defaultValue={participant.city} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" required />
@@ -199,7 +198,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Convidados</label>
                 <input type="number" name="guestsCount" defaultValue={participant.guestsCount} min="0" className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
@@ -211,7 +210,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
             </div>
 
             <div>
-              <label className="flex items-center space-x-2 p-2 bg-atlas-navy-base/50 rounded border border-atlas-navy-aero/20 cursor-pointer">
+              <label className="flex cursor-pointer items-start gap-2 rounded border border-atlas-navy-aero/20 bg-atlas-navy-base/50 p-2">
                 <input type="checkbox" name="wantsToHelpCommittee" defaultChecked={participant.wantsToHelpCommittee} className="rounded text-atlas-gold-main focus:ring-atlas-gold-main bg-atlas-navy-deep border-atlas-navy-aero/50" />
                 <span className="text-white text-xs font-medium uppercase tracking-wider">Voluntário para a Comissão Organizadora</span>
               </label>
@@ -225,7 +224,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
             {/* Kit Oficial */}
             <div className="border-t border-atlas-navy-aero/30 pt-4">
               <p className="text-xs font-bold text-atlas-gold-main uppercase tracking-widest mb-3">Kit Oficial ATLAS</p>
-              <div className="grid grid-cols-3 gap-3 mb-3">
+              <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {["yes","maybe","no"].map(v => (
                   <label key={v} className={`flex items-center justify-center gap-2 px-3 py-2 rounded border cursor-pointer text-xs font-bold uppercase tracking-wider transition-all ${
                     kitInterest === v ? 'bg-atlas-gold-main/10 border-atlas-gold-main/50 text-atlas-gold-main' : 'border-atlas-navy-aero/30 text-atlas-text-muted hover:border-white/20'
@@ -236,7 +235,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
                 ))}
               </div>
               {kitInterest && kitInterest !== "no" && (
-                <div className="grid grid-cols-3 gap-3 mt-3">
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
                   <div>
                     <label className="block text-[10px] text-atlas-text-muted mb-1 uppercase tracking-wider">Camiseta</label>
                     <select name="kitShirtSize" defaultValue={participant.officialKit?.shirtSize || ""} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm">
@@ -262,7 +261,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
               )}
             </div>
 
-            <div className="pt-4 flex justify-end space-x-3">
+            <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
               <button 
                 type="button" 
                 onClick={onClose}

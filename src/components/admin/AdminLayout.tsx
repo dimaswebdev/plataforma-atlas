@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, Home, Users, DollarSign, Gift, Calendar, Settings, ShieldCheck, Megaphone, Briefcase, ChevronLeft, ChevronRight, Menu, X } from "lucide-react";
+import { LogOut, Home, Users, DollarSign, Gift, Calendar, Settings, Megaphone, Briefcase, ChevronLeft, ChevronRight, Menu } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 
@@ -48,9 +48,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     return null; // Will redirect
   }
 
-  const SidebarContent = () => (
+  const renderSidebarContent = () => (
     <>
-      <div className={`h-20 flex items-center ${isCollapsed ? 'justify-center' : 'px-6'} border-b border-atlas-gold-main/20 bg-gradient-to-b from-white/5 to-transparent transition-all duration-300`}>
+      <div className={`flex h-20 items-center ${isCollapsed ? 'justify-center' : 'px-5 sm:px-6'} border-b border-atlas-gold-main/20 bg-gradient-to-b from-white/5 to-transparent transition-all duration-300`}>
         <div className="flex items-center gap-3">
           <Image
             src="/logo-fab.svg"
@@ -123,14 +123,14 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="flex h-screen bg-[#060e1c] text-white overflow-hidden relative font-sans">
+    <div className="relative flex h-dvh min-w-0 overflow-hidden bg-[#060e1c] font-sans text-white">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-atlas-gold-main/5 blur-[150px] rounded-full" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-atlas-navy-aero/10 blur-[150px] rounded-full" />
       </div>
 
       <aside className={`hidden lg:flex flex-col bg-[#060e1c]/80 backdrop-blur-xl border-r border-atlas-gold-main/20 z-40 relative shadow-2xl transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
-        <SidebarContent />
+        {renderSidebarContent()}
       </aside>
 
       {isMobileOpen && (
@@ -140,15 +140,17 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         />
       )}
 
-      <aside className={`lg:hidden fixed left-0 top-0 h-full bg-[#060e1c] border-r border-atlas-gold-main/20 z-[70] transition-transform duration-300 w-64 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <SidebarContent />
+      <aside className={`fixed left-0 top-0 z-[70] h-full w-[min(18rem,85vw)] border-r border-atlas-gold-main/20 bg-[#060e1c] transition-transform duration-300 lg:hidden ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        {renderSidebarContent()}
       </aside>
 
-      <div className="flex-1 flex flex-col h-full overflow-hidden relative z-10">
+      <div className="relative z-10 flex h-full min-w-0 flex-1 flex-col overflow-hidden">
         <header className="lg:hidden h-16 flex items-center justify-between px-4 bg-[#060e1c]/90 border-b border-atlas-gold-main/20 backdrop-blur-md">
           <button 
             onClick={() => setIsMobileOpen(true)}
-            className="p-2 text-atlas-gold-main"
+            className="rounded-lg p-2 text-atlas-gold-main transition-colors hover:bg-white/5"
+            aria-label="Abrir menu administrativo"
+            aria-expanded={isMobileOpen}
           >
             <Menu className="w-6 h-6" />
           </button>
@@ -158,13 +160,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <span className="font-black text-atlas-gold-main uppercase tracking-widest text-[10px]">Administração</span>
           </div>
 
-          <button onClick={() => signOut(auth)} className="p-2 text-red-400">
+          <button onClick={() => signOut(auth)} className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-500/10" aria-label="Desconectar">
             <LogOut className="w-5 h-5" />
           </button>
         </header>
 
-        <main className="flex-1 overflow-y-auto custom-scrollbar">
-          <div className="p-4 md:p-8 w-full max-w-[1600px] mx-auto">
+        <main className="custom-scrollbar min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
+          <div className="mx-auto w-full max-w-[1600px] min-w-0 p-3 sm:p-4 md:p-8">
             {children}
           </div>
         </main>

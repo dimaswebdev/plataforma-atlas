@@ -2,9 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { DEFAULT_EVENT_ID } from "./constants";
+import { auth } from "@/lib/firebase";
 
 interface AuthContextType {
   user: User | null;
@@ -28,13 +26,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(currentUser);
       
       if (currentUser) {
-        console.log("User Logged In:", currentUser.uid, currentUser.email);
         try {
-          // Use server-side API to check admin status (bypasses browser SDK offline issues)
-          const res = await fetch(`/api/admin/check?uid=${currentUser.uid}`);
+          const token = await currentUser.getIdToken();
+          const res = await fetch("/api/admin/check", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
           const data = await res.json();
-          console.log("Admin Check for UID:", currentUser.uid, "Result:", data.isAdmin);
-          setIsAdmin(data.isAdmin);
+          setIsAdmin(Boolean(data.isAdmin));
         } catch (error) {
           console.error("Error checking admin status:", error);
           setIsAdmin(false);

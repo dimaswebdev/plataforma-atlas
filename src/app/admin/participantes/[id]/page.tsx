@@ -2,18 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { Participant } from "@/types/participant";
-import { DEFAULT_EVENT_ID } from "@/lib/constants";
 import Image from "next/image";
 import Link from "next/link";
 import { 
-  X, Edit, MapPin, Phone, Mail, AtSign, Globe, Calendar, Briefcase, 
-  DollarSign, Users, Activity, FileText, CheckCircle, CreditCard, 
+  Edit, MapPin, Phone, Mail, AtSign, Globe, Briefcase, 
+  DollarSign, FileText, CheckCircle, CreditCard, 
   ArrowLeft, Shirt, Scissors, Ruler, Loader2, ShieldCheck
 } from "lucide-react";
 import { calculateAge, formatCurrencyBRL } from "@/lib/utils";
+import { fetchWithAdminAuth } from "@/lib/client-auth";
 
 export default function ParticipantDetailsPage() {
   const params = useParams();
@@ -25,7 +23,7 @@ export default function ParticipantDetailsPage() {
     async function loadParticipant() {
       if (!params.id) return;
       try {
-        const res = await fetch(`/api/data?collection=participants&id=${params.id}`);
+        const res = await fetchWithAdminAuth(`/api/data?collection=participants&id=${params.id}`);
         const data = await res.json();
         if (data) {
           setParticipant(data as Participant);
@@ -59,7 +57,6 @@ export default function ParticipantDetailsPage() {
   const ADESAO_CONVIDADO = 0;
   const totalPrevisto = ADESAO_TITULAR + (participant.guestsCount || 0) * ADESAO_CONVIDADO;
   const totalPago = participant.totalPaid || 0;
-  const saldoPendente = Math.max(0, totalPrevisto - totalPago);
   const progressPct = totalPrevisto > 0 ? Math.min(100, Math.round((totalPago / totalPrevisto) * 100)) : 100;
 
   // Get Initials for Avatar Monogram
@@ -88,20 +85,20 @@ export default function ParticipantDetailsPage() {
   const hasKitInterest = kit?.interest === "yes" || kit?.interest === "maybe";
 
   return (
-    <div className="animate-in fade-in duration-500 pb-12">
+    <div className="min-w-0 pb-12 animate-in fade-in duration-500">
       
       {/* Top Bar Navigation */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Link 
           href="/admin/participantes"
-          className="flex items-center gap-2 text-atlas-text-muted hover:text-white transition-colors group"
+          className="group flex items-center gap-2 text-sm text-atlas-text-muted transition-colors hover:text-white"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           <span className="text-sm font-bold uppercase tracking-widest">Voltar para Lista</span>
         </Link>
         <button 
           onClick={() => { /* will open edit form logic */ }}
-          className="px-4 py-2 bg-atlas-gold-main/10 hover:bg-atlas-gold-main/20 text-atlas-gold-main text-xs font-black uppercase tracking-widest rounded flex items-center gap-2 transition-all border border-atlas-gold-main/20"
+          className="flex w-full items-center justify-center gap-2 rounded border border-atlas-gold-main/20 bg-atlas-gold-main/10 px-4 py-2 text-xs font-black uppercase tracking-widest text-atlas-gold-main transition-all hover:bg-atlas-gold-main/20 sm:w-auto"
         >
           <Edit className="w-3 h-3" /> Editar (Em breve)
         </button>
@@ -111,12 +108,12 @@ export default function ParticipantDetailsPage() {
       <div className="bg-atlas-navy-deep w-full rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col relative border border-atlas-navy-aero/30 overflow-hidden">
         
         {/* Header Institucional */}
-        <div className="relative bg-gradient-to-r from-[#030712] via-[#0a192f] to-[#030712] border-b border-atlas-gold-main/30 px-6 sm:px-10 py-8 overflow-hidden shrink-0">
+        <div className="relative shrink-0 overflow-hidden border-b border-atlas-gold-main/30 bg-gradient-to-r from-[#030712] via-[#0a192f] to-[#030712] px-4 py-6 sm:px-10 sm:py-8">
           {/* Fundo decorativo header */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-atlas-gold-main/5 rounded-full -mr-32 -mt-48 blur-[80px] pointer-events-none"></div>
           
-          <div className="flex justify-between items-start relative z-10">
-            <div className="flex items-center gap-4">
+          <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex min-w-0 items-center gap-4">
               <div className="w-12 h-12 flex items-center justify-center bg-transparent">
                 <Image 
                   src="/logo-fab.svg" 
@@ -139,7 +136,7 @@ export default function ParticipantDetailsPage() {
         </div>
 
         {/* Corpo do Dossiê */}
-        <div className="flex-1 p-6 sm:p-10 bg-gradient-to-b from-atlas-navy-base to-atlas-navy-deep">
+        <div className="flex-1 bg-gradient-to-b from-atlas-navy-base to-atlas-navy-deep p-4 sm:p-6 lg:p-10">
           
           {/* Seção 1: Perfil e Resumo */}
           <div className="flex flex-col md:flex-row gap-8 items-center md:items-start border-b border-white/5 pb-10 mb-10">
@@ -157,12 +154,12 @@ export default function ParticipantDetailsPage() {
 
             {/* Dados Principais */}
             <div className="flex-1 text-center md:text-left w-full mt-4 md:mt-0">
-              <h2 className="text-3xl sm:text-5xl font-black text-white uppercase tracking-tight leading-none mb-3">
+              <h2 className="mb-3 break-words text-3xl font-black uppercase leading-tight tracking-tight text-white sm:text-5xl sm:leading-none">
                 {participant.name}
               </h2>
               {participant.nickname && (
                 <div className="text-atlas-gold-main font-bold text-xl sm:text-2xl uppercase tracking-widest mb-6">
-                  "{participant.nickname}"
+                  &quot;{participant.nickname}&quot;
                 </div>
               )}
               
@@ -183,10 +180,10 @@ export default function ParticipantDetailsPage() {
               </div>
 
               {/* Faixa de Resumo Rápido */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:grid-cols-4 sm:gap-4">
                 <div className="bg-white/5 rounded-xl p-4 border border-white/5 shadow-inner">
                   <div className="text-[10px] text-atlas-text-muted font-bold uppercase tracking-widest mb-1">Localidade</div>
-                  <div className="text-sm sm:text-base font-semibold text-white truncate">{participant.state || "-"} / {participant.city ? participant.city.substring(0,10) : "-"}</div>
+                  <div className="truncate text-sm font-semibold text-white sm:text-base">{participant.state || "-"} / {participant.city || "-"}</div>
                 </div>
                 <div className="bg-white/5 rounded-xl p-4 border border-white/5 shadow-inner">
                   <div className="text-[10px] text-atlas-text-muted font-bold uppercase tracking-widest mb-1">Convidados</div>
@@ -252,17 +249,17 @@ export default function ParticipantDetailsPage() {
                     </div>
                   )}
                   {(participant.instagram || participant.linkedin) && (
-                    <div className="flex gap-4 mt-4">
+                    <div className="mt-4 flex flex-wrap gap-3">
                       {participant.instagram && (
-                        <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/5 shadow-inner">
+                        <div className="flex min-w-0 items-center gap-2 rounded-full border border-white/5 bg-white/5 px-4 py-2 shadow-inner">
                           <AtSign className="w-4 h-4 text-atlas-gold-main" />
-                          <span className="text-sm text-white font-medium">{participant.instagram}</span>
+                          <span className="truncate text-sm font-medium text-white">{participant.instagram}</span>
                         </div>
                       )}
                       {participant.linkedin && (
-                        <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/5 shadow-inner">
+                        <div className="flex min-w-0 items-center gap-2 rounded-full border border-white/5 bg-white/5 px-4 py-2 shadow-inner">
                           <Globe className="w-4 h-4 text-atlas-gold-main" />
-                          <span className="text-sm text-white font-medium">{participant.linkedin}</span>
+                          <span className="truncate text-sm font-medium text-white">{participant.linkedin}</span>
                         </div>
                       )}
                     </div>
@@ -281,7 +278,7 @@ export default function ParticipantDetailsPage() {
                     <label className="block text-[10px] text-atlas-text-muted font-bold uppercase tracking-widest mb-1">Endereço Completo</label>
                     <div className="text-base text-white font-medium">{participant.address || "Não informado"}</div>
                   </div>
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
                     <div>
                       <label className="block text-[10px] text-atlas-text-muted font-bold uppercase tracking-widest mb-1">Cidade/UF</label>
                       <div className="text-base text-white font-medium">{participant.city || "-"} - {participant.state || "-"}</div>
@@ -310,7 +307,7 @@ export default function ParticipantDetailsPage() {
                   <div className="bg-gradient-to-br from-[#0a192f] to-atlas-navy-deep rounded-xl p-6 border border-atlas-navy-aero/30 shadow-lg relative overflow-hidden">
                     <Scissors className="absolute -right-4 -top-4 w-32 h-32 text-white/5 pointer-events-none" />
                     
-                    <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+                    <div className="relative z-10 mb-6 grid grid-cols-1 gap-3 min-[420px]:grid-cols-3 sm:gap-4">
                       <div className="bg-white/5 p-3 rounded border border-white/5">
                         <div className="text-[9px] text-atlas-text-muted font-bold uppercase tracking-widest mb-1">Camiseta</div>
                         <div className="text-lg text-white font-black">{kit?.shirtSize || "-"}</div>
@@ -325,7 +322,7 @@ export default function ParticipantDetailsPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-6 border-t border-white/5 pt-4">
+                    <div className="mb-6 grid grid-cols-1 gap-4 border-t border-white/5 pt-4 sm:grid-cols-2">
                       {kit?.heightCm && (
                         <div>
                           <div className="text-[9px] text-atlas-text-muted font-bold uppercase tracking-widest mb-1 flex items-center gap-1"><Ruler className="w-3 h-3"/> Altura</div>
@@ -343,14 +340,14 @@ export default function ParticipantDetailsPage() {
                     {kit?.wantsNameCustomization && kit?.customizationName && (
                       <div className="bg-atlas-gold-main/10 p-4 rounded-lg border border-atlas-gold-main/20 mb-4">
                         <div className="text-[10px] text-atlas-gold-main font-bold uppercase tracking-widest mb-1">Nome para Personalização</div>
-                        <div className="text-xl font-mono tracking-widest text-white uppercase">"{kit.customizationName}"</div>
+                        <div className="text-xl font-mono tracking-widest text-white uppercase">&quot;{kit.customizationName}&quot;</div>
                       </div>
                     )}
                     
                     {(kit?.needsSpecialSize || kit?.notes) && (
                       <div className="bg-black/20 p-4 rounded-lg text-sm text-atlas-text-light">
                         {kit.needsSpecialSize && <span className="block mb-2 font-bold text-yellow-500">⚠️ Solicitou tamanho especial / sob medida.</span>}
-                        {kit.notes && <span className="italic">"{kit.notes}"</span>}
+                        {kit.notes && <span className="italic">&quot;{kit.notes}&quot;</span>}
                       </div>
                     )}
                   </div>
@@ -407,7 +404,7 @@ export default function ParticipantDetailsPage() {
                      <div className="p-3 bg-atlas-navy-base/30 rounded border border-white/5">
                         <p className="text-[8px] text-atlas-text-muted uppercase tracking-widest font-black mb-1">Aceite em:</p>
                         <p className="text-[10px] text-white font-mono leading-none">
-                          {participant.termsAcceptance?.acceptedAt ? new Date(participant.termsAcceptance.acceptedAt as any).toLocaleString('pt-BR') : 'Sem registro'}
+                          {participant.termsAcceptance?.acceptedAt ? new Date(participant.termsAcceptance.acceptedAt as string | number | Date).toLocaleString('pt-BR') : 'Sem registro'}
                         </p>
                      </div>
                   </div>
@@ -422,15 +419,15 @@ export default function ParticipantDetailsPage() {
                   <h3 className="text-white text-sm font-black uppercase tracking-[0.2em]">Resumo Financeiro</h3>
                 </div>
                 
-                <div className="bg-gradient-to-br from-[#0a192f] to-[#060e1c] rounded-xl p-8 border border-atlas-gold-main/20 relative overflow-hidden shadow-[0_0_40px_rgba(212,175,55,0.05)]">
+                <div className="relative overflow-hidden rounded-xl border border-atlas-gold-main/20 bg-gradient-to-br from-[#0a192f] to-[#060e1c] p-5 shadow-[0_0_40px_rgba(212,175,55,0.05)] sm:p-8">
                   <CreditCard className="absolute -right-6 -bottom-6 w-40 h-40 text-atlas-gold-main/5 pointer-events-none" />
                   
                   <div className="relative z-10 space-y-6">
                     {/* Valores */}
-                    <div className="flex justify-between items-end">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                       <div>
                         <div className="text-[10px] text-atlas-gold-main font-bold uppercase tracking-widest mb-1">Total Pago</div>
-                        <div className="text-4xl font-black text-white leading-none">{formatCurrencyBRL(totalPago)}</div>
+                        <div className="break-words text-3xl font-black leading-none text-white sm:text-4xl">{formatCurrencyBRL(totalPago)}</div>
                         <div className="text-sm text-atlas-text-muted mt-2 font-medium">de {formatCurrencyBRL(0)} previsto</div>
                       </div>
                       <div className="text-right">
@@ -465,7 +462,7 @@ export default function ParticipantDetailsPage() {
                   </div>
                   <div className="bg-[#030712]/50 rounded-xl p-6 border border-white/5 relative shadow-inner">
                     <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-atlas-gold-main/50 rounded-l-xl"></div>
-                    <p className="text-base text-atlas-text-light italic leading-relaxed">"{participant.notes}"</p>
+                    <p className="text-base text-atlas-text-light italic leading-relaxed">&quot;{participant.notes}&quot;</p>
                   </div>
                 </section>
               )}

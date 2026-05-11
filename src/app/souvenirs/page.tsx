@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPublicSouvenirs } from "@/data/souvenirs";
 import { SouvenirCard } from "@/components/public/SouvenirCard";
 import { PublicNav } from "@/components/public/PublicNav";
 import { PublicFooter } from "@/components/public/PublicFooter";
@@ -45,15 +44,15 @@ export default function SouvenirsPage() {
         title="Souvenirs Oficiais"
         subtitle="Itens comemorativos dos 30 anos da Turma ATLAS. Clique em &lsquo;Tenho Interesse&rsquo; para solicitar via WhatsApp."
       />
-      <main className="flex-grow py-12 px-4 md:px-8 max-w-7xl mx-auto w-full">
+      <main className="mx-auto w-full max-w-7xl flex-grow px-4 py-10 sm:px-6 md:px-8 md:py-12">
 
         {souvenirs.length === 0 ? (
-          <div className="text-center py-20 text-atlas-text-muted bg-atlas-navy-deep rounded-lg border border-atlas-navy-aero/30">
+          <div className="rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep px-4 py-14 text-center text-atlas-text-muted sm:py-20">
             <p>Os souvenirs ainda estão sendo definidos pela comissão organizadora.</p>
             <p className="mt-2 text-sm">Em breve teremos patches, camisetas, canecas e muito mais.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
             {souvenirs.map((souvenir) => (
               <SouvenirCard key={souvenir.id} souvenir={souvenir} />
             ))}

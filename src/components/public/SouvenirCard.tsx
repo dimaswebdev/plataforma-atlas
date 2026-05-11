@@ -23,11 +23,11 @@ export function SouvenirCard({ souvenir }: { souvenir: Souvenir }) {
         {souvenir.description && (
           <p className="text-sm text-atlas-text-muted mb-4 flex-grow">{souvenir.description}</p>
         )}
-        <div className="mt-auto pt-4 border-t border-atlas-navy-aero/30 flex items-center justify-between">
+        <div className="mt-auto flex flex-col gap-3 border-t border-atlas-navy-aero/30 pt-4 sm:flex-row sm:items-center sm:justify-between">
           <span className="text-xl font-bold text-atlas-gold-main">{formatCurrencyBRL(souvenir.price)}</span>
           <button 
             disabled={!souvenir.available}
-            className="text-xs px-4 py-2 bg-atlas-navy-secondary text-white rounded hover:bg-atlas-navy-aero transition-colors disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider font-semibold"
+            className="w-full rounded bg-atlas-navy-secondary px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-atlas-navy-aero disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             Tenho Interesse
           </button>

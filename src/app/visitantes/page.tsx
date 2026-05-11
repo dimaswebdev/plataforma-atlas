@@ -14,10 +14,10 @@ export default function VisitantesPage() {
         title="Informações para Visitantes"
         subtitle="Orientações importantes para os integrantes da Turma ATLAS que virão de outras cidades ou estados."
       />
-      <main className="flex-grow py-12 px-4 md:px-8 max-w-5xl mx-auto w-full">
+      <main className="mx-auto w-full max-w-5xl flex-grow px-4 py-10 sm:px-6 md:px-8 md:py-12">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          <div className="bg-atlas-navy-deep p-8 rounded-lg border border-atlas-navy-aero/30 shadow-lg">
+        <div className="mb-12 grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-8">
+          <div className="rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-5 shadow-lg sm:p-8">
             <div className="flex items-center mb-6">
               <div className="p-3 bg-atlas-gold-main/10 rounded-full border border-atlas-gold-main/30 mr-4">
                 <Plane className="w-6 h-6 text-atlas-gold-main" />
@@ -33,7 +33,7 @@ export default function VisitantesPage() {
             </ul>
           </div>
 
-          <div className="bg-atlas-navy-deep p-8 rounded-lg border border-atlas-navy-aero/30 shadow-lg">
+          <div className="rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-5 shadow-lg sm:p-8">
             <div className="flex items-center mb-6">
               <div className="p-3 bg-blue-900/30 rounded-full border border-blue-500/30 mr-4">
                 <Hotel className="w-6 h-6 text-blue-400" />
@@ -48,7 +48,7 @@ export default function VisitantesPage() {
             </div>
           </div>
 
-          <div className="bg-atlas-navy-deep p-8 rounded-lg border border-atlas-navy-aero/30 shadow-lg">
+          <div className="rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-5 shadow-lg sm:p-8">
             <div className="flex items-center mb-6">
               <div className="p-3 bg-green-900/30 rounded-full border border-green-500/30 mr-4">
                 <Car className="w-6 h-6 text-green-400" />
@@ -60,7 +60,7 @@ export default function VisitantesPage() {
             </p>
           </div>
 
-          <div className="bg-atlas-navy-deep p-8 rounded-lg border border-atlas-navy-aero/30 shadow-lg">
+          <div className="rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-5 shadow-lg sm:p-8">
             <div className="flex items-center mb-6">
               <div className="p-3 bg-red-900/30 rounded-full border border-red-500/30 mr-4">
                 <Map className="w-6 h-6 text-red-400" />
@@ -72,7 +72,7 @@ export default function VisitantesPage() {
             </p>
             <Link 
               href="/confirmar-interesse"
-              className="inline-block px-6 py-2 bg-atlas-gold-main text-atlas-navy-deep font-semibold rounded hover:bg-atlas-gold-dark transition-colors uppercase text-sm tracking-wider"
+              className="inline-flex w-full justify-center rounded bg-atlas-gold-main px-6 py-2 text-sm font-semibold uppercase tracking-wider text-atlas-navy-deep transition-colors hover:bg-atlas-gold-dark sm:w-auto"
             >
               Preencher Formulário
             </Link>

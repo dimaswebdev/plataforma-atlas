@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { createParticipant } from "@/data/participants";
+import { useState } from "react";
 import { Participant } from "@/types/participant";
 import { PublicNav } from "@/components/public/PublicNav";
 import { PublicFooter } from "@/components/public/PublicFooter";
@@ -18,15 +17,20 @@ import {
 } from "@/lib/legal-constants";
 import Link from "next/link";
 
+type ParticipantSubmission = Omit<Participant, "id" | "createdAt" | "updatedAt"> & {
+  accessCode?: string;
+  website?: string;
+  submittedAtClient: string;
+};
+
 export default function ConfirmarInteressePage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [pendingPayload, setPendingPayload] = useState<Omit<Participant, 'id'|'createdAt'|'updatedAt'> | null>(null);
-  const formRef = useRef<HTMLFormElement>(null);
-
+  const [pendingPayload, setPendingPayload] = useState<ParticipantSubmission | null>(null);
+  const [submitError, setSubmitError] = useState("");
   // Auto-formatters and conditionals
   const [phoneInput, setPhoneInput] = useState("");
   const [zipInput, setZipInput] = useState("");
@@ -85,9 +89,9 @@ export default function ConfirmarInteressePage() {
 
     const officialKit = kitInterest ? {
       interest: kitInterest as "yes" | "maybe" | "no",
-      shirtSize: (formData.get("shirtSize") as any) || undefined,
-      jacketSize: (formData.get("jacketSize") as any) || undefined,
-      pantsSize: (formData.get("pantsSize") as any) || undefined,
+      shirtSize: (formData.get("shirtSize") as NonNullable<Participant["officialKit"]>["shirtSize"]) || undefined,
+      jacketSize: (formData.get("jacketSize") as NonNullable<Participant["officialKit"]>["jacketSize"]) || undefined,
+      pantsSize: (formData.get("pantsSize") as NonNullable<Participant["officialKit"]>["pantsSize"]) || undefined,
       heightCm: formData.get("heightCm") ? Number(formData.get("heightCm")) : undefined,
       approximateWeightKg: formData.get("approximateWeightKg") ? Number(formData.get("approximateWeightKg")) : undefined,
       needsSpecialSize: formData.get("needsSpecialSize") === "on",
@@ -97,7 +101,10 @@ export default function ConfirmarInteressePage() {
       notes: (formData.get("kitNotes") as string) || undefined,
     } : undefined;
 
-    const payload = {
+    const payload: ParticipantSubmission = {
+      accessCode: ((formData.get("accessCode") as string) || "").trim(),
+      website: ((formData.get("website") as string) || "").trim(),
+      submittedAtClient: new Date().toISOString(),
       name: capitalizeName(rawName),
       nickname: rawNickname ? capitalizeName(rawNickname) : "",
       email: ((formData.get("email") as string) || "").toLowerCase(),
@@ -139,6 +146,7 @@ export default function ConfirmarInteressePage() {
       }
     };
 
+    setSubmitError("");
     setPendingPayload(payload);
     setShowConfirmModal(true);
   }
@@ -147,6 +155,7 @@ export default function ConfirmarInteressePage() {
     if (!pendingPayload) return;
     setShowConfirmModal(false);
     setLoading(true);
+    setSubmitError("");
     try {
       const res = await fetch("/api/data?collection=participants", {
         method: "POST",
@@ -154,14 +163,17 @@ export default function ConfirmarInteressePage() {
         body: JSON.stringify(pendingPayload)
       });
       
-      if (!res.ok) throw new Error("Failed to save");
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(data?.error || "Não foi possível salvar seu cadastro agora.");
+      }
       
       setCompletedSteps(prev => prev.includes(3) ? prev : [...prev, 3]);
       setSuccess(true);
       window.scrollTo(0, 0);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Erro ao salvar participante:", error);
-      alert("Erro ao salvar cadastro. Verifique sua conexão e tente novamente.");
+      setSubmitError(error instanceof Error ? error.message : "Erro ao salvar cadastro. Verifique sua conexão e tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -176,12 +188,12 @@ export default function ConfirmarInteressePage() {
         title="Cadastro e Presença"
         subtitle="Preencha seus dados para realizar seu cadastro oficial e confirmar sua presença no evento de 30 anos da Turma ATLAS."
       />
-      <main className="flex-grow py-12 px-4 md:px-8 max-w-4xl mx-auto w-full">
-        <div className="bg-atlas-navy-deep p-8 rounded-lg border border-atlas-navy-aero/30 shadow-lg relative overflow-hidden">
+      <main className="mx-auto w-full max-w-4xl flex-grow px-4 py-10 sm:px-6 md:px-8 md:py-12">
+        <div className="relative overflow-hidden rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-4 shadow-lg sm:p-6 md:p-8">
           <div className="absolute top-0 right-0 w-64 h-64 bg-atlas-gold-main/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
 
           {success ? (
-            <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-8 text-center flex flex-col items-center">
+            <div className="flex flex-col items-center rounded-lg border border-green-500/30 bg-green-900/20 p-5 text-center sm:p-8">
               <div className="w-16 h-16 bg-green-900/50 rounded-full flex items-center justify-center mb-4 border border-green-500/50">
                 <ShieldCheck className="w-8 h-8 text-green-400" />
               </div>
@@ -236,13 +248,41 @@ export default function ConfirmarInteressePage() {
                 </h2>
               </div>
 
+              {submitError && (
+                <div className="relative z-10 rounded-lg border border-red-500/40 bg-red-950/40 p-4 text-sm text-red-100">
+                  {submitError}
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  className="hidden"
+                  aria-hidden="true"
+                />
                 
                 {/* STEP 1 */}
                 <div className={currentStep === 1 ? "block animate-in fade-in slide-in-from-right-4 duration-500" : "hidden"}>
                   
                   <div className="bg-atlas-navy-base/50 p-6 rounded border border-atlas-navy-aero/20 mb-6">
                     <h3 className="text-lg font-bold text-atlas-gold-main uppercase tracking-wider mb-4 border-b border-atlas-navy-aero/30 pb-2">Dados Pessoais</h3>
+
+                    <div className="mb-6 rounded-lg border border-atlas-gold-main/20 bg-atlas-gold-main/5 p-4">
+                      <label className="block text-sm font-medium text-atlas-text-light mb-1">Código de acesso do grupo</label>
+                      <input
+                        name="accessCode"
+                        type="text"
+                        autoComplete="one-time-code"
+                        placeholder="Informe o código enviado pela comissão, se houver"
+                        className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-4 py-2 text-white focus:outline-none focus:border-atlas-gold-main"
+                      />
+                      <p className="mt-2 text-xs leading-relaxed text-atlas-text-muted">
+                        Esse código ajuda a limitar cadastros ao grupo convidado quando a liberação pública estiver ativa.
+                      </p>
+                    </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                       <div>
@@ -536,12 +576,12 @@ export default function ConfirmarInteressePage() {
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="flex gap-4 pt-6 mt-6 border-t border-atlas-navy-aero/30">
+                <div className="mt-6 flex flex-col gap-3 border-t border-atlas-navy-aero/30 pt-6 sm:flex-row sm:gap-4">
                   {currentStep > 1 && (
                     <button 
                       type="button" 
                       onClick={prevStep}
-                      className="px-6 py-4 bg-atlas-navy-base text-white border border-atlas-navy-aero/50 rounded hover:bg-atlas-navy-aero/20 transition-colors uppercase tracking-widest font-bold flex items-center gap-2"
+                      className="flex w-full items-center justify-center gap-2 rounded border border-atlas-navy-aero/50 bg-atlas-navy-base px-6 py-4 font-bold uppercase tracking-widest text-white transition-colors hover:bg-atlas-navy-aero/20 sm:w-auto"
                     >
                       <ArrowLeft className="w-5 h-5" /> Voltar
                     </button>
@@ -550,7 +590,7 @@ export default function ConfirmarInteressePage() {
                   {currentStep < 3 ? (
                     <button 
                       type="submit" 
-                      className="flex-1 py-4 bg-atlas-gold-main text-atlas-navy-deep font-bold rounded hover:bg-atlas-gold-dark transition-colors uppercase tracking-widest flex justify-center items-center gap-2 text-lg"
+                      className="flex flex-1 items-center justify-center gap-2 rounded bg-atlas-gold-main py-4 text-base font-bold uppercase tracking-widest text-atlas-navy-deep transition-colors hover:bg-atlas-gold-dark sm:text-lg"
                     >
                       Próximo <ArrowRight className="w-5 h-5" />
                     </button>
@@ -558,7 +598,7 @@ export default function ConfirmarInteressePage() {
                     <button 
                       type="submit" 
                       disabled={loading}
-                      className="flex-1 py-4 bg-green-500 text-white font-bold rounded hover:bg-green-600 transition-colors uppercase tracking-widest disabled:opacity-70 flex justify-center items-center text-lg shadow-[0_0_20px_rgba(34,197,94,0.3)]"
+                      className="flex flex-1 items-center justify-center rounded bg-green-500 py-4 text-base font-bold uppercase tracking-widest text-white shadow-[0_0_20px_rgba(34,197,94,0.3)] transition-colors hover:bg-green-600 disabled:opacity-70 sm:text-lg"
                     >
                       {loading ? "Enviando..." : "Salvar no Compêndio Oficial"}
                     </button>
@@ -574,10 +614,10 @@ export default function ConfirmarInteressePage() {
 
       {/* Confirmation Modal */}
       {showConfirmModal && (
-        <div className="fixed inset-0 bg-[#060e1c]/95 backdrop-blur-md z-50 flex items-center justify-center p-6">
-          <div className="bg-atlas-navy-deep w-full max-w-md rounded-2xl border border-atlas-gold-main/30 shadow-[0_0_60px_rgba(212,175,55,0.15)] overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#060e1c]/95 p-3 backdrop-blur-md sm:items-center sm:p-6">
+          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-atlas-gold-main/30 bg-atlas-navy-deep shadow-[0_0_60px_rgba(212,175,55,0.15)] animate-in fade-in zoom-in-95 duration-300">
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-[#030712] via-[#0a192f] to-[#030712] px-8 py-6 border-b border-atlas-gold-main/20 flex items-center gap-4">
+            <div className="flex items-center gap-4 border-b border-atlas-gold-main/20 bg-gradient-to-r from-[#030712] via-[#0a192f] to-[#030712] px-5 py-5 sm:px-8 sm:py-6">
               <div className="p-3 bg-atlas-gold-main/10 rounded-xl border border-atlas-gold-main/20">
                 <AlertTriangle className="w-6 h-6 text-atlas-gold-main" />
               </div>
@@ -588,15 +628,15 @@ export default function ConfirmarInteressePage() {
             </div>
 
             {/* Modal Body */}
-            <div className="px-8 py-8">
-              <p className="text-white text-base font-medium mb-2">Deseja salvar os dados de <span className="text-atlas-gold-main font-bold">"{pendingPayload?.name}"</span> no Compêndio Oficial?</p>
+            <div className="px-5 py-6 sm:px-8 sm:py-8">
+              <p className="text-white text-base font-medium mb-2">Deseja salvar os dados de <span className="text-atlas-gold-main font-bold">&quot;{pendingPayload?.name}&quot;</span> no Compêndio Oficial?</p>
               <p className="text-atlas-text-muted text-sm leading-relaxed">
                 Confirme se todas as informações (incluindo tamanhos do Kit Oficial) estão corretas antes de finalizar.
               </p>
             </div>
 
             {/* Modal Footer */}
-            <div className="px-8 pb-8 flex gap-4">
+            <div className="flex flex-col-reverse gap-3 px-5 pb-6 sm:flex-row sm:gap-4 sm:px-8 sm:pb-8">
               <button
                 onClick={() => setShowConfirmModal(false)}
                 className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-atlas-text-light hover:text-white border border-white/10 rounded-xl font-bold uppercase tracking-widest transition-all text-sm"

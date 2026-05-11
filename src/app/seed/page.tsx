@@ -4,11 +4,25 @@ import { useState } from "react";
 import { doc, setDoc, deleteDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { DEFAULT_EVENT_ID } from "@/lib/constants";
+import Link from "next/link";
 
 export default function SeedPage() {
   const [status, setStatus] = useState("Pronto para rodar o script de Seed.");
   const [loading, setLoading] = useState(false);
   const [uid, setUid] = useState("");
+
+  if (process.env.NODE_ENV === "production") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-atlas-navy-base p-8 text-white text-center">
+        <div className="max-w-md w-full bg-atlas-navy-deep p-8 rounded border border-atlas-navy-aero/30 shadow-lg">
+          <h1 className="text-2xl font-bold mb-4 text-atlas-gold-main uppercase tracking-wider">Configuração Inicial Desativada</h1>
+          <p className="text-atlas-text-muted text-sm">
+            Esta rota é bloqueada em produção para proteger a configuração do evento. Use o painel administrativo ou o Firebase Console para ajustes.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   async function handleSeed() {
     if (!db) {
@@ -150,9 +164,10 @@ export default function SeedPage() {
       setStatus("4/4: Seed finalizado com sucesso!");
       console.log("Seed Success!");
       clearTimeout(timeoutId);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Seed Error:", error);
-      setStatus("ERRO: " + (error.code || error.message));
+      const message = error instanceof Error ? error.message : "Erro desconhecido";
+      setStatus("ERRO: " + message);
       clearTimeout(timeoutId);
     } finally {
       setLoading(false);
@@ -164,7 +179,7 @@ export default function SeedPage() {
       <div className="max-w-md w-full bg-atlas-navy-deep p-8 rounded border border-atlas-navy-aero/30 shadow-lg">
         <h1 className="text-2xl font-bold mb-4 text-atlas-gold-main uppercase tracking-wider">Configuração Inicial</h1>
         <p className="text-atlas-text-muted text-sm mb-6">
-          Cole abaixo o "User UID" que você acabou de criar no painel do Firebase para que o sistema te cadastre como o Administrador Principal.
+          Cole abaixo o &quot;User UID&quot; que você acabou de criar no painel do Firebase para que o sistema te cadastre como o Administrador Principal.
         </p>
 
         <input 
@@ -188,9 +203,9 @@ export default function SeedPage() {
         </button>
 
         {status.includes("sucesso") && (
-          <a href="/" className="block mt-4 text-sm text-atlas-navy-aero hover:text-white underline">
+          <Link href="/" className="block mt-4 text-sm text-atlas-navy-aero hover:text-white underline">
             Voltar para a Home
-          </a>
+          </Link>
         )}
 
         {/* Debug Info */}

@@ -18,6 +18,12 @@
   --foreground: var(--color-atlas-text-light);
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -45,6 +51,7 @@ h4 { font-size: 1.25rem; font-weight: 600; }
 /* Custom Scrollbar for Navy Theme */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: var(--color-atlas-navy-deep);

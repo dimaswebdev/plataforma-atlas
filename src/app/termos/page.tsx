@@ -67,10 +67,10 @@ export default function TermosIndexPage() {
         subtitle="Consulte aqui todos os documentos oficiais que regem a organização do Reencontro 30 Anos."
       />
 
-      <main className="flex-grow py-16 px-4 md:px-8 max-w-6xl mx-auto w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <main className="mx-auto w-full max-w-6xl flex-grow px-4 py-12 sm:px-6 md:px-8 md:py-16">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {documents.map((doc, idx) => (
-            <Link key={idx} href={doc.href} className="group relative bg-atlas-navy-deep p-8 rounded-2xl border border-atlas-navy-aero/20 hover:border-atlas-gold-main/50 transition-all duration-500 overflow-hidden shadow-xl">
+            <Link key={idx} href={doc.href} className="group relative overflow-hidden rounded-2xl border border-atlas-navy-aero/20 bg-atlas-navy-deep p-5 shadow-xl transition-all duration-500 hover:border-atlas-gold-main/50 sm:p-8">
               {/* Background gradient on hover */}
               <div className="absolute inset-0 bg-gradient-to-br from-atlas-gold-main/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               
@@ -95,7 +95,7 @@ export default function TermosIndexPage() {
           ))}
         </div>
         
-        <div className="mt-16 p-8 bg-atlas-navy-base/50 rounded-2xl border border-dashed border-atlas-navy-aero/30 text-center">
+        <div className="mt-12 rounded-2xl border border-dashed border-atlas-navy-aero/30 bg-atlas-navy-base/50 p-5 text-center sm:mt-16 sm:p-8">
           <p className="text-atlas-text-muted text-sm max-w-2xl mx-auto">
             A Comissão Organizadora recomenda a leitura atenta de todos os termos antes da confirmação de presença e adesão ao evento. Em caso de dúvidas, utilize os canais oficiais de comunicação.
           </p>

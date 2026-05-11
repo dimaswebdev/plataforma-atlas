@@ -4,7 +4,7 @@ import { CalendarDays, MapPin, Clock } from "lucide-react";
 
 export function ScheduleCard({ schedule }: { schedule: Schedule }) {
   return (
-    <div className="bg-atlas-navy-deep border border-atlas-navy-aero/30 rounded-lg p-6 shadow-sm hover:border-atlas-gold-main/50 transition-colors relative pl-12 overflow-hidden">
+    <div className="relative overflow-hidden rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-4 pl-8 shadow-sm transition-colors hover:border-atlas-gold-main/50 sm:p-6 sm:pl-12">
       <div className="absolute left-0 top-0 bottom-0 w-2 bg-atlas-gold-main"></div>
       
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
@@ -19,7 +19,7 @@ export function ScheduleCard({ schedule }: { schedule: Schedule }) {
           )}
         </div>
         
-        <div className="flex flex-col gap-2 min-w-[200px] bg-atlas-navy-base p-4 rounded border border-atlas-navy-aero/20">
+        <div className="flex w-full min-w-0 flex-col gap-2 rounded border border-atlas-navy-aero/20 bg-atlas-navy-base p-4 md:w-auto md:min-w-[200px]">
           {schedule.startTime && (
             <div className="flex items-center text-sm text-atlas-text-light">
               <Clock className="w-4 h-4 mr-2 text-atlas-navy-aero" />

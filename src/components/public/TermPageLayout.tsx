@@ -23,7 +23,7 @@ export function TermPageLayout({ title, version, lastUpdate, children }: TermPag
         subtitle="Regras, transparência e responsabilidades para o Reencontro 30 Anos."
       />
 
-      <main className="flex-grow py-12 px-4 md:px-8 max-w-4xl mx-auto w-full">
+      <main className="mx-auto w-full max-w-4xl flex-grow px-4 py-10 sm:px-6 md:px-8 md:py-12">
         <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <Link 
             href="/termos" 
@@ -32,7 +32,7 @@ export function TermPageLayout({ title, version, lastUpdate, children }: TermPag
             <ArrowLeft className="w-4 h-4" /> Voltar para Documentos
           </Link>
           
-          <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider font-bold">
+          <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-wider sm:gap-4">
             <div className="flex items-center gap-1.5 px-2 py-1 bg-atlas-gold-main/10 border border-atlas-gold-main/20 rounded text-atlas-gold-main">
               <ShieldCheck className="w-3 h-3" /> Versão: {version}
             </div>
@@ -42,7 +42,7 @@ export function TermPageLayout({ title, version, lastUpdate, children }: TermPag
           </div>
         </div>
 
-        <div className="bg-atlas-navy-deep p-8 md:p-12 rounded-xl border border-atlas-navy-aero/20 shadow-2xl relative overflow-hidden">
+        <div className="relative overflow-hidden rounded-xl border border-atlas-navy-aero/20 bg-atlas-navy-deep p-5 shadow-2xl sm:p-8 md:p-12">
           {/* Decorative element */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-atlas-gold-main/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
           
@@ -54,7 +54,7 @@ export function TermPageLayout({ title, version, lastUpdate, children }: TermPag
             <p className="text-xs text-atlas-text-muted font-medium mb-4">
               Dúvidas sobre este termo podem ser encaminhadas à Comissão Organizadora pelo canal oficial informado no Portal ATLAS.
             </p>
-            <div className="flex justify-center items-center gap-4 opacity-50 grayscale contrast-125">
+            <div className="flex flex-wrap items-center justify-center gap-4 opacity-50 grayscale contrast-125">
                <img src="/images/fab-logo.svg" alt="FAB" className="w-10 h-10" />
                <div className="h-8 w-[1px] bg-white/20"></div>
                <span className="text-[10px] font-black tracking-[0.3em] text-white uppercase">Turma ATLAS 30 Anos</span>

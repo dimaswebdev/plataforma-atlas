@@ -2,53 +2,162 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Funções de ajuda
     function isSignedIn() {
       return request.auth != null;
     }
-    
+
     function isEventAdmin(eventId) {
-      return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/admins/$(request.auth.uid));
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/events/$(eventId)/admins/$(request.auth.uid));
     }
 
-    // Eventos
-    match /events/{eventId} {
-      // Público pode ler o evento
-      allow read: if true;
-      // Admin pode escrever
-      allow write: if isEventAdmin(eventId);
+    function isEventOwner(eventId) {
+      return isEventAdmin(eventId)
+        && get(/databases/$(database)/documents/events/$(eventId)/admins/$(request.auth.uid)).data.role == "owner";
+    }
 
-      // Subcoleção de participantes
+    function isOptionalString(field, maxSize) {
+      return !(field in request.resource.data)
+        || (request.resource.data[field] is string && request.resource.data[field].size() <= maxSize);
+    }
+
+    function hasValidTermsAcceptance() {
+      return request.resource.data.termsAcceptance is map
+        && request.resource.data.termsAcceptance.keys().hasOnly([
+          "adhesionTermAccepted",
+          "privacyPolicyAccepted",
+          "platformTermsAccepted",
+          "financialTermsAccepted",
+          "imageUseAuthorized",
+          "souvenirsInfoAccepted",
+          "acceptedAt",
+          "userAgent",
+          "adhesionTermVersion",
+          "privacyPolicyVersion",
+          "platformTermsVersion",
+          "financialTermsVersion",
+          "imageUseTermVersion",
+          "souvenirsTermVersion"
+        ])
+        && request.resource.data.termsAcceptance.adhesionTermAccepted == true
+        && request.resource.data.termsAcceptance.privacyPolicyAccepted == true
+        && request.resource.data.termsAcceptance.platformTermsAccepted == true
+        && request.resource.data.termsAcceptance.financialTermsAccepted == true;
+    }
+
+    function hasValidOfficialKit() {
+      return request.resource.data.officialKit is map
+        && request.resource.data.officialKit.keys().hasOnly([
+          "interest",
+          "shirtSize",
+          "jacketSize",
+          "pantsSize",
+          "heightCm",
+          "approximateWeightKg",
+          "needsSpecialSize",
+          "wantsNameCustomization",
+          "customizationName",
+          "additionalKitsInterest",
+          "notes"
+        ])
+        && request.resource.data.officialKit.interest in ["yes", "maybe", "no"];
+    }
+
+    function hasValidPublicParticipantShape() {
+      return request.resource.data.keys().hasOnly([
+          "name",
+          "nickname",
+          "email",
+          "phone",
+          "instagram",
+          "linkedin",
+          "birthDate",
+          "currentFunction",
+          "zipCode",
+          "address",
+          "city",
+          "state",
+          "country",
+          "willAttend",
+          "isFromOutOfState",
+          "guestsCount",
+          "needsHotelInfo",
+          "needsTransportInfo",
+          "wantsToHelpCommittee",
+          "notes",
+          "paymentStatus",
+          "totalPaid",
+          "officialKit",
+          "termsAcceptance",
+          "createdAt",
+          "updatedAt"
+        ])
+        && request.resource.data.keys().hasAll([
+          "name",
+          "phone",
+          "willAttend",
+          "guestsCount",
+          "needsHotelInfo",
+          "needsTransportInfo",
+          "paymentStatus",
+          "totalPaid",
+          "officialKit",
+          "termsAcceptance",
+          "createdAt",
+          "updatedAt"
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 3
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() >= 10
+        && request.resource.data.phone.size() <= 40
+        && request.resource.data.willAttend in ["yes", "maybe", "no"]
+        && request.resource.data.guestsCount is number
+        && request.resource.data.guestsCount >= 0
+        && request.resource.data.guestsCount <= 20
+        && request.resource.data.needsHotelInfo is bool
+        && request.resource.data.needsTransportInfo is bool
+        && request.resource.data.paymentStatus == "not_started"
+        && request.resource.data.totalPaid == 0
+        && isOptionalString("email", 160)
+        && isOptionalString("nickname", 80)
+        && isOptionalString("instagram", 80)
+        && isOptionalString("linkedin", 160)
+        && isOptionalString("notes", 1500)
+        && hasValidOfficialKit()
+        && hasValidTermsAcceptance();
+    }
+
+    match /events/{eventId} {
+      allow get, list: if true;
+      allow create, update, delete: if isEventAdmin(eventId);
+
+      match /admins/{adminId} {
+        allow read: if isEventAdmin(eventId);
+        allow create, update, delete: if isEventOwner(eventId);
+      }
+
       match /participants/{participantId} {
-        // Público pode apenas criar
-        allow create: if true;
-        // Público não pode ler, apenas admins
+        allow create: if isEventAdmin(eventId) || hasValidPublicParticipantShape();
         allow read, update, delete: if isEventAdmin(eventId);
       }
 
-      // Subcoleção de transações
       match /transactions/{transactionId} {
-        // Público lê apenas transações públicas
         allow read: if isEventAdmin(eventId) || resource.data.isPublic == true;
-        allow write: if isEventAdmin(eventId);
+        allow create, update, delete: if isEventAdmin(eventId);
       }
 
-      // Subcoleção de souvenirs
       match /souvenirs/{souvenirId} {
-        // Público lê souvenirs disponíveis
         allow read: if isEventAdmin(eventId) || resource.data.available == true;
-        allow write: if isEventAdmin(eventId);
+        allow create, update, delete: if isEventAdmin(eventId);
       }
 
-      // Subcoleção de programação
       match /schedule/{scheduleId} {
-        // Público lê apenas as públicas
         allow read: if isEventAdmin(eventId) || resource.data.isPublic == true;
-        allow write: if isEventAdmin(eventId);
+        allow create, update, delete: if isEventAdmin(eventId);
       }
 
-      // Outras subcoleções (updates, suppliers, guests, admins, etc)
       match /{collection}/{document=**} {
         allow read, write: if isEventAdmin(eventId);
       }

@@ -1,19 +1,15 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
 export function Countdown({ targetDateStr, compact }: { targetDateStr: string; compact?: boolean }) {
+  void targetDateStr;
   const daysLeft = 0; // Event date not yet defined
-
 
   if (compact) {
     return (
-      <div className="bg-transparent border border-atlas-gold-main/40 backdrop-blur-md px-8 py-5 rounded-lg shadow-xl
+      <div className="w-full min-w-0 bg-transparent border border-atlas-gold-main/40 backdrop-blur-md px-5 py-5 sm:px-8 rounded-lg shadow-xl
                       transition-all duration-300 hover:border-atlas-gold-main hover:bg-white/5 hover:shadow-atlas-gold-main/20 hover:shadow-2xl
-                      min-w-[220px] cursor-default">
-        <p className="text-[10px] text-atlas-gold-main uppercase tracking-[0.3em] font-bold mb-3">Dias para o Evento</p>
+                      cursor-default">
+        <p className="text-[10px] text-atlas-gold-main uppercase tracking-[0.22em] sm:tracking-[0.3em] font-bold mb-3">Dias para o Evento</p>
         <div className="flex items-end gap-2">
-          <span className="text-5xl font-black text-white leading-none">{daysLeft}</span>
+          <span className="text-4xl sm:text-5xl font-black text-white leading-none">{daysLeft}</span>
           <span className="text-atlas-text-muted text-sm mb-1">dias</span>
         </div>
       </div>
