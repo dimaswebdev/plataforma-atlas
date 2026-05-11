@@ -1,31 +1,29 @@
 "use client";
 
 import { Calendar, Plus } from "lucide-react";
+import { AdminEmptyState } from "@/components/admin/AdminEmptyState";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 
 export default function AdminProgramacao() {
   return (
-    <div className="min-w-0">
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="atlas-admin-title flex items-center text-white">
-          <Calendar className="w-6 h-6 mr-3 text-atlas-gold-main" />
-          Programação
-        </h1>
-        <button 
-          className="flex w-full cursor-not-allowed items-center justify-center rounded bg-atlas-gold-main px-4 py-2 text-sm font-bold uppercase tracking-wider text-atlas-navy-deep opacity-50 transition-colors hover:bg-atlas-gold-dark sm:w-auto"
-          disabled
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Evento
-        </button>
-      </div>
+    <div className="atlas-admin-page">
+      <AdminPageHeader
+        title="Programação"
+        icon={Calendar}
+        description="Área reservada para montar cronograma, horários e atividades oficiais do evento."
+        actions={
+          <button className="atlas-primary-button w-full sm:w-auto" disabled>
+            <Plus className="h-4 w-4" />
+            Novo evento
+          </button>
+        }
+      />
 
-      <div className="rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-6 text-center shadow-lg sm:p-12">
-        <Calendar className="w-16 h-16 text-atlas-navy-aero mx-auto mb-4 opacity-50" />
-        <h2 className="atlas-section-title mb-2 text-white">Módulo em Construção</h2>
-        <p className="text-atlas-text-muted max-w-md mx-auto">
-          O gerenciamento do cronograma oficial estará disponível em breve.
-        </p>
-      </div>
+      <AdminEmptyState
+        icon={Calendar}
+        title="Módulo em construção"
+        description="O gerenciamento do cronograma oficial estará disponível em breve."
+      />
     </div>
   );
 }

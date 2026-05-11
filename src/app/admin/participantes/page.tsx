@@ -8,6 +8,8 @@ import { calculateAge, formatCurrencyBRL } from "@/lib/utils";
 import { DollarSign, TrendingUp, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { fetchWithAdminAuth } from "@/lib/client-auth";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { AdminStatCard } from "@/components/admin/AdminStatCard";
 
 const ADESAO_TITULAR = 0; 
 const ADESAO_CONVIDADO = 0; 
@@ -68,98 +70,49 @@ export default function AdminParticipants() {
   };
 
   return (
-    <div className="min-w-0">
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="atlas-admin-title flex items-center text-white">
-          <Users className="w-6 h-6 mr-3 text-atlas-gold-main" />
-          Lista de Membros
-        </h1>
-      </div>
+    <div className="atlas-admin-page">
+      <AdminPageHeader
+        title="Lista de membros"
+        icon={Users}
+        description="Consulta operacional dos cadastros, confirmação de presença, interesse em kit e acompanhamento de pagamentos."
+      />
 
-      {/* DASHBOARD FINANCEIRO */}
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-        
-        {/* Total de Membros Card */}
-        <div className="group relative min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-md transition-all duration-500 hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] sm:p-6">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
-            <Users className="w-24 h-24 text-blue-400" />
-          </div>
-          <div className="relative z-10 flex min-w-0 items-center gap-4">
-            <div className="p-3.5 bg-gradient-to-br from-blue-500/20 to-blue-500/5 rounded-xl border border-blue-500/20 shadow-inner">
-              <Users className="w-6 h-6 text-blue-400" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[10px] text-blue-400 uppercase tracking-[0.2em] font-bold mb-1">Total de Membros</p>
-              <p className="atlas-metric-value text-white">{participants.length}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Total a Arrecadar Card */}
-        <div className="group relative min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-md transition-all duration-500 hover:border-atlas-gold-main/50 hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] sm:p-6">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
-            <DollarSign className="w-24 h-24 text-atlas-gold-main" />
-          </div>
-          <div className="relative z-10 flex min-w-0 items-center gap-4">
-            <div className="p-3.5 bg-gradient-to-br from-atlas-gold-main/20 to-atlas-gold-main/5 rounded-xl border border-atlas-gold-main/20 shadow-inner">
-              <DollarSign className="w-6 h-6 text-atlas-gold-main" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[10px] text-atlas-gold-main uppercase tracking-[0.2em] font-bold mb-1">Total a Arrecadar</p>
-              <p className="atlas-metric-value break-words text-white">
-                {formatCurrencyBRL(participants.reduce((acc, p) => acc + (ADESAO_TITULAR + (p.guestsCount || 0) * ADESAO_CONVIDADO), 0))}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Arrecadado Card */}
-        <div className="group relative min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-md transition-all duration-500 hover:border-green-500/50 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)] sm:p-6">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
-            <TrendingUp className="w-24 h-24 text-green-400" />
-          </div>
-          <div className="relative z-10 flex min-w-0 items-center gap-4">
-            <div className="p-3.5 bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-xl border border-green-500/20 shadow-inner">
-              <TrendingUp className="w-6 h-6 text-green-400" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[10px] text-green-400 uppercase tracking-[0.2em] font-bold mb-1">Arrecadado</p>
-              <p className="atlas-metric-value break-words text-white">
-                {formatCurrencyBRL(participants.reduce((acc, p) => acc + (p.totalPaid || 0), 0))}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Falta Card */}
-        <div className="group relative min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-md transition-all duration-500 hover:border-red-500/50 hover:shadow-[0_0_30px_rgba(239,68,68,0.15)] sm:p-6">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
-            <AlertCircle className="w-24 h-24 text-red-500" />
-          </div>
-          <div className="relative z-10 flex min-w-0 items-center gap-4">
-            <div className="p-3.5 bg-gradient-to-br from-red-500/20 to-red-500/5 rounded-xl border border-red-500/20 shadow-inner">
-              <AlertCircle className="w-6 h-6 text-red-500" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[10px] text-red-500 uppercase tracking-[0.2em] font-bold mb-1">Falta</p>
-              <p className="atlas-metric-value break-words text-white">
-                {formatCurrencyBRL(
-                  participants.reduce((acc, p) => acc + Math.max(0, (ADESAO_TITULAR + (p.guestsCount || 0) * ADESAO_CONVIDADO) - (p.totalPaid || 0)), 0)
-                )}
-              </p>
-            </div>
-          </div>
-        </div>
-
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <AdminStatCard
+          icon={Users}
+          label="Total de membros"
+          value={participants.length}
+          tone="blue"
+        />
+        <AdminStatCard
+          icon={DollarSign}
+          label="Total a arrecadar"
+          value={formatCurrencyBRL(participants.reduce((acc, p) => acc + (ADESAO_TITULAR + (p.guestsCount || 0) * ADESAO_CONVIDADO), 0))}
+          tone="gold"
+        />
+        <AdminStatCard
+          icon={TrendingUp}
+          label="Arrecadado"
+          value={formatCurrencyBRL(participants.reduce((acc, p) => acc + (p.totalPaid || 0), 0))}
+          tone="green"
+        />
+        <AdminStatCard
+          icon={AlertCircle}
+          label="Falta"
+          value={formatCurrencyBRL(
+            participants.reduce((acc, p) => acc + Math.max(0, (ADESAO_TITULAR + (p.guestsCount || 0) * ADESAO_CONVIDADO) - (p.totalPaid || 0)), 0)
+          )}
+          tone="red"
+        />
       </div>
 
       <div className="space-y-3 lg:hidden">
         {loading ? (
-          <div className="rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-6 text-center text-atlas-text-muted">
+          <div className="atlas-admin-card p-6 text-center text-atlas-text-muted">
             Carregando...
           </div>
         ) : participants.length === 0 ? (
-          <div className="rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-6 text-center text-atlas-text-muted">
+          <div className="atlas-admin-card p-6 text-center text-atlas-text-muted">
             Nenhum militar registrado.
           </div>
         ) : (
@@ -177,7 +130,7 @@ export default function AdminParticipants() {
                 : "border-red-500/40 bg-red-500/10 text-red-400";
 
             return (
-              <article key={p.id} className="rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-4 shadow-lg">
+              <article key={p.id} className="atlas-admin-card p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <h2 className="atlas-card-title truncate text-white">{p.name}</h2>
@@ -266,9 +219,9 @@ export default function AdminParticipants() {
         )}
       </div>
 
-      <div className="hidden overflow-hidden rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep shadow-lg lg:block">
-        <div className="overflow-x-auto custom-scrollbar">
-          <table className="w-full min-w-[980px] text-left text-xs text-atlas-text-light">
+      <div className="atlas-table-card hidden lg:block">
+        <div className="atlas-table-scroll custom-scrollbar">
+          <table className="atlas-admin-table min-w-[980px] text-xs">
             <thead className="bg-atlas-navy-base text-atlas-text-muted uppercase tracking-wider text-[10px] border-b border-atlas-navy-aero/30">
               <tr>
                 <th className="px-2 py-3 font-semibold">Nome Completo</th>

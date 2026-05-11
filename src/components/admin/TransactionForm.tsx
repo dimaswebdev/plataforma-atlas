@@ -51,7 +51,7 @@ export function TransactionForm({ onClose, onSuccess }: TransactionFormProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center sm:p-4">
-      <div className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-md flex-col overflow-hidden rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep shadow-2xl">
+      <div className="atlas-modal-panel flex max-h-[calc(100dvh-1.5rem)] w-full max-w-md flex-col overflow-hidden">
         <div className="flex items-center justify-between border-b border-atlas-navy-aero/30 bg-atlas-navy-base p-4">
           <h2 className="atlas-section-title text-white">Nova Transação</h2>
           <button onClick={onClose} className="rounded-lg p-2 text-atlas-text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label="Fechar modal">
@@ -61,7 +61,7 @@ export function TransactionForm({ onClose, onSuccess }: TransactionFormProps) {
 
         <div className="overflow-y-auto p-4 sm:p-6">
           {error && (
-            <div className="bg-red-900/30 border border-red-500/50 text-red-200 p-3 rounded mb-4 text-sm text-center">
+            <div className="atlas-error-box mb-4 text-center">
               {error}
             </div>
           )}
@@ -69,30 +69,30 @@ export function TransactionForm({ onClose, onSuccess }: TransactionFormProps) {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Tipo</label>
+                <label className="atlas-form-label">Tipo</label>
                 <select name="type" className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-atlas-gold-main" required>
                   <option value="income">Entrada (+)</option>
                   <option value="expense">Saída (-)</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Data</label>
+                <label className="atlas-form-label">Data</label>
                 <input type="date" name="date" className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-atlas-gold-main" required />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Descrição</label>
+              <label className="atlas-form-label">Descrição</label>
               <input type="text" name="description" placeholder="Ex: Pagamento Fornecedor X" className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-atlas-gold-main" required />
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Valor (R$)</label>
+                <label className="atlas-form-label">Valor (R$)</label>
                 <input type="number" step="0.01" min="0.01" name="amount" placeholder="0.00" className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-atlas-gold-main" required />
               </div>
               <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Método</label>
+                <label className="atlas-form-label">Método</label>
                 <select name="paymentMethod" className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-atlas-gold-main" required>
                   <option value="pix">PIX</option>
                   <option value="boleto">Boleto</option>
@@ -105,7 +105,7 @@ export function TransactionForm({ onClose, onSuccess }: TransactionFormProps) {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Categoria</label>
+              <label className="atlas-form-label">Categoria</label>
               <select name="category" className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-atlas-gold-main" required>
                 <option value="adesao">Adesão/Cota</option>
                 <option value="souvenir">Venda Souvenir</option>
@@ -131,7 +131,7 @@ export function TransactionForm({ onClose, onSuccess }: TransactionFormProps) {
               <button 
                 type="button" 
                 onClick={onClose}
-                className="rounded px-4 py-2 text-sm text-atlas-text-muted transition-colors hover:bg-white/5 hover:text-white"
+                className="atlas-muted-button"
                 disabled={loading}
               >
                 Cancelar
@@ -139,7 +139,7 @@ export function TransactionForm({ onClose, onSuccess }: TransactionFormProps) {
               <button 
                 type="submit" 
                 disabled={loading}
-                className="rounded bg-atlas-gold-main px-6 py-2 text-sm font-bold uppercase tracking-wider text-atlas-navy-deep transition-colors hover:bg-atlas-gold-dark disabled:opacity-70"
+                className="atlas-primary-button"
               >
                 {loading ? "Salvando..." : "Salvar"}
               </button>

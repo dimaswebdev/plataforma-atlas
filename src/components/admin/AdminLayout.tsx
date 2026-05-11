@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, Home, Users, DollarSign, Gift, Calendar, Settings, Megaphone, Briefcase, ChevronLeft, ChevronRight, Menu } from "lucide-react";
+import { LogOut, Home, Users, DollarSign, Gift, Calendar, Settings, Megaphone, Briefcase, ChevronLeft, ChevronRight, Menu, ShieldCheck } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 
@@ -13,7 +13,7 @@ const MENU_ITEMS = [
   { label: "Dashboard", href: "/admin/dashboard", icon: Home },
   { label: "Participantes", href: "/admin/participantes", icon: Users },
   { label: "Financeiro", href: "/admin/financeiro", icon: DollarSign },
-  { label: "Souvenirs", href: "/admin/souvenirs", icon: Gift },
+  { label: "Kits/Souvenirs", href: "/admin/souvenirs", icon: Gift },
   { label: "Fornecedores", href: "/admin/fornecedores", icon: Briefcase },
   { label: "Programação", href: "/admin/programacao", icon: Calendar },
   { label: "Comunicados", href: "/admin/comunicados", icon: Megaphone },
@@ -123,13 +123,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="relative flex h-dvh min-w-0 overflow-hidden bg-[#060e1c] font-sans text-white">
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-atlas-gold-main/5 blur-[150px] rounded-full" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-atlas-navy-aero/10 blur-[150px] rounded-full" />
-      </div>
-
-      <aside className={`hidden lg:flex flex-col bg-[#060e1c]/80 backdrop-blur-xl border-r border-atlas-gold-main/20 z-40 relative shadow-2xl transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
+    <div className="atlas-admin-shell relative flex h-dvh min-w-0 overflow-hidden font-sans text-white">
+      <aside className={`hidden lg:flex flex-col bg-[#060e1c]/88 backdrop-blur-xl border-r border-atlas-gold-main/20 z-40 relative shadow-2xl transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
         {renderSidebarContent()}
       </aside>
 
@@ -145,6 +140,22 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="relative z-10 flex h-full min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="hidden h-16 shrink-0 items-center justify-between border-b border-white/10 bg-[#060e1c]/82 px-6 backdrop-blur-xl lg:flex">
+          <div className="min-w-0">
+            <p className="atlas-admin-breadcrumb">Área administrativa</p>
+            <p className="mt-0.5 truncate text-sm text-atlas-text-muted">
+              Gestão operacional do Reencontro 30 Anos da Turma ATLAS.
+            </p>
+          </div>
+          <div className="flex min-w-0 items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">
+            <ShieldCheck className="h-4 w-4 shrink-0 text-atlas-gold-main" aria-hidden="true" />
+            <div className="min-w-0 text-right">
+              <p className="text-[10px] font-bold uppercase text-atlas-text-muted">Sessão segura</p>
+              <p className="max-w-56 truncate text-xs font-semibold text-white">{user.email}</p>
+            </div>
+          </div>
+        </header>
+
         <header className="lg:hidden h-16 flex items-center justify-between px-4 bg-[#060e1c]/90 border-b border-atlas-gold-main/20 backdrop-blur-md">
           <button 
             onClick={() => setIsMobileOpen(true)}
@@ -166,7 +177,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         </header>
 
         <main className="custom-scrollbar min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="mx-auto w-full max-w-[1600px] min-w-0 p-3 sm:p-4 md:p-8">
+          <div className="mx-auto w-full max-w-[1600px] min-w-0 p-4 sm:p-6 lg:p-8">
             {children}
           </div>
         </main>

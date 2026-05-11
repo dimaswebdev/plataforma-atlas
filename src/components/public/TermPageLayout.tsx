@@ -3,6 +3,7 @@ import { PublicFooter } from "@/components/public/PublicFooter";
 import { PageHeader } from "@/components/public/PageHeader";
 import { ArrowLeft, Clock, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface TermPageLayoutProps {
   title: string;
@@ -42,11 +43,8 @@ export function TermPageLayout({ title, version, lastUpdate, children }: TermPag
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-xl border border-atlas-navy-aero/20 bg-atlas-navy-deep p-5 shadow-2xl sm:p-8 md:p-12">
-          {/* Decorative element */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-atlas-gold-main/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-          
-          <article className="prose prose-invert prose-gold max-w-none relative z-10 text-atlas-text-light leading-relaxed">
+        <div className="relative overflow-hidden rounded-lg border border-atlas-navy-aero/20 bg-atlas-navy-deep p-5 shadow-2xl sm:p-8 md:p-12">
+          <article className="atlas-longform prose prose-invert prose-gold relative z-10 mx-auto max-w-3xl text-atlas-text-light">
             {children}
           </article>
 
@@ -55,7 +53,7 @@ export function TermPageLayout({ title, version, lastUpdate, children }: TermPag
               Dúvidas sobre este termo podem ser encaminhadas à Comissão Organizadora pelo canal oficial informado no Portal ATLAS.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 opacity-50 grayscale contrast-125">
-               <img src="/images/fab-logo.svg" alt="FAB" className="w-10 h-10" />
+               <Image src="/images/fab-logo.svg" alt="FAB" width={40} height={40} className="h-10 w-10" />
                <div className="h-8 w-[1px] bg-white/20"></div>
                <span className="text-[10px] font-black tracking-[0.3em] text-white uppercase">Turma ATLAS 30 Anos</span>
             </div>

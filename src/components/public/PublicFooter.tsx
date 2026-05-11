@@ -39,12 +39,16 @@ export function PublicFooter() {
 
           {/* AREA DE TERMOS */}
           <div className="flex flex-col items-center lg:items-end flex-1 w-full lg:w-auto">
-            <h4 className="mb-4 !text-[#D4AF37] text-[8px] font-black uppercase tracking-[0.24em] drop-shadow-[0_0_8px_rgba(212,175,55,0.25)]">
-              Documentos Oficiais
-            </h4>
+            <Link
+              href="/termos"
+              className="mb-4 !text-[#D4AF37] text-[8px] font-black uppercase tracking-[0.24em] drop-shadow-[0_0_8px_rgba(212,175,55,0.25)] transition-colors hover:text-atlas-gold-dark"
+            >
+              Termos e Documentos
+            </Link>
 
             <div className="grid w-full grid-cols-1 justify-center gap-x-6 gap-y-3 min-[360px]:grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-wrap lg:justify-end lg:gap-y-4">
               {[
+                { label: "Todos", href: "/termos" },
                 { label: "Adesão", href: "/termos/adesao" },
                 { label: "Privacidade", href: "/politica-privacidade" },
                 { label: "Uso", href: "/termos/uso" },
