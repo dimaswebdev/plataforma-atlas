@@ -134,31 +134,58 @@ export default function SeedPage() {
       setStatus("3/4: Cadastrando souvenirs iniciais...");
       console.log("Step 3: Souvenirs...");
       const souvenirsRef = collection(db, "events", DEFAULT_EVENT_ID, "souvenirs");
-      await setDoc(doc(souvenirsRef), {
+      const existingSouvenirs = await getDocs(souvenirsRef);
+      const souvenirRefByName = new Map(
+        existingSouvenirs.docs.map((item) => [
+          String(item.data().name || "").trim().toLowerCase(),
+          item.ref
+        ])
+      );
+
+      async function upsertSouvenir(
+        slug: string,
+        data: {
+          name: string;
+          description: string;
+          price: number;
+          available: boolean;
+          category: string;
+          sizes?: string[];
+        }
+      ) {
+        const existingRef = souvenirRefByName.get(data.name.trim().toLowerCase());
+        const timestamp = new Date();
+
+        await setDoc(existingRef ?? doc(souvenirsRef, slug), {
+          ...data,
+          ...(existingRef ? {} : { createdAt: timestamp }),
+          updatedAt: timestamp
+        }, { merge: true });
+      }
+
+      await upsertSouvenir("patch-atlas-30-anos", {
         name: "Patch Bordado ATLAS 30 Anos",
         description: "Patch em alta definição comemorativo dos 30 anos.",
         price: 35.0,
-        available: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        category: "patch",
+        available: false
       });
       
-      await setDoc(doc(souvenirsRef), {
+      await upsertSouvenir("camiseta-oficial-atlas", {
         name: "Camiseta Oficial Turma ATLAS",
         description: "Camiseta dry-fit com emblema da Turma ATLAS.",
         price: 90.0,
-        available: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        category: "shirt",
+        sizes: ["PP", "P", "M", "G", "GG", "XG"],
+        available: false
       });
 
-      await setDoc(doc(souvenirsRef), {
+      await upsertSouvenir("caneca-comemorativa-1997-2027", {
         name: "Caneca Comemorativa 1997–2027",
         description: "Caneca de cerâmica 325ml.",
         price: 45.0,
-        available: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        category: "mug",
+        available: false
       });
 
       setStatus("4/4: Seed finalizado com sucesso!");

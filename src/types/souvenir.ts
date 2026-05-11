@@ -9,8 +9,29 @@ export interface Souvenir {
   available: boolean;
   stock?: number;
   sizes?: string[];
+  category?: "kit" | "shirt" | "pants" | "mug" | "cap" | "patch" | "other";
   createdAt: Timestamp | Date;
   updatedAt: Timestamp | Date;
+}
+
+export interface SouvenirInterest {
+  id?: string;
+  participantId?: string;
+  participantName: string;
+  warName?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  souvenirId: string;
+  souvenirName: string;
+  souvenirCategory?: Souvenir["category"];
+  quantity: number;
+  shirtSize?: string;
+  pantsSize?: string;
+  jacketSize?: string;
+  notes?: string;
+  status: "pending" | "confirmed" | "cancelled" | "fulfilled";
+  createdAt: Timestamp | Date | string;
+  updatedAt: Timestamp | Date | string;
 }
 
 export interface Order {

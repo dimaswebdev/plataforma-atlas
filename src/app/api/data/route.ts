@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createHash } from "crypto";
 import { DEFAULT_EVENT_ID } from "@/lib/constants";
 import {
   buildUpdateMask,
@@ -25,6 +26,7 @@ const ADMIN_COLLECTIONS = new Set([
   "participants",
   "schedule",
   "souvenirs",
+  "souvenirInterests",
   "suppliers",
   "transactions",
   "updates",
@@ -110,6 +112,11 @@ function normalizeAccessCode(value: string) {
 
 function normalizePhone(value: string) {
   return value.replace(/\D/g, "");
+}
+
+function createStableSouvenirInterestDocumentId(seed: string) {
+  const hash = createHash("sha256").update(seed.trim().toLowerCase()).digest("hex").slice(0, 24);
+  return `interest-${hash}`;
 }
 
 function sanitizeOfficialKit(raw: unknown): JsonObject | undefined {
@@ -235,6 +242,65 @@ function sanitizeParticipantSubmission(rawBody: unknown, request: Request) {
   };
 }
 
+function sanitizeSouvenirInterestSubmission(rawBody: unknown) {
+  const body = asRecord(rawBody);
+  const now = new Date().toISOString();
+  const participantName = readString(body, "participantName", 120);
+  const warName = readOptionalString(body, "warName", 80);
+  const contactPhone = readString(body, "contactPhone", 40);
+  const contactEmail = readString(body, "contactEmail", 160).toLowerCase();
+  const souvenirId = readString(body, "souvenirId", 120);
+  const souvenirName = readString(body, "souvenirName", 160);
+  const souvenirCategory = readEnum(body.souvenirCategory, ["kit", "shirt", "pants", "mug", "cap", "patch", "other"] as const);
+  const quantity = readNumber(body, "quantity", 1, 1, 99);
+  const sizeValues = ["PP", "P", "M", "G", "GG", "XG", "XGG", "SPECIAL"] as const;
+  const shirtSize = readEnum(body.shirtSize, sizeValues);
+  const pantsSize = readEnum(body.pantsSize, sizeValues);
+  const jacketSize = readEnum(body.jacketSize, sizeValues);
+  const notes = readOptionalString(body, "notes", 500);
+  const errors: string[] = [];
+
+  if (participantName.length < 3) errors.push("Informe seu nome completo.");
+  if (normalizePhone(contactPhone).length < 10) errors.push("Informe um telefone válido para identificação.");
+  if (!souvenirId) errors.push("Item não informado.");
+  if (!souvenirName) errors.push("Nome do item não informado.");
+
+  if (errors.length > 0) {
+    return { errors, data: null };
+  }
+
+  const normalizedPhone = normalizePhone(contactPhone);
+  const participantId = createStableParticipantDocumentId(normalizedPhone || contactEmail || participantName);
+  const documentId = createStableSouvenirInterestDocumentId(`${participantId}:${souvenirId}`);
+  const data: JsonObject = {
+    participantId,
+    participantName,
+    souvenirId,
+    souvenirName,
+    quantity,
+    status: "pending",
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  if (warName) data.warName = warName;
+  if (contactPhone) data.contactPhone = contactPhone;
+  if (contactEmail) data.contactEmail = contactEmail;
+  if (souvenirCategory) data.souvenirCategory = souvenirCategory;
+  if (shirtSize) data.shirtSize = shirtSize;
+  if (pantsSize) data.pantsSize = pantsSize;
+  if (jacketSize) data.jacketSize = jacketSize;
+  if (notes) data.notes = notes;
+
+  return {
+    errors: [],
+    data: {
+      documentId,
+      interest: data,
+    },
+  };
+}
+
 async function listPublicCollection(collection: string) {
   const queryByCollection: Record<string, JsonObject> = {
     schedule: {
@@ -252,13 +318,6 @@ async function listPublicCollection(collection: string) {
     souvenirs: {
       structuredQuery: {
         from: [{ collectionId: "souvenirs" }],
-        where: {
-          fieldFilter: {
-            field: { fieldPath: "available" },
-            op: "EQUAL",
-            value: { booleanValue: true },
-          },
-        },
       },
     },
     transactions: {
@@ -283,6 +342,54 @@ async function listPublicCollection(collection: string) {
 
   const rows = (await res.json()) as Array<{ document?: FirestoreDocument }>;
   return NextResponse.json(parseFirestoreQueryRows(rows));
+}
+
+async function createPublicSouvenirInterest(request: Request) {
+  const body = (await request.json().catch(() => null)) as unknown;
+  const sanitized = sanitizeSouvenirInterestSubmission(body);
+
+  if (!sanitized.data) {
+    return jsonError(sanitized.errors.join(" "), 400, "invalid-souvenir-interest");
+  }
+
+  const souvenirRes = await firestoreFetch(`events/${DEFAULT_EVENT_ID}/souvenirs/${sanitized.data.interest.souvenirId}`, {
+    cache: "no-store",
+  });
+
+  if (!souvenirRes.ok) {
+    return jsonError("Item não encontrado ou indisponível para solicitação.", 404, "souvenir-not-found");
+  }
+
+  const souvenir = parseFirestoreDoc((await souvenirRes.json()) as FirestoreDocument);
+
+  if (souvenir.available !== true) {
+    return jsonError("Este item ainda não está disponível para registro de interesse.", 400, "souvenir-unavailable");
+  }
+
+  const query = new URLSearchParams();
+  query.set("documentId", sanitized.data.documentId);
+
+  const res = await firestoreFetch(`events/${DEFAULT_EVENT_ID}/souvenirInterests`, {
+    method: "POST",
+    query,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ fields: serializeFirestoreFields(sanitized.data.interest) }),
+  });
+
+  if (res.status === 409) {
+    return jsonError(
+      "Já existe uma solicitação registrada para este item com este telefone. Fale com a comissão para ajustar a quantidade.",
+      409,
+      "souvenir-interest-already-exists"
+    );
+  }
+
+  if (!res.ok) {
+    return jsonError("Não foi possível registrar o interesse agora.", 500, "souvenir-interest-save-failed");
+  }
+
+  const result = (await res.json()) as { name: string };
+  return NextResponse.json({ id: result.name.split("/").pop(), success: true });
 }
 
 async function createPublicParticipant(request: Request) {
@@ -405,6 +512,10 @@ export async function POST(request: Request) {
   if (session instanceof Response) {
     if (collection === "participants") {
       return createPublicParticipant(request);
+    }
+
+    if (collection === "souvenirInterests") {
+      return createPublicSouvenirInterest(request);
     }
 
     return session;

@@ -21,6 +21,11 @@ service cloud.firestore {
         || (request.resource.data[field] is string && request.resource.data[field].size() <= maxSize);
     }
 
+    function isOptionalEnum(field, values) {
+      return !(field in request.resource.data)
+        || request.resource.data[field] in values;
+    }
+
     function hasValidTermsAcceptance() {
       return request.resource.data.termsAcceptance is map
         && request.resource.data.termsAcceptance.keys().hasOnly([
@@ -129,6 +134,71 @@ service cloud.firestore {
         && hasValidTermsAcceptance();
     }
 
+    function hasValidPublicSouvenirInterestShape() {
+      return request.resource.data.keys().hasOnly([
+          "participantId",
+          "participantName",
+          "warName",
+          "contactPhone",
+          "contactEmail",
+          "souvenirId",
+          "souvenirName",
+          "souvenirCategory",
+          "quantity",
+          "shirtSize",
+          "pantsSize",
+          "jacketSize",
+          "notes",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ])
+        && request.resource.data.keys().hasAll([
+          "participantId",
+          "participantName",
+          "contactPhone",
+          "souvenirId",
+          "souvenirName",
+          "quantity",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ])
+        && request.resource.data.participantId is string
+        && request.resource.data.participantName is string
+        && request.resource.data.participantName.size() >= 3
+        && request.resource.data.participantName.size() <= 120
+        && request.resource.data.contactPhone is string
+        && request.resource.data.contactPhone.size() >= 10
+        && request.resource.data.contactPhone.size() <= 40
+        && request.resource.data.souvenirId is string
+        && request.resource.data.souvenirId.size() >= 1
+        && request.resource.data.souvenirId.size() <= 120
+        && request.resource.data.souvenirName is string
+        && request.resource.data.souvenirName.size() >= 1
+        && request.resource.data.souvenirName.size() <= 160
+        && request.resource.data.quantity is number
+        && request.resource.data.quantity >= 1
+        && request.resource.data.quantity <= 99
+        && request.resource.data.status == "pending"
+        && request.resource.data.createdAt is string
+        && request.resource.data.createdAt.size() <= 40
+        && request.resource.data.updatedAt is string
+        && request.resource.data.updatedAt.size() <= 40
+        && isOptionalString("warName", 80)
+        && isOptionalString("contactEmail", 160)
+        && isOptionalEnum("souvenirCategory", ["kit", "shirt", "pants", "mug", "cap", "patch", "other"])
+        && isOptionalEnum("shirtSize", ["PP", "P", "M", "G", "GG", "XG", "XGG", "SPECIAL"])
+        && isOptionalEnum("pantsSize", ["PP", "P", "M", "G", "GG", "XG", "XGG", "SPECIAL"])
+        && isOptionalEnum("jacketSize", ["PP", "P", "M", "G", "GG", "XG", "XGG", "SPECIAL"])
+        && isOptionalString("notes", 500);
+    }
+
+    function requestedSouvenirIsAvailable(eventId) {
+      return exists(/databases/$(database)/documents/events/$(eventId)/souvenirs/$(request.resource.data.souvenirId))
+        && get(/databases/$(database)/documents/events/$(eventId)/souvenirs/$(request.resource.data.souvenirId)).data.available == true;
+    }
+
     match /events/{eventId} {
       allow get, list: if true;
       allow create, update, delete: if isEventAdmin(eventId);
@@ -149,8 +219,14 @@ service cloud.firestore {
       }
 
       match /souvenirs/{souvenirId} {
-        allow read: if isEventAdmin(eventId) || resource.data.available == true;
+        allow read: if true;
         allow create, update, delete: if isEventAdmin(eventId);
+      }
+
+      match /souvenirInterests/{interestId} {
+        allow create: if isEventAdmin(eventId)
+          || (hasValidPublicSouvenirInterestShape() && requestedSouvenirIsAvailable(eventId));
+        allow read, update, delete: if isEventAdmin(eventId);
       }
 
       match /schedule/{scheduleId} {
