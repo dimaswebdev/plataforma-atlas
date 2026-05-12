@@ -5,12 +5,12 @@ import { DEFAULT_EVENT_ID } from "@/lib/constants";
 import { getFirebaseAdminDb } from "@/lib/firebase-admin";
 import {
   buildUpdateMask,
-  FirestoreDocument,
   firestoreFetch,
+  firestoreListAll,
   JsonObject,
-  parseFirestoreList,
   serializeFirestoreFields,
 } from "@/lib/firebase-rest";
+import { calculateParticipantMetrics } from "@/lib/participant-metrics";
 
 export const PUBLIC_STATS_DOC_ID = "main";
 
@@ -21,21 +21,20 @@ export type PublicStatsSyncResult = {
 };
 
 async function recalculatePublicStatsWithAdminToken(eventId: string, token: string): Promise<PublicStatsSyncResult> {
-  const participantsRes = await firestoreFetch(`events/${eventId}/participants`, {
+  const participantsResult = await firestoreListAll(`events/${eventId}/participants`, {
     token,
     cache: "no-store",
   });
 
-  if (!participantsRes.ok) {
+  if (!participantsResult.ok) {
     return {
       confirmedCount: null,
-      reason: `participants-read-failed-${participantsRes.status}`,
+      reason: `participants-read-failed-${participantsResult.status}`,
       updated: false,
     };
   }
 
-  const participants = parseFirestoreList((await participantsRes.json()) as { documents?: FirestoreDocument[] });
-  const confirmedCount = participants.filter((participant) => participant.willAttend === "yes").length;
+  const { confirmedParticipants: confirmedCount } = calculateParticipantMetrics(participantsResult.documents);
   const publicStats: JsonObject = {
     confirmedCount,
     eventId,

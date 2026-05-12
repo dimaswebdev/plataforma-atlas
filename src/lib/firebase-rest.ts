@@ -222,6 +222,54 @@ export function parseFirestoreList(data: { documents?: FirestoreDocument[] }): J
   return (data.documents || []).map(parseFirestoreDoc);
 }
 
+export async function firestoreListAll(
+  path: string,
+  init: RequestInit & { token?: string; query?: URLSearchParams; pageSize?: number } = {}
+) {
+  const { pageSize = 300, query, ...rest } = init;
+  const baseQuery = new URLSearchParams(query);
+
+  if (!baseQuery.has("pageSize")) {
+    baseQuery.set("pageSize", String(pageSize));
+  }
+
+  const documents: JsonObject[] = [];
+  let pageToken: string | undefined;
+  let status = 200;
+
+  do {
+    const pageQuery = new URLSearchParams(baseQuery);
+    if (pageToken) {
+      pageQuery.set("pageToken", pageToken);
+    }
+
+    const res = await firestoreFetch(path, {
+      ...rest,
+      query: pageQuery,
+    });
+
+    status = res.status;
+
+    if (!res.ok) {
+      return {
+        ok: false,
+        status,
+        documents,
+      };
+    }
+
+    const data = (await res.json()) as { documents?: FirestoreDocument[]; nextPageToken?: string };
+    documents.push(...parseFirestoreList(data));
+    pageToken = data.nextPageToken;
+  } while (pageToken);
+
+  return {
+    ok: true,
+    status,
+    documents,
+  };
+}
+
 export function parseFirestoreQueryRows(rows: Array<{ document?: FirestoreDocument }>): JsonObject[] {
   return rows.flatMap((row) => (row.document ? [parseFirestoreDoc(row.document)] : []));
 }

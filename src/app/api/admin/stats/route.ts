@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { DEFAULT_EVENT_ID } from "@/lib/constants";
+import { calculateParticipantMetrics } from "@/lib/participant-metrics";
 import {
-  FirestoreDocument,
-  firestoreFetch,
-  parseFirestoreList,
+  firestoreListAll,
   requireAdminSession,
 } from "@/lib/firebase-rest";
 import { syncPublicStatsSafely } from "@/lib/public-stats";
@@ -19,26 +18,21 @@ export async function GET(request: Request) {
   try {
     const basePath = `events/${DEFAULT_EVENT_ID}`;
 
-    const [participantsRes, transactionsRes] = await Promise.all([
-      firestoreFetch(`${basePath}/participants`, {
+    const [participantsResult, transactionsResult] = await Promise.all([
+      firestoreListAll(`${basePath}/participants`, {
         token: session.token,
         cache: "no-store",
       }),
-      firestoreFetch(`${basePath}/transactions`, {
+      firestoreListAll(`${basePath}/transactions`, {
         token: session.token,
         cache: "no-store",
       }),
     ]);
 
-    const participants = participantsRes.ok
-      ? parseFirestoreList((await participantsRes.json()) as { documents?: FirestoreDocument[] })
-      : [];
-    const transactions = transactionsRes.ok
-      ? parseFirestoreList((await transactionsRes.json()) as { documents?: FirestoreDocument[] })
-      : [];
+    const participants = participantsResult.ok ? participantsResult.documents : [];
+    const transactions = transactionsResult.ok ? transactionsResult.documents : [];
 
-    const totalParticipants = participants.length;
-    const confirmedParticipants = participants.filter((participant) => participant.willAttend === "yes").length;
+    const participantMetrics = calculateParticipantMetrics(participants);
     await syncPublicStatsSafely(DEFAULT_EVENT_ID, session.token);
 
     const kitInterest = participants.filter((participant) => {
@@ -59,8 +53,7 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json({
-      totalParticipants,
-      confirmedParticipants,
+      ...participantMetrics,
       kitInterest,
       income,
       expense,
@@ -72,6 +65,8 @@ export async function GET(request: Request) {
         error: "Não foi possível carregar as métricas administrativas.",
         totalParticipants: 0,
         confirmedParticipants: 0,
+        totalGuests: 0,
+        totalPeople: 0,
         kitInterest: 0,
         income: 0,
         expense: 0,

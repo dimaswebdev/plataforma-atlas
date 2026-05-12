@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Transaction } from "@/types/transaction";
 import { X } from "lucide-react";
 import { fetchWithAdminAuth } from "@/lib/client-auth";
@@ -49,11 +50,16 @@ export function TransactionForm({ onClose, onSuccess }: TransactionFormProps) {
     }
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center sm:p-4">
-      <div className="atlas-modal-panel flex max-h-[calc(100dvh-1.5rem)] w-full max-w-md flex-col overflow-hidden">
+  const modal = (
+    <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/75 p-3 py-4 backdrop-blur-sm sm:items-center sm:p-6">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="transaction-form-title"
+        className="atlas-modal-panel my-auto flex max-h-[calc(100dvh-2rem)] w-full max-w-md flex-col overflow-hidden"
+      >
         <div className="flex items-center justify-between border-b border-atlas-navy-aero/30 bg-atlas-navy-base p-4">
-          <h2 className="atlas-section-title text-white">Nova Transação</h2>
+          <h2 id="transaction-form-title" className="atlas-section-title text-white">Nova Transação</h2>
           <button onClick={onClose} className="rounded-lg p-2 text-atlas-text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label="Fechar modal">
             <X className="w-5 h-5" />
           </button>
@@ -149,4 +155,7 @@ export function TransactionForm({ onClose, onSuccess }: TransactionFormProps) {
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") return null;
+  return createPortal(modal, document.body);
 }

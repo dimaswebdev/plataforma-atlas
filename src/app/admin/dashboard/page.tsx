@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatCurrencyBRL } from "@/lib/utils";
-import { Users, DollarSign, Wallet, Activity, Shirt } from "lucide-react";
+import { Users, DollarSign, Wallet, Activity, Shirt, UserPlus, UsersRound } from "lucide-react";
 import { fetchWithAdminAuth } from "@/lib/client-auth";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminStatCard } from "@/components/admin/AdminStatCard";
@@ -11,6 +11,8 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalParticipants: 0,
     confirmedParticipants: 0,
+    totalGuests: 0,
+    totalPeople: 0,
     kitInterest: 0,
     income: 0,
     expense: 0,
@@ -49,7 +51,7 @@ export default function AdminDashboard() {
         description="Resumo rápido dos indicadores mais importantes para acompanhar participação, interesse em kits e situação financeira do evento."
       />
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
         <AdminStatCard
           icon={Users}
           label="Interessados"
@@ -58,9 +60,24 @@ export default function AdminDashboard() {
         />
         <AdminStatCard
           icon={Activity}
-          label="Confirmados"
+          label="Militares confirmados"
           value={stats.confirmedParticipants}
           tone="green"
+          helper="Cadastros com presença confirmada"
+        />
+        <AdminStatCard
+          icon={UserPlus}
+          label="Total de convidados"
+          value={stats.totalGuests}
+          tone="blue"
+          helper="Somente convidados de militares confirmados"
+        />
+        <AdminStatCard
+          icon={UsersRound}
+          label="Total geral"
+          value={stats.totalPeople}
+          tone="gold"
+          helper="Militares confirmados + convidados"
         />
         <AdminStatCard
           icon={Shirt}

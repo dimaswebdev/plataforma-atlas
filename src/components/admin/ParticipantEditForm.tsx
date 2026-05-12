@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Participant } from "@/types/participant";
 import { X, Save } from "lucide-react";
 import { capitalizeName, formatPhone, formatZipCode } from "@/lib/utils";
@@ -74,6 +75,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
         city: rawCity ? capitalizeName(rawCity) : "",
         state: (formData.get("state") as string).toUpperCase(),
         country: (formData.get("country") as string).toUpperCase(),
+        willAttend: formData.get("willAttend") as "yes" | "maybe" | "no",
         guestsCount: Number(formData.get("guestsCount") || 0),
         wantsToHelpCommittee: formData.get("wantsToHelpCommittee") === "on",
         totalPaid: totalPaid,
@@ -110,11 +112,16 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
     }
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center sm:p-4">
-      <div className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep shadow-2xl">
+  const modal = (
+    <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/75 p-3 py-4 backdrop-blur-sm sm:items-center sm:p-6">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="participant-edit-title"
+        className="my-auto flex max-h-[calc(100dvh-2rem)] w-full max-w-3xl flex-col overflow-hidden rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep shadow-2xl"
+      >
         <div className="flex items-center justify-between border-b border-atlas-navy-aero/30 bg-atlas-navy-base p-4">
-          <h2 className="atlas-section-title text-white">Editar Participante</h2>
+          <h2 id="participant-edit-title" className="atlas-section-title text-white">Editar Participante</h2>
           <button onClick={onClose} className="rounded-lg p-2 text-atlas-text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label="Fechar modal">
             <X className="w-5 h-5" />
           </button>
@@ -201,12 +208,22 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Convidados</label>
-                <input type="number" name="guestsCount" defaultValue={participant.guestsCount} min="0" className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
+                <input type="number" name="guestsCount" defaultValue={participant.guestsCount} min="0" max="20" className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
+                <p className="mt-1 text-[11px] leading-relaxed text-atlas-text-muted">A contagem administrativa considera estes convidados apenas se a presença estiver confirmada.</p>
               </div>
               <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Valor Pago (R$)</label>
-                <input type="number" step="0.01" name="totalPaid" defaultValue={participant.totalPaid} min="0" className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
+                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Presença</label>
+                <select name="willAttend" defaultValue={participant.willAttend} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" required>
+                  <option value="yes">Confirmado</option>
+                  <option value="maybe">Talvez</option>
+                  <option value="no">Não irá</option>
+                </select>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Valor Pago (R$)</label>
+              <input type="number" step="0.01" name="totalPaid" defaultValue={participant.totalPaid} min="0" className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
             </div>
 
             <div>
@@ -284,4 +301,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") return null;
+  return createPortal(modal, document.body);
 }

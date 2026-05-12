@@ -5,11 +5,12 @@ import { Participant } from "@/types/participant";
 import { Users, CheckCircle, XCircle, HelpCircle, Edit, Trash2, Eye, Shirt } from "lucide-react";
 import { ParticipantEditForm } from "@/components/admin/ParticipantEditForm";
 import { calculateAge, formatCurrencyBRL } from "@/lib/utils";
-import { DollarSign, TrendingUp, AlertCircle } from "lucide-react";
+import { TrendingUp, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { fetchWithAdminAuth } from "@/lib/client-auth";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminStatCard } from "@/components/admin/AdminStatCard";
+import { calculateParticipantMetrics, getConfirmedGuestCount } from "@/lib/participant-metrics";
 
 const ADESAO_TITULAR = 0; 
 const ADESAO_CONVIDADO = 0; 
@@ -40,6 +41,8 @@ export default function AdminParticipants() {
     }, 0);
     return () => window.clearTimeout(timeoutId);
   }, []);
+
+  const participantMetrics = calculateParticipantMetrics(participants);
 
   const getStatusIcon = (status: string) => {
     switch(status) {
@@ -77,18 +80,33 @@ export default function AdminParticipants() {
         description="Consulta operacional dos cadastros, confirmação de presença, interesse em kit e acompanhamento de pagamentos."
       />
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
         <AdminStatCard
           icon={Users}
           label="Total de membros"
-          value={participants.length}
+          value={participantMetrics.totalParticipants}
           tone="blue"
         />
         <AdminStatCard
-          icon={DollarSign}
-          label="Total a arrecadar"
-          value={formatCurrencyBRL(participants.reduce((acc, p) => acc + (ADESAO_TITULAR + (p.guestsCount || 0) * ADESAO_CONVIDADO), 0))}
+          icon={CheckCircle}
+          label="Confirmados"
+          value={participantMetrics.confirmedParticipants}
+          tone="green"
+          helper="Militares com presença confirmada"
+        />
+        <AdminStatCard
+          icon={Users}
+          label="Convidados"
+          value={participantMetrics.totalGuests}
           tone="gold"
+          helper="Apenas convidados dos confirmados"
+        />
+        <AdminStatCard
+          icon={TrendingUp}
+          label="Total pessoas"
+          value={participantMetrics.totalPeople}
+          tone="blue"
+          helper="Militares confirmados + convidados"
         />
         <AdminStatCard
           icon={TrendingUp}
@@ -118,6 +136,7 @@ export default function AdminParticipants() {
         ) : (
           participants.map((p) => {
             const age = calculateAge(p.birthDate || "");
+            const confirmedGuests = getConfirmedGuestCount(p);
             const totalAPagar = ADESAO_TITULAR + (p.guestsCount || 0) * ADESAO_CONVIDADO;
             const totalPago = p.totalPaid || 0;
             const restante = Math.max(0, totalAPagar - totalPago);
@@ -157,7 +176,7 @@ export default function AdminParticipants() {
                   </div>
                   <div className="rounded border border-white/5 bg-white/[0.03] p-3">
                     <p className="text-[9px] font-bold uppercase tracking-widest text-atlas-text-muted">Conv.</p>
-                    <p className="mt-1 font-semibold text-white">{p.guestsCount || 0}</p>
+                    <p className="mt-1 font-semibold text-white">{confirmedGuests}</p>
                   </div>
                 </div>
 
@@ -253,6 +272,7 @@ export default function AdminParticipants() {
               ) : (
                 participants.map((p) => {
                   const age = calculateAge(p.birthDate || "");
+                  const confirmedGuests = getConfirmedGuestCount(p);
                   
                   const totalAPagar = ADESAO_TITULAR + (p.guestsCount || 0) * ADESAO_CONVIDADO;
                   const totalPago = p.totalPaid || 0;
@@ -295,7 +315,7 @@ export default function AdminParticipants() {
                         )}
                       </td>
 
-                      <td className="px-2 py-3 text-center font-black">{p.guestsCount || 0}</td>
+                      <td className="px-2 py-3 text-center font-black">{confirmedGuests}</td>
                       <td className="px-2 py-3 text-right font-bold text-atlas-gold-main whitespace-nowrap">{formatCurrencyBRL(totalAPagar)}</td>
                       <td className="px-2 py-3 text-right font-bold text-green-400 whitespace-nowrap">{formatCurrencyBRL(totalPago)}</td>
                       <td className="px-2 py-3 text-right font-bold text-red-400 whitespace-nowrap">{formatCurrencyBRL(restante)}</td>

@@ -7,11 +7,11 @@ import {
   firebaseConfigErrorResponse,
   FirestoreDocument,
   firestoreFetch,
+  firestoreListAll,
   firestoreRunQuery,
   hasFirebaseServerConfig,
   JsonObject,
   parseFirestoreDoc,
-  parseFirestoreList,
   parseFirestoreQueryRows,
   requireAdminSession,
   serializeFirestoreFields,
@@ -476,15 +476,15 @@ export async function GET(request: Request) {
     ? `events/${DEFAULT_EVENT_ID}/${collection}/${id}`
     : `events/${DEFAULT_EVENT_ID}/${collection}`;
 
-  const res = await firestoreFetch(path, { token: session.token, cache: "no-store" });
-
   if (id) {
+    const res = await firestoreFetch(path, { token: session.token, cache: "no-store" });
     if (!res.ok) return NextResponse.json(null);
     return NextResponse.json(parseFirestoreDoc((await res.json()) as FirestoreDocument));
   }
 
-  if (!res.ok) return NextResponse.json([]);
-  return NextResponse.json(parseFirestoreList((await res.json()) as { documents?: FirestoreDocument[] }));
+  const result = await firestoreListAll(path, { token: session.token, cache: "no-store" });
+  if (!result.ok) return NextResponse.json([]);
+  return NextResponse.json(result.documents);
 }
 
 export async function POST(request: Request) {

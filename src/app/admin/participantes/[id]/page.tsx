@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { calculateAge, formatCurrencyBRL } from "@/lib/utils";
 import { fetchWithAdminAuth } from "@/lib/client-auth";
+import { getConfirmedGuestCount, getParticipantPeopleCount } from "@/lib/participant-metrics";
 
 export default function ParticipantDetailsPage() {
   const params = useParams();
@@ -53,6 +54,15 @@ export default function ParticipantDetailsPage() {
   if (!participant) return null;
 
   const age = calculateAge(participant.birthDate || "");
+  const confirmedGuestCount = getConfirmedGuestCount(participant);
+  const participantPeopleCount = getParticipantPeopleCount(participant);
+  const fullAddress = [
+    participant.address,
+    participant.city,
+    participant.state,
+    participant.zipCode ? `CEP ${participant.zipCode}` : "",
+    participant.country,
+  ].filter(Boolean).join(" - ");
   const ADESAO_TITULAR = 0;
   const ADESAO_CONVIDADO = 0;
   const totalPrevisto = ADESAO_TITULAR + (participant.guestsCount || 0) * ADESAO_CONVIDADO;
@@ -187,11 +197,11 @@ export default function ParticipantDetailsPage() {
                 </div>
                 <div className="bg-white/5 rounded-xl p-4 border border-white/5 shadow-inner">
                   <div className="text-[10px] text-atlas-text-muted font-bold uppercase tracking-widest mb-1">Convidados</div>
-                  <div className="text-sm sm:text-base font-semibold text-white">{participant.guestsCount || 0} confirmados</div>
+                  <div className="text-sm sm:text-base font-semibold text-white">{confirmedGuestCount} adicionais</div>
                 </div>
                 <div className="bg-white/5 rounded-xl p-4 border border-white/5 shadow-inner">
-                  <div className="text-[10px] text-atlas-text-muted font-bold uppercase tracking-widest mb-1">Status</div>
-                  <div className="text-sm sm:text-base font-semibold text-white truncate">{progressPct === 100 ? "Regular" : "Pendente"}</div>
+                  <div className="text-[10px] text-atlas-text-muted font-bold uppercase tracking-widest mb-1">Total Pessoas</div>
+                  <div className="text-sm sm:text-base font-semibold text-white truncate">{participantPeopleCount}</div>
                 </div>
                 <div className="bg-white/5 rounded-xl p-4 border border-white/5 shadow-inner">
                   <div className="text-[10px] text-atlas-text-muted font-bold uppercase tracking-widest mb-1">Idade</div>
@@ -276,7 +286,7 @@ export default function ParticipantDetailsPage() {
                 <div className="space-y-5">
                   <div>
                     <label className="block text-[10px] text-atlas-text-muted font-bold uppercase tracking-widest mb-1">Endereço Completo</label>
-                    <div className="text-base text-white font-medium">{participant.address || "Não informado"}</div>
+                    <div className="text-base text-white font-medium">{fullAddress || "Não informado"}</div>
                   </div>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
                     <div>
@@ -286,6 +296,10 @@ export default function ParticipantDetailsPage() {
                     <div>
                       <label className="block text-[10px] text-atlas-text-muted font-bold uppercase tracking-widest mb-1">CEP</label>
                       <div className="text-base text-white font-medium">{participant.zipCode || "-"}</div>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-atlas-text-muted font-bold uppercase tracking-widest mb-1">País</label>
+                      <div className="text-base text-white font-medium">{participant.country || "-"}</div>
                     </div>
                   </div>
                 </div>
