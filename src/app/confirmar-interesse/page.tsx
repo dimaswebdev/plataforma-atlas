@@ -18,10 +18,30 @@ import {
 import Link from "next/link";
 
 type ParticipantSubmission = Omit<Participant, "id" | "createdAt" | "updatedAt"> & {
-  accessCode?: string;
   website?: string;
   submittedAtClient: string;
 };
+
+const TOTAL_STEPS = 3;
+const requiredTermLabels = [
+  { name: "adhesionTerm", label: "Aceite o Termo de Adesão." },
+  { name: "privacyPolicy", label: "Aceite a Política de Privacidade." },
+  { name: "platformTerms", label: "Aceite os Termos de Uso." },
+  { name: "financialTerms", label: "Confirme ciência das regras financeiras." },
+] as const;
+
+function getFormString(formData: FormData, key: string) {
+  const value = formData.get(key);
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizePhoneDigits(value: string) {
+  return value.replace(/\D/g, "");
+}
+
+function isEmailValid(value: string) {
+  return !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
 
 export default function ConfirmarInteressePage() {
   const [loading, setLoading] = useState(false);
@@ -31,6 +51,7 @@ export default function ConfirmarInteressePage() {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [pendingPayload, setPendingPayload] = useState<ParticipantSubmission | null>(null);
   const [submitError, setSubmitError] = useState("");
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   // Auto-formatters and conditionals
   const [phoneInput, setPhoneInput] = useState("");
   const [zipInput, setZipInput] = useState("");
@@ -38,7 +59,7 @@ export default function ConfirmarInteressePage() {
   const [stateInput, setStateInput] = useState("MS");
 
   const isFromCampoGrande = cityInput.toLowerCase().includes("campo") && cityInput.toLowerCase().includes("grande") && stateInput === "MS";
-  const progressPercentage = (completedSteps.length / 3) * 100;
+  const progressPercentage = (completedSteps.length / TOTAL_STEPS) * 100;
 
   // Kit State
   const [kitInterest, setKitInterest] = useState<"yes" | "maybe" | "no" | "">("");
@@ -65,16 +86,92 @@ export default function ConfirmarInteressePage() {
   const nextStep = () => {
     setCompletedSteps(prev => prev.includes(currentStep) ? prev : [...prev, currentStep]);
     setCurrentStep(prev => prev + 1);
+    setValidationErrors([]);
+    setSubmitError("");
     window.scrollTo(0, 0);
   };
   const prevStep = () => {
     setCurrentStep(prev => prev - 1);
+    setValidationErrors([]);
+    setSubmitError("");
     window.scrollTo(0, 0);
+  };
+
+  const showValidationErrors = (errors: string[]) => {
+    setSubmitError("");
+    setValidationErrors(errors);
+    window.requestAnimationFrame(() => {
+      document.getElementById("cadastro-validation-alert")?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  };
+
+  const validateStep = (form: HTMLFormElement, step = currentStep) => {
+    const formData = new FormData(form);
+    const errors: string[] = [];
+
+    if (step === 1) {
+      if (getFormString(formData, "name").length < 3) errors.push("Informe seu nome completo.");
+      if (!getFormString(formData, "birthDate")) errors.push("Informe sua data de nascimento.");
+      if (normalizePhoneDigits(getFormString(formData, "phone")).length < 10) errors.push("Informe um telefone/WhatsApp válido.");
+      if (getFormString(formData, "email") && !isEmailValid(getFormString(formData, "email"))) errors.push("Informe um e-mail válido ou deixe o campo em branco.");
+      if (!getFormString(formData, "city")) errors.push("Informe sua cidade atual.");
+      return errors;
+    }
+
+    if (step === 2) {
+      if (!getFormString(formData, "willAttend")) errors.push("Informe se você pretende participar do reencontro.");
+      return errors;
+    }
+
+    if (step === 3) {
+      if (!kitInterest) {
+        errors.push("Informe seu interesse no Kit Oficial ATLAS.");
+      }
+
+      if (kitInterest === "yes" || kitInterest === "maybe") {
+        if (!getFormString(formData, "shirtSize")) errors.push("Selecione o tamanho da camiseta.");
+        if (!getFormString(formData, "jacketSize")) errors.push("Selecione o tamanho da jaqueta.");
+        if (!getFormString(formData, "pantsSize")) errors.push("Selecione o tamanho da calça.");
+      }
+
+      if (wantsNameCustomization && !getFormString(formData, "customizationName")) {
+        errors.push("Informe o nome para personalização.");
+      }
+
+      requiredTermLabels.forEach((term) => {
+        if (formData.get(term.name) !== "on") errors.push(term.label);
+      });
+    }
+
+    return errors;
+  };
+
+  const handleNextStepClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const form = e.currentTarget.form;
+    if (!form) return;
+
+    const errors = validateStep(form);
+    if (errors.length > 0) {
+      showValidationErrors(errors);
+      return;
+    }
+
+    nextStep();
   };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (currentStep < 3) {
+
+    const errors = validateStep(e.currentTarget, currentStep);
+    if (errors.length > 0) {
+      showValidationErrors(errors);
+      return;
+    }
+
+    if (currentStep < TOTAL_STEPS) {
       nextStep();
       return;
     }
@@ -102,7 +199,6 @@ export default function ConfirmarInteressePage() {
     } : undefined;
 
     const payload: ParticipantSubmission = {
-      accessCode: ((formData.get("accessCode") as string) || "").trim(),
       website: ((formData.get("website") as string) || "").trim(),
       submittedAtClient: new Date().toISOString(),
       name: capitalizeName(rawName),
@@ -146,6 +242,7 @@ export default function ConfirmarInteressePage() {
       }
     };
 
+    setValidationErrors([]);
     setSubmitError("");
     setPendingPayload(payload);
     setShowConfirmModal(true);
@@ -169,10 +266,11 @@ export default function ConfirmarInteressePage() {
       }
       
       setCompletedSteps(prev => prev.includes(3) ? prev : [...prev, 3]);
+      setValidationErrors([]);
       setSuccess(true);
       window.scrollTo(0, 0);
     } catch (error: unknown) {
-      console.error("Erro ao salvar participante:", error);
+      console.warn("Erro ao salvar participante:", error);
       setSubmitError(error instanceof Error ? error.message : "Erro ao salvar cadastro. Verifique sua conexão e tente novamente.");
     } finally {
       setLoading(false);
@@ -248,13 +346,29 @@ export default function ConfirmarInteressePage() {
                 </h2>
               </div>
 
-              {submitError && (
-                <div className="relative z-10 rounded-lg border border-red-500/40 bg-red-950/40 p-4 text-sm text-red-100">
-                  {submitError}
+              {(validationErrors.length > 0 || submitError) && (
+                <div
+                  id="cadastro-validation-alert"
+                  role="alert"
+                  aria-live="polite"
+                  className="relative z-10 rounded-lg border border-red-500/40 bg-red-950/40 p-4 text-sm text-red-100"
+                >
+                  {validationErrors.length > 0 ? (
+                    <>
+                      <p className="mb-2 font-bold text-white">Revise os campos abaixo para continuar:</p>
+                      <ul className="list-disc space-y-1 pl-5">
+                        {validationErrors.map((error) => (
+                          <li key={error}>{error}</li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : (
+                    submitError
+                  )}
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+              <form onSubmit={handleSubmit} className="space-y-6 relative z-10" noValidate>
                 <input
                   type="text"
                   name="website"
@@ -269,20 +383,6 @@ export default function ConfirmarInteressePage() {
                   
                   <div className="bg-atlas-navy-base/50 p-6 rounded border border-atlas-navy-aero/20 mb-6">
                     <h3 className="atlas-card-title mb-4 border-b border-atlas-navy-aero/30 pb-2 text-atlas-gold-main">Dados Pessoais</h3>
-
-                    <div className="mb-6 rounded-lg border border-atlas-gold-main/20 bg-atlas-gold-main/5 p-4">
-                      <label className="block text-sm font-medium text-atlas-text-light mb-1">Código de acesso do grupo</label>
-                      <input
-                        name="accessCode"
-                        type="text"
-                        autoComplete="one-time-code"
-                        placeholder="Informe o código enviado pela comissão, se houver"
-                        className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-4 py-2 text-white focus:outline-none focus:border-atlas-gold-main"
-                      />
-                      <p className="mt-2 text-xs leading-relaxed text-atlas-text-muted">
-                        Esse código ajuda a limitar cadastros ao grupo convidado quando a liberação pública estiver ativa.
-                      </p>
-                    </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                       <div>
@@ -587,9 +687,10 @@ export default function ConfirmarInteressePage() {
                     </button>
                   )}
                   
-                  {currentStep < 3 ? (
+                  {currentStep < TOTAL_STEPS ? (
                     <button 
-                      type="submit" 
+                      type="button"
+                      onClick={handleNextStepClick}
                       className="flex flex-1 items-center justify-center gap-2 rounded bg-atlas-gold-main py-4 text-base font-bold uppercase tracking-widest text-atlas-navy-deep transition-colors hover:bg-atlas-gold-dark sm:text-lg"
                     >
                       Próximo <ArrowRight className="w-5 h-5" />

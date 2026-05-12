@@ -16,6 +16,7 @@ import {
   requireAdminSession,
   serializeFirestoreFields,
 } from "@/lib/firebase-rest";
+import { syncPublicStatsSafely } from "@/lib/public-stats";
 
 const PUBLIC_READ_COLLECTIONS = new Set(["schedule", "souvenirs", "transactions"]);
 const ADMIN_COLLECTIONS = new Set([
@@ -104,10 +105,6 @@ function readBoolean(record: Record<string, unknown>, key: string) {
 
 function readEnum<T extends string>(value: unknown, allowed: readonly T[], fallback?: T) {
   return typeof value === "string" && allowed.includes(value as T) ? (value as T) : fallback;
-}
-
-function normalizeAccessCode(value: string) {
-  return value.trim().replace(/\s+/g, "").toUpperCase();
 }
 
 function normalizePhone(value: string) {
@@ -396,7 +393,6 @@ async function createPublicParticipant(request: Request) {
   const body = (await request.json().catch(() => null)) as unknown;
   const record = asRecord(body);
   const honeypot = readString(record, "website", 120);
-  const requiredAccessCode = process.env.REGISTRATION_ACCESS_CODE?.trim();
 
   if (honeypot) {
     return NextResponse.json({ success: true, received: true }, { status: 202 });
@@ -408,17 +404,6 @@ async function createPublicParticipant(request: Request) {
       429,
       "rate-limited"
     );
-  }
-
-  if (requiredAccessCode) {
-    const providedCode = readString(record, "accessCode", 80);
-    if (normalizeAccessCode(providedCode) !== normalizeAccessCode(requiredAccessCode)) {
-      return jsonError(
-        "Código de acesso inválido. Confira o código enviado no grupo e tente novamente.",
-        403,
-        "invalid-access-code"
-      );
-    }
   }
 
   const sanitized = sanitizeParticipantSubmission(body, request);
@@ -454,6 +439,8 @@ async function createPublicParticipant(request: Request) {
   }
 
   const result = (await res.json()) as { name: string };
+  await syncPublicStatsSafely(DEFAULT_EVENT_ID);
+
   return NextResponse.json({ id: result.name.split("/").pop(), success: true });
 }
 
@@ -539,6 +526,10 @@ export async function POST(request: Request) {
   }
 
   const result = (await res.json()) as { name: string };
+  if (collection === "participants") {
+    await syncPublicStatsSafely(DEFAULT_EVENT_ID, session.token);
+  }
+
   return NextResponse.json({ id: result.name.split("/").pop(), success: true });
 }
 
@@ -569,6 +560,10 @@ export async function PATCH(request: Request) {
     return jsonError("Não foi possível atualizar o documento.", 500, "admin-update-failed");
   }
 
+  if (collection === "participants") {
+    await syncPublicStatsSafely(DEFAULT_EVENT_ID, session.token);
+  }
+
   return NextResponse.json({ success: true });
 }
 
@@ -590,6 +585,10 @@ export async function DELETE(request: Request) {
 
   if (!res.ok) {
     return jsonError("Não foi possível excluir o documento.", 500, "admin-delete-failed");
+  }
+
+  if (collection === "participants") {
+    await syncPublicStatsSafely(DEFAULT_EVENT_ID, session.token);
   }
 
   return NextResponse.json({ success: true });

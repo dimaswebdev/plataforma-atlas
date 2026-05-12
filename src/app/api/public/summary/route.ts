@@ -10,6 +10,7 @@ import {
   parseFirestoreDoc,
   parseFirestoreQueryRows,
 } from "@/lib/firebase-rest";
+import { PUBLIC_STATS_DOC_ID } from "@/lib/public-stats";
 
 function asNumber(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
@@ -32,9 +33,18 @@ export async function GET() {
   }
 
   const event = parseFirestoreDoc((await eventRes.json()) as FirestoreDocument);
-  const publicStats = typeof event.publicStats === "object" && event.publicStats !== null
+  const eventPublicStats = typeof event.publicStats === "object" && event.publicStats !== null
     ? (event.publicStats as JsonObject)
     : {};
+  let publicStats = eventPublicStats;
+
+  const statsRes = await firestoreFetch(`events/${DEFAULT_EVENT_ID}/publicStats/${PUBLIC_STATS_DOC_ID}`, {
+    cache: "no-store",
+  });
+
+  if (statsRes.ok) {
+    publicStats = parseFirestoreDoc((await statsRes.json()) as FirestoreDocument);
+  }
 
   const queryBody: JsonObject = {
     structuredQuery: {

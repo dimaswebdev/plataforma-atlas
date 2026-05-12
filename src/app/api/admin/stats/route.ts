@@ -6,6 +6,7 @@ import {
   parseFirestoreList,
   requireAdminSession,
 } from "@/lib/firebase-rest";
+import { syncPublicStatsSafely } from "@/lib/public-stats";
 
 function asNumber(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
@@ -38,6 +39,8 @@ export async function GET(request: Request) {
 
     const totalParticipants = participants.length;
     const confirmedParticipants = participants.filter((participant) => participant.willAttend === "yes").length;
+    await syncPublicStatsSafely(DEFAULT_EVENT_ID, session.token);
+
     const kitInterest = participants.filter((participant) => {
       const officialKit = participant.officialKit;
       return typeof officialKit === "object"

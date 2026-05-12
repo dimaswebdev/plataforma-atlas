@@ -17,7 +17,7 @@ export function EventHero({ event, children }: { event: Event; children?: React.
           transform: "scaleX(-1)",
         }}
       />
-      <div className="absolute inset-0 z-10 bg-gradient-to-b lg:bg-gradient-to-r from-[#060e1c] via-[#060e1c]/80 to-transparent" />
+      <div className="absolute inset-0 z-10 bg-gradient-to-b from-[#060e1c] via-[#060e1c]/80 to-transparent lg:bg-gradient-to-r" />
       <div className="absolute bottom-0 left-0 right-0 h-40 z-10 bg-gradient-to-t from-[#060e1c] to-transparent" />
       <div
         className="absolute inset-0 z-10 opacity-[0.03] pointer-events-none"
@@ -32,10 +32,10 @@ export function EventHero({ event, children }: { event: Event; children?: React.
       </div>
 
       {/* ── HERO CONTENT ── */}
-      <div className="relative z-20 flex flex-1 flex-col pb-12 pt-24 sm:pb-14 lg:flex-row lg:pb-8 lg:pt-20">
+      <div className="relative z-20 mx-auto grid w-full max-w-7xl flex-1 items-center gap-8 px-4 pb-12 pt-24 sm:px-6 sm:pb-14 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,20rem)] lg:gap-12 lg:px-8 lg:pb-10 lg:pt-24 xl:gap-20">
 
         {/* LEFT COLUMN */}
-        <div className="flex w-full flex-col items-center justify-center px-4 text-center sm:px-6 md:px-16 lg:max-w-[58%] lg:items-start lg:px-20 xl:px-24 lg:text-left">
+        <div className="flex w-full min-w-0 flex-col items-center justify-center text-center lg:items-start lg:text-left">
 
           <div className="mb-4 flex flex-wrap items-center justify-center gap-3 sm:mb-5 lg:justify-start">
             <Image
@@ -75,14 +75,14 @@ export function EventHero({ event, children }: { event: Event; children?: React.
           <div className="mb-6 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-4 lg:mb-8 lg:justify-start">
             <Link
               href="/confirmar-interesse"
-              className="group flex w-full items-center justify-center gap-2 rounded bg-atlas-gold-main px-5 py-4 text-xs font-black uppercase tracking-widest text-atlas-navy-deep shadow-xl shadow-atlas-gold-main/20 transition-all duration-300 hover:bg-atlas-gold-dark sm:w-auto sm:px-8 md:text-sm"
+              className="group flex min-h-14 w-full items-center justify-center gap-2 rounded bg-atlas-gold-main px-5 py-4 text-xs font-black uppercase tracking-widest text-atlas-navy-deep shadow-xl shadow-atlas-gold-main/20 transition-all duration-300 hover:bg-atlas-gold-dark sm:w-auto sm:px-8 md:text-sm"
             >
               <Shield className="w-4 h-4" />
               Cadastro de Participante
             </Link>
             <Link
               href="/programacao"
-              className="flex w-full items-center justify-center gap-2 rounded border border-atlas-gold-main/50 px-5 py-4 text-xs font-bold uppercase tracking-widest text-white transition-all duration-300 hover:border-atlas-gold-main hover:bg-atlas-gold-main/10 sm:w-auto sm:px-8 md:text-sm"
+              className="flex min-h-14 w-full items-center justify-center gap-2 rounded border border-atlas-gold-main/50 px-5 py-4 text-xs font-bold uppercase tracking-widest text-white transition-all duration-300 hover:border-atlas-gold-main hover:bg-atlas-gold-main/10 sm:w-auto sm:px-8 md:text-sm"
             >
               Ver Programação
               <span className="text-atlas-gold-main">→</span>
@@ -97,12 +97,12 @@ export function EventHero({ event, children }: { event: Event; children?: React.
 
         {/* RIGHT COLUMN */}
         {children && (
-          <div className="z-30 flex w-full flex-col items-center justify-center gap-6 px-4 pt-6 sm:px-6 lg:absolute lg:right-10 lg:top-1/2 lg:w-auto lg:-translate-y-1/2 lg:items-end lg:gap-5 lg:pt-0 xl:right-20">
-            <div className="flex w-full max-w-[22rem] flex-col gap-4 sm:max-w-[26rem] lg:max-w-none lg:gap-5">
+          <div className="z-30 flex w-full min-w-0 flex-col items-center justify-center gap-6 pt-2 lg:items-end lg:gap-6 lg:pt-0">
+            <div className="flex w-full max-w-[22rem] flex-col gap-4 sm:max-w-[26rem] lg:max-w-[20rem] lg:gap-5">
               {children}
             </div>
 
-            <div className="mt-1 flex items-center gap-4 lg:flex-col lg:items-end lg:gap-5">
+            <div className="flex items-center justify-center gap-4 lg:flex-col lg:items-end lg:gap-5">
               {[
                 { 
                   href: "https://instagram.com/turmaatlas30anos", 

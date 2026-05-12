@@ -19,8 +19,8 @@ export function PublicNav() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-atlas-navy-aero/30 bg-atlas-navy-base/95 backdrop-blur supports-[backdrop-filter]:bg-atlas-navy-base/80">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-3 sm:px-4 lg:px-6">
+    <header className="sticky top-0 z-50 w-full border-b border-atlas-gold-main/55 bg-[#030812]/95 backdrop-blur supports-[backdrop-filter]:bg-[#030812]/85">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex min-w-0 shrink items-center gap-2 text-atlas-gold-main transition-colors hover:text-atlas-gold-dark">
           <Image
             src="/logo-fab.svg"
@@ -71,6 +71,8 @@ export function PublicNav() {
           {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-atlas-gold-main/25" />
 
       {/* Mobile Navigation Overlay */}
       {isOpen && (

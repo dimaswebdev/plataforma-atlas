@@ -194,6 +194,22 @@ service cloud.firestore {
         && isOptionalString("notes", 500);
     }
 
+    function hasValidPublicStatsShape(eventId) {
+      return request.resource.data.keys().hasOnly([
+          "confirmedCount",
+          "eventId",
+          "updatedAt"
+        ])
+        && request.resource.data.confirmedCount is number
+        && request.resource.data.confirmedCount >= 0
+        && request.resource.data.eventId is string
+        && request.resource.data.eventId == eventId
+        && request.resource.data.eventId.size() <= 120
+        && (!("updatedAt" in request.resource.data)
+          || request.resource.data.updatedAt is timestamp
+          || request.resource.data.updatedAt is string);
+    }
+
     function requestedSouvenirIsAvailable(eventId) {
       return exists(/databases/$(database)/documents/events/$(eventId)/souvenirs/$(request.resource.data.souvenirId))
         && get(/databases/$(database)/documents/events/$(eventId)/souvenirs/$(request.resource.data.souvenirId)).data.available == true;
@@ -211,6 +227,12 @@ service cloud.firestore {
       match /participants/{participantId} {
         allow create: if isEventAdmin(eventId) || hasValidPublicParticipantShape();
         allow read, update, delete: if isEventAdmin(eventId);
+      }
+
+      match /publicStats/{statsId} {
+        allow get, list: if true;
+        allow create, update: if isEventAdmin(eventId) && hasValidPublicStatsShape(eventId);
+        allow delete: if isEventAdmin(eventId);
       }
 
       match /transactions/{transactionId} {

@@ -1,75 +1,71 @@
 import Image from "next/image";
 import Link from "next/link";
 
+const footerLinks = [
+  { label: "Termos de Uso", href: "/termos" },
+  { label: "Privacidade", href: "/politica-privacidade" },
+  { label: "Transparência", href: "/termos/transparencia-financeira" },
+];
+
+const goldLogoFilter =
+  "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)";
 
 export function PublicFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative z-40 w-full border-t border-atlas-gold-main/50 bg-[#030812] pb-4 pt-8">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8">
+    <footer className="relative z-40 w-full border-t border-atlas-gold-main/60 bg-[#030812]">
+      <div className="border-t border-atlas-gold-main/20" />
 
-          {/* AREA INSTITUCIONAL */}
-          <div className="flex flex-col items-center lg:items-start flex-1">
-            <div className="group flex max-w-full flex-wrap items-center justify-center gap-3 opacity-90 transition-opacity duration-500 hover:opacity-100 sm:gap-4 lg:justify-start">
-              <Image
-                src="/logo-fab.svg"
-                alt="Logo FAB"
-                width={32}
-                height={32}
-                style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }}
-              />
+      <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(72px,0.32fr)_auto_minmax(72px,0.32fr)_minmax(0,1fr)] lg:gap-8">
+          <p className="text-center text-[10px] font-semibold tracking-[0.08em] text-atlas-text-muted/75 lg:justify-self-start lg:text-left">
+            © Dimas Designer - {currentYear}
+          </p>
 
-              {/* Pequeno divisor vertical */}
-              <div className="w-[1px] h-6 bg-atlas-gold-main/30"></div>
+          <div className="hidden h-px w-full bg-atlas-gold-main/35 lg:block" />
 
-              <p className="text-center text-[10px] font-black uppercase tracking-[0.18em] text-atlas-gold-main sm:text-[11px] sm:tracking-[0.28em] lg:text-left">
-                ATLAS &nbsp;·&nbsp; BINFA &nbsp;·&nbsp; BRASIL
-              </p>
-            </div>
+          <div className="flex flex-col items-center justify-center text-center">
+            <Image
+              src="/logo-fab.svg"
+              alt="Logo FAB"
+              width={42}
+              height={42}
+              className="mb-3 opacity-95"
+              style={{ filter: goldLogoFilter }}
+              priority={false}
+            />
 
-            <p className="text-atlas-text-muted/30 text-[8px] tracking-widest font-medium uppercase mt-2 lg:ml-[48px]">
-              &copy; {currentYear} Dimas Designer
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-atlas-gold-main sm:text-[11px]">
+              ATLAS <span className="mx-1">.</span> BINFA <span className="mx-1">.</span> BRASIL
             </p>
           </div>
 
-          {/* BARRA VERTICAL PRINCIPAL */}
-          <div className="hidden lg:block w-px h-10 bg-gradient-to-b from-transparent via-[#D4AF37]/50 to-transparent self-center"></div>
+          <div className="hidden h-px w-full bg-atlas-gold-main/35 lg:block" />
 
-          {/* AREA DE TERMOS */}
-          <div className="flex flex-col items-center lg:items-end flex-1 w-full lg:w-auto">
-            <Link
-              href="/termos"
-              className="mb-4 !text-[#D4AF37] text-[8px] font-black uppercase tracking-[0.24em] drop-shadow-[0_0_8px_rgba(212,175,55,0.25)] transition-colors hover:text-atlas-gold-dark"
-            >
-              Termos e Documentos
-            </Link>
-
-            <div className="grid w-full grid-cols-1 justify-center gap-x-6 gap-y-3 min-[360px]:grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-wrap lg:justify-end lg:gap-y-4">
-              {[
-                { label: "Todos", href: "/termos" },
-                { label: "Adesão", href: "/termos/adesao" },
-                { label: "Privacidade", href: "/politica-privacidade" },
-                { label: "Uso", href: "/termos/uso" },
-                { label: "Imagem", href: "/termos/uso-imagem" },
-                { label: "Souvenirs", href: "/termos/souvenirs" },
-                { label: "Pagamentos", href: "/termos/pagamentos" },
-                { label: "Transparência", href: "/termos/transparencia-financeira" }
-              ].map((link, idx) => (
+          <nav
+            aria-label="Links legais"
+            className="flex max-w-full flex-wrap items-center justify-center gap-y-2 text-center lg:justify-self-end lg:text-right"
+          >
+            {footerLinks.map((link, index) => (
+              <div key={link.href} className="flex items-center">
                 <Link
-                  key={idx}
                   href={link.href}
-                  className="text-atlas-text-muted/50 hover:text-atlas-gold-main text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 py-1 flex items-center justify-center lg:justify-start"
+                  className="whitespace-nowrap px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-atlas-text-muted/70 transition-colors duration-300 hover:text-atlas-gold-main"
                 >
                   {link.label}
                 </Link>
-              ))}
-            </div>
-          </div>
 
+                {index < footerLinks.length - 1 && (
+                  <span className="h-3 w-px bg-atlas-gold-main/35" />
+                )}
+              </div>
+            ))}
+          </nav>
         </div>
       </div>
+
+      <div className="border-b border-atlas-gold-main/50" />
     </footer>
   );
 }
