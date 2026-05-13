@@ -26,6 +26,11 @@ service cloud.firestore {
         || request.resource.data[field] in values;
     }
 
+    function isOptionalNonNegativeNumber(field) {
+      return !(field in request.resource.data)
+        || (request.resource.data[field] is number && request.resource.data[field] >= 0);
+    }
+
     function hasValidTermsAcceptance() {
       return request.resource.data.termsAcceptance is map
         && request.resource.data.termsAcceptance.keys().hasOnly([
@@ -197,14 +202,42 @@ service cloud.firestore {
     function hasValidPublicStatsShape(eventId) {
       return request.resource.data.keys().hasOnly([
           "confirmedCount",
+          "guestCount",
+          "totalPeople",
+          "interestedCount",
+          "kitCount",
+          "totalIncome",
+          "totalExpense",
+          "balance",
           "eventId",
-          "updatedAt"
+          "updatedAt",
+          "testData",
+          "createdFor"
         ])
-        && request.resource.data.confirmedCount is number
-        && request.resource.data.confirmedCount >= 0
+        && request.resource.data.keys().hasAll([
+          "confirmedCount",
+          "guestCount",
+          "totalPeople",
+          "interestedCount",
+          "kitCount",
+          "totalIncome",
+          "totalExpense",
+          "balance",
+          "eventId"
+        ])
+        && isOptionalNonNegativeNumber("confirmedCount")
+        && isOptionalNonNegativeNumber("guestCount")
+        && isOptionalNonNegativeNumber("totalPeople")
+        && isOptionalNonNegativeNumber("interestedCount")
+        && isOptionalNonNegativeNumber("kitCount")
+        && isOptionalNonNegativeNumber("totalIncome")
+        && isOptionalNonNegativeNumber("totalExpense")
+        && request.resource.data.balance is number
         && request.resource.data.eventId is string
         && request.resource.data.eventId == eventId
         && request.resource.data.eventId.size() <= 120
+        && (!("testData" in request.resource.data) || request.resource.data.testData is bool)
+        && isOptionalString("createdFor", 120)
         && (!("updatedAt" in request.resource.data)
           || request.resource.data.updatedAt is timestamp
           || request.resource.data.updatedAt is string);
@@ -236,7 +269,7 @@ service cloud.firestore {
       }
 
       match /transactions/{transactionId} {
-        allow read: if isEventAdmin(eventId) || resource.data.isPublic == true;
+        allow read: if isEventAdmin(eventId);
         allow create, update, delete: if isEventAdmin(eventId);
       }
 

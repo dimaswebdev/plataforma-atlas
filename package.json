@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "mvp:test-data": "node scripts/mvp-test-data.mjs",
+    "mvp:test-data:seed": "node scripts/mvp-test-data.mjs seed",
+    "mvp:test-data:cleanup": "node scripts/mvp-test-data.mjs cleanup",
+    "mvp:test-data:sync-public-stats": "node scripts/mvp-test-data.mjs sync-public-stats",
+    "mvp:test-data:link-admin": "node scripts/mvp-test-data.mjs link-admin"
   },
   "dependencies": {
     "clsx": "^2.1.1",

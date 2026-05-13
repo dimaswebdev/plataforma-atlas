@@ -4,11 +4,9 @@ import {
   firebaseConfigErrorResponse,
   FirestoreDocument,
   firestoreFetch,
-  firestoreRunQuery,
   hasFirebaseServerConfig,
   JsonObject,
   parseFirestoreDoc,
-  parseFirestoreQueryRows,
 } from "@/lib/firebase-rest";
 import { PUBLIC_STATS_DOC_ID } from "@/lib/public-stats";
 
@@ -29,6 +27,10 @@ export async function GET() {
       totalExpense: 0,
       balance: 0,
       confirmedCount: 0,
+      guestCount: 0,
+      totalPeople: 0,
+      interestedCount: 0,
+      kitCount: 0,
     });
   }
 
@@ -46,39 +48,17 @@ export async function GET() {
     publicStats = parseFirestoreDoc((await statsRes.json()) as FirestoreDocument);
   }
 
-  const queryBody: JsonObject = {
-    structuredQuery: {
-      from: [{ collectionId: "transactions" }],
-      where: {
-        fieldFilter: {
-          field: { fieldPath: "isPublic" },
-          op: "EQUAL",
-          value: { booleanValue: true },
-        },
-      },
-    },
-  };
-
-  let totalIncome = 0;
-  let totalExpense = 0;
-
-  const transactionsRes = await firestoreRunQuery(`events/${DEFAULT_EVENT_ID}`, queryBody, {
-    next: { revalidate: 60 },
-  });
-
-  if (transactionsRes.ok) {
-    const rows = (await transactionsRes.json()) as Array<{ document?: FirestoreDocument }>;
-    parseFirestoreQueryRows(rows).forEach((transaction) => {
-      const amount = asNumber(transaction.amount);
-      if (transaction.type === "income") totalIncome += amount;
-      if (transaction.type === "expense") totalExpense += amount;
-    });
-  }
+  const totalIncome = asNumber(publicStats.totalIncome);
+  const totalExpense = asNumber(publicStats.totalExpense);
 
   return NextResponse.json({
     totalIncome,
     totalExpense,
-    balance: totalIncome - totalExpense,
+    balance: asNumber(publicStats.balance),
     confirmedCount: asNumber(publicStats.confirmedCount),
+    guestCount: asNumber(publicStats.guestCount),
+    totalPeople: asNumber(publicStats.totalPeople),
+    interestedCount: asNumber(publicStats.interestedCount),
+    kitCount: asNumber(publicStats.kitCount),
   });
 }

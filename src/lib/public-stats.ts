@@ -16,9 +16,58 @@ export const PUBLIC_STATS_DOC_ID = "main";
 
 export type PublicStatsSyncResult = {
   confirmedCount: number | null;
+  guestCount: number | null;
+  totalPeople: number | null;
+  interestedCount: number | null;
+  kitCount: number | null;
+  totalIncome: number | null;
+  totalExpense: number | null;
+  balance: number | null;
   reason?: string;
   updated: boolean;
 };
+
+function asNumber(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function buildPublicStats(
+  participants: JsonObject[],
+  transactions: JsonObject[],
+  eventId: string,
+  updatedAt: JsonObject[string]
+) {
+  const metrics = calculateParticipantMetrics(participants);
+  const kitCount = participants.filter((participant) => {
+    const officialKit = participant.officialKit;
+    return typeof officialKit === "object"
+      && officialKit !== null
+      && !Array.isArray(officialKit)
+      && officialKit.interest === "yes";
+  }).length;
+  let totalIncome = 0;
+  let totalExpense = 0;
+
+  transactions.forEach((transaction) => {
+    if (transaction.isPublic !== true) return;
+    const amount = asNumber(transaction.amount);
+    if (transaction.type === "income") totalIncome += amount;
+    if (transaction.type === "expense") totalExpense += amount;
+  });
+
+  return {
+    confirmedCount: metrics.confirmedParticipants,
+    guestCount: metrics.totalGuests,
+    totalPeople: metrics.totalPeople,
+    interestedCount: metrics.totalParticipants,
+    kitCount,
+    totalIncome,
+    totalExpense,
+    balance: totalIncome - totalExpense,
+    eventId,
+    updatedAt,
+  };
+}
 
 async function recalculatePublicStatsWithAdminToken(eventId: string, token: string): Promise<PublicStatsSyncResult> {
   const participantsResult = await firestoreListAll(`events/${eventId}/participants`, {
@@ -29,17 +78,24 @@ async function recalculatePublicStatsWithAdminToken(eventId: string, token: stri
   if (!participantsResult.ok) {
     return {
       confirmedCount: null,
+      guestCount: null,
+      totalPeople: null,
+      interestedCount: null,
+      kitCount: null,
+      totalIncome: null,
+      totalExpense: null,
+      balance: null,
       reason: `participants-read-failed-${participantsResult.status}`,
       updated: false,
     };
   }
 
-  const { confirmedParticipants: confirmedCount } = calculateParticipantMetrics(participantsResult.documents);
-  const publicStats: JsonObject = {
-    confirmedCount,
-    eventId,
-    updatedAt: new Date().toISOString(),
-  };
+  const transactionsResult = await firestoreListAll(`events/${eventId}/transactions`, {
+    token,
+    cache: "no-store",
+  });
+  const transactions = transactionsResult.ok ? transactionsResult.documents : [];
+  const publicStats = buildPublicStats(participantsResult.documents, transactions, eventId, new Date().toISOString());
 
   const statsRes = await firestoreFetch(`events/${eventId}/publicStats/${PUBLIC_STATS_DOC_ID}`, {
     method: "PATCH",
@@ -51,6 +107,13 @@ async function recalculatePublicStatsWithAdminToken(eventId: string, token: stri
   if (!statsRes.ok) {
     return {
       confirmedCount: null,
+      guestCount: null,
+      totalPeople: null,
+      interestedCount: null,
+      kitCount: null,
+      totalIncome: null,
+      totalExpense: null,
+      balance: null,
       reason: `public-stats-write-failed-${statsRes.status}`,
       updated: false,
     };
@@ -70,7 +133,14 @@ async function recalculatePublicStatsWithAdminToken(eventId: string, token: stri
   }
 
   return {
-    confirmedCount,
+    confirmedCount: Number(publicStats.confirmedCount),
+    guestCount: Number(publicStats.guestCount),
+    totalPeople: Number(publicStats.totalPeople),
+    interestedCount: Number(publicStats.interestedCount),
+    kitCount: Number(publicStats.kitCount),
+    totalIncome: Number(publicStats.totalIncome),
+    totalExpense: Number(publicStats.totalExpense),
+    balance: Number(publicStats.balance),
     updated: true,
   };
 }
@@ -91,6 +161,13 @@ export async function recalculatePublicStats(
     );
     return {
       confirmedCount: null,
+      guestCount: null,
+      totalPeople: null,
+      interestedCount: null,
+      kitCount: null,
+      totalIncome: null,
+      totalExpense: null,
+      balance: null,
       reason: "firebase-admin-config-missing",
       updated: false,
     };
@@ -98,18 +175,16 @@ export async function recalculatePublicStats(
 
   const eventRef = adminDb.collection("events").doc(eventId);
   const statsRef = eventRef.collection("publicStats").doc(PUBLIC_STATS_DOC_ID);
-  const confirmedSnapshot = await eventRef
-    .collection("participants")
-    .where("willAttend", "==", "yes")
-    .count()
-    .get();
-
-  const confirmedCount = confirmedSnapshot.data().count;
-  const publicStats = {
-    confirmedCount,
+  const participantsSnapshot = await eventRef.collection("participants").get();
+  const participants = participantsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as JsonObject));
+  const transactionsSnapshot = await eventRef.collection("transactions").get();
+  const transactions = transactionsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as JsonObject));
+  const publicStats = buildPublicStats(
+    participants,
+    transactions,
     eventId,
-    updatedAt: FieldValue.serverTimestamp(),
-  };
+    FieldValue.serverTimestamp() as unknown as JsonObject[string]
+  );
 
   await adminDb.batch()
     .set(statsRef, publicStats, { merge: true })
@@ -117,7 +192,14 @@ export async function recalculatePublicStats(
     .commit();
 
   return {
-    confirmedCount,
+    confirmedCount: Number(publicStats.confirmedCount),
+    guestCount: Number(publicStats.guestCount),
+    totalPeople: Number(publicStats.totalPeople),
+    interestedCount: Number(publicStats.interestedCount),
+    kitCount: Number(publicStats.kitCount),
+    totalIncome: Number(publicStats.totalIncome),
+    totalExpense: Number(publicStats.totalExpense),
+    balance: Number(publicStats.balance),
     updated: true,
   };
 }
@@ -132,6 +214,13 @@ export async function syncPublicStatsSafely(
     console.warn("Public stats sync failed:", error);
     return {
       confirmedCount: null,
+      guestCount: null,
+      totalPeople: null,
+      interestedCount: null,
+      kitCount: null,
+      totalIncome: null,
+      totalExpense: null,
+      balance: null,
       reason: "public-stats-sync-failed",
       updated: false,
     };

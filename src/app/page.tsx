@@ -192,9 +192,7 @@ export default function Home() {
           </p>
           <div className="flex flex-wrap items-end gap-2">
             <span className="atlas-feature-value text-white" aria-live="polite">{confirmedCount ?? "--"}</span>
-            <span className="mb-1 text-sm text-atlas-text-muted">
-              {confirmedCount === null ? "contagem indisponível" : "militares"}
-            </span>
+            <span className="mb-1 text-sm text-atlas-text-muted">militares</span>
           </div>
         </div>
 

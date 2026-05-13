@@ -16,9 +16,21 @@ import {
   requireAdminSession,
   serializeFirestoreFields,
 } from "@/lib/firebase-rest";
+import {
+  normalizeEmail,
+  normalizeName,
+  normalizePhone,
+  normalizePhoneDigits,
+  normalizeUpperCode,
+  normalizeZipCode,
+  readClampedDecimal,
+  readClampedNumber,
+  sanitizeOptionalText,
+  sanitizeText,
+} from "@/lib/input-sanitization";
 import { syncPublicStatsSafely } from "@/lib/public-stats";
 
-const PUBLIC_READ_COLLECTIONS = new Set(["schedule", "souvenirs", "transactions"]);
+const PUBLIC_READ_COLLECTIONS = new Set(["schedule", "souvenirs"]);
 const ADMIN_COLLECTIONS = new Set([
   "admins",
   "comunicados",
@@ -82,33 +94,25 @@ function asRecord(value: unknown): Record<string, unknown> {
 }
 
 function readString(record: Record<string, unknown>, key: string, maxLength = 240) {
-  const value = record[key];
-  return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+  return sanitizeText(record[key], maxLength);
 }
 
 function readOptionalString(record: Record<string, unknown>, key: string, maxLength = 240) {
-  const value = readString(record, key, maxLength);
-  return value || undefined;
+  return sanitizeOptionalText(record[key], maxLength);
 }
 
 function readNumber(record: Record<string, unknown>, key: string, fallback = 0, min = 0, max = 999) {
-  const value = record[key];
-  const numeric = typeof value === "number" ? value : typeof value === "string" ? Number(value) : fallback;
-
-  if (!Number.isFinite(numeric)) return fallback;
-  return Math.min(max, Math.max(min, numeric));
+  return readClampedNumber(record[key], fallback, min, max);
 }
 
 function readBoolean(record: Record<string, unknown>, key: string) {
   return record[key] === true;
 }
 
+function readEnum<T extends string>(value: unknown, allowed: readonly T[]): T | undefined;
+function readEnum<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T;
 function readEnum<T extends string>(value: unknown, allowed: readonly T[], fallback?: T) {
   return typeof value === "string" && allowed.includes(value as T) ? (value as T) : fallback;
-}
-
-function normalizePhone(value: string) {
-  return value.replace(/\D/g, "");
 }
 
 function createStableSouvenirInterestDocumentId(seed: string) {
@@ -174,15 +178,16 @@ function sanitizeTerms(raw: unknown, request: Request, now: string) {
 function sanitizeParticipantSubmission(rawBody: unknown, request: Request) {
   const body = asRecord(rawBody);
   const now = new Date().toISOString();
-  const name = readString(body, "name", 120);
-  const phone = readString(body, "phone", 40);
-  const email = readString(body, "email", 160).toLowerCase();
+  const name = normalizeName(body.name, 120);
+  const phone = normalizePhone(body.phone);
+  const phoneDigits = normalizePhoneDigits(body.phone);
+  const email = normalizeEmail(body.email, 160);
   const willAttend = readEnum(body.willAttend, ["yes", "maybe", "no"] as const);
   const termsAcceptance = sanitizeTerms(body.termsAcceptance, request, now);
   const errors: string[] = [];
 
   if (name.length < 3) errors.push("Informe o nome completo.");
-  if (normalizePhone(phone).length < 10) errors.push("Informe um telefone válido.");
+  if (phoneDigits.length < 10) errors.push("Informe um telefone válido.");
   if (!willAttend) errors.push("Informe sua intenção de participação.");
   if (!termsAcceptance.adhesionTermAccepted) errors.push("Aceite o termo de adesão.");
   if (!termsAcceptance.privacyPolicyAccepted) errors.push("Aceite a política de privacidade.");
@@ -201,18 +206,18 @@ function sanitizeParticipantSubmission(rawBody: unknown, request: Request) {
 
   const participant: JsonObject = {
     name,
-    nickname: readString(body, "nickname", 80),
+    nickname: normalizeName(body.nickname, 80),
     email,
     phone,
     instagram: readString(body, "instagram", 80),
     linkedin: readString(body, "linkedin", 160),
     birthDate: readString(body, "birthDate", 20),
-    currentFunction: readString(body, "currentFunction", 120),
-    zipCode: readString(body, "zipCode", 20),
+    currentFunction: normalizeName(body.currentFunction, 120),
+    zipCode: normalizeZipCode(body.zipCode),
     address: readString(body, "address", 240),
-    city: readString(body, "city", 120),
-    state: readString(body, "state", 12).toUpperCase(),
-    country: readString(body, "country", 80).toUpperCase(),
+    city: normalizeName(body.city, 120),
+    state: normalizeUpperCode(body.state, 2),
+    country: normalizeUpperCode(body.country, 80),
     willAttend: willAttend ?? "maybe",
     isFromOutOfState: readBoolean(body, "isFromOutOfState"),
     guestsCount: readNumber(body, "guestsCount", 0, 0, 20),
@@ -228,7 +233,7 @@ function sanitizeParticipantSubmission(rawBody: unknown, request: Request) {
     updatedAt: now,
   };
 
-  const stableSeed = normalizePhone(phone) || email || `${name}-${participant.birthDate}`;
+  const stableSeed = phoneDigits || email || `${name}-${participant.birthDate}`;
 
   return {
     errors: [],
@@ -242,10 +247,11 @@ function sanitizeParticipantSubmission(rawBody: unknown, request: Request) {
 function sanitizeSouvenirInterestSubmission(rawBody: unknown) {
   const body = asRecord(rawBody);
   const now = new Date().toISOString();
-  const participantName = readString(body, "participantName", 120);
-  const warName = readOptionalString(body, "warName", 80);
-  const contactPhone = readString(body, "contactPhone", 40);
-  const contactEmail = readString(body, "contactEmail", 160).toLowerCase();
+  const participantName = normalizeName(body.participantName, 120);
+  const warName = sanitizeOptionalText(body.warName, 80);
+  const contactPhone = normalizePhone(body.contactPhone);
+  const contactPhoneDigits = normalizePhoneDigits(body.contactPhone);
+  const contactEmail = normalizeEmail(body.contactEmail, 160);
   const souvenirId = readString(body, "souvenirId", 120);
   const souvenirName = readString(body, "souvenirName", 160);
   const souvenirCategory = readEnum(body.souvenirCategory, ["kit", "shirt", "pants", "mug", "cap", "patch", "other"] as const);
@@ -258,7 +264,7 @@ function sanitizeSouvenirInterestSubmission(rawBody: unknown) {
   const errors: string[] = [];
 
   if (participantName.length < 3) errors.push("Informe seu nome completo.");
-  if (normalizePhone(contactPhone).length < 10) errors.push("Informe um telefone válido para identificação.");
+  if (contactPhoneDigits.length < 10) errors.push("Informe um telefone válido para identificação.");
   if (!souvenirId) errors.push("Item não informado.");
   if (!souvenirName) errors.push("Nome do item não informado.");
 
@@ -266,8 +272,7 @@ function sanitizeSouvenirInterestSubmission(rawBody: unknown) {
     return { errors, data: null };
   }
 
-  const normalizedPhone = normalizePhone(contactPhone);
-  const participantId = createStableParticipantDocumentId(normalizedPhone || contactEmail || participantName);
+  const participantId = createStableParticipantDocumentId(contactPhoneDigits || contactEmail || participantName);
   const documentId = createStableSouvenirInterestDocumentId(`${participantId}:${souvenirId}`);
   const data: JsonObject = {
     participantId,
@@ -315,18 +320,6 @@ async function listPublicCollection(collection: string) {
     souvenirs: {
       structuredQuery: {
         from: [{ collectionId: "souvenirs" }],
-      },
-    },
-    transactions: {
-      structuredQuery: {
-        from: [{ collectionId: "transactions" }],
-        where: {
-          fieldFilter: {
-            field: { fieldPath: "isPublic" },
-            op: "EQUAL",
-            value: { booleanValue: true },
-          },
-        },
       },
     },
   };
@@ -457,6 +450,48 @@ function sanitizeAdminMutation(rawBody: unknown): JsonObject {
   return result;
 }
 
+function sanitizeAdminParticipantMutation(rawBody: unknown): JsonObject {
+  const body = asRecord(rawBody);
+  const now = new Date().toISOString();
+  const result: JsonObject = {};
+
+  if ("name" in body) result.name = normalizeName(body.name, 120);
+  if ("nickname" in body) result.nickname = normalizeName(body.nickname, 80);
+  if ("email" in body) result.email = normalizeEmail(body.email, 160);
+  if ("phone" in body) result.phone = normalizePhone(body.phone);
+  if ("instagram" in body) result.instagram = readString(body, "instagram", 80);
+  if ("linkedin" in body) result.linkedin = readString(body, "linkedin", 160);
+  if ("birthDate" in body) result.birthDate = readString(body, "birthDate", 20);
+  if ("currentFunction" in body) result.currentFunction = normalizeName(body.currentFunction, 120);
+  if ("zipCode" in body) result.zipCode = normalizeZipCode(body.zipCode);
+  if ("address" in body) result.address = readString(body, "address", 240);
+  if ("city" in body) result.city = normalizeName(body.city, 120);
+  if ("state" in body) result.state = normalizeUpperCode(body.state, 2);
+  if ("country" in body) result.country = normalizeUpperCode(body.country, 80);
+  if ("willAttend" in body) result.willAttend = readEnum(body.willAttend, ["yes", "maybe", "no"] as const, "maybe");
+  if ("isFromOutOfState" in body) result.isFromOutOfState = readBoolean(body, "isFromOutOfState");
+  if ("guestsCount" in body) result.guestsCount = readNumber(body, "guestsCount", 0, 0, 20);
+  if ("needsHotelInfo" in body) result.needsHotelInfo = readBoolean(body, "needsHotelInfo");
+  if ("needsTransportInfo" in body) result.needsTransportInfo = readBoolean(body, "needsTransportInfo");
+  if ("wantsToHelpCommittee" in body) result.wantsToHelpCommittee = readBoolean(body, "wantsToHelpCommittee");
+  if ("notes" in body) result.notes = readString(body, "notes", 1500);
+  if ("totalPaid" in body) result.totalPaid = readClampedDecimal(body.totalPaid, 0, 0, 9999999);
+  if ("paymentStatus" in body) {
+    result.paymentStatus = readEnum(
+      body.paymentStatus,
+      ["not_started", "partial", "paid", "overdue"] as const,
+      "not_started"
+    );
+  }
+
+  if ("officialKit" in body) {
+    result.officialKit = body.officialKit === null ? null : sanitizeOfficialKit(body.officialKit) || null;
+  }
+
+  result.updatedAt = now;
+  return result;
+}
+
 export async function GET(request: Request) {
   if (!hasFirebaseServerConfig()) return firebaseConfigErrorResponse();
 
@@ -511,7 +546,9 @@ export async function POST(request: Request) {
   if (!ADMIN_COLLECTIONS.has(collection)) return jsonError("Coleção não permitida.", 403, "collection-forbidden");
 
   const body = (await request.json().catch(() => null)) as unknown;
-  const data = sanitizeAdminMutation(body);
+  const data = collection === "participants"
+    ? sanitizeAdminParticipantMutation(body)
+    : sanitizeAdminMutation(body);
   data.createdAt = typeof data.createdAt === "string" ? data.createdAt : data.updatedAt;
 
   const res = await firestoreFetch(`events/${DEFAULT_EVENT_ID}/${collection}`, {
@@ -545,7 +582,9 @@ export async function PATCH(request: Request) {
   if (!ADMIN_COLLECTIONS.has(collection)) return jsonError("Coleção não permitida.", 403, "collection-forbidden");
 
   const body = (await request.json().catch(() => null)) as unknown;
-  const data = sanitizeAdminMutation(body);
+  const data = collection === "participants"
+    ? sanitizeAdminParticipantMutation(body)
+    : sanitizeAdminMutation(body);
   const query = buildUpdateMask(data);
 
   const res = await firestoreFetch(`events/${DEFAULT_EVENT_ID}/${collection}/${id}`, {
