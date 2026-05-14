@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, ShieldCheck, UserRoundCheck } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { PARTICIPANT_LOGIN_PATH } from "@/lib/participant-portal-config";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -159,10 +160,10 @@ export default function AdminLogin() {
                   Cadastro, confirmação de presença e informações públicas ficam no portal de participantes.
                 </p>
                 <Link
-                  href="/confirmar-interesse"
+                  href={PARTICIPANT_LOGIN_PATH}
                   className="mt-3 inline-flex items-center gap-2 text-xs font-black uppercase text-atlas-gold-main transition-colors hover:text-atlas-gold-dark"
                 >
-                  Ir para cadastro
+                  Entrar como participante
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>

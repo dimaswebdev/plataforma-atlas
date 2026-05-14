@@ -16,6 +16,12 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/events/$(eventId)/admins/$(request.auth.uid)).data.role == "owner";
     }
 
+    function isParticipantOwner() {
+      return isSignedIn()
+        && resource.data.authUid is string
+        && resource.data.authUid == request.auth.uid;
+    }
+
     function isOptionalString(field, maxSize) {
       return !(field in request.resource.data)
         || (request.resource.data[field] is string && request.resource.data[field].size() <= maxSize);
@@ -73,7 +79,7 @@ service cloud.firestore {
         && request.resource.data.officialKit.interest in ["yes", "maybe", "no"];
     }
 
-    function hasValidPublicParticipantShape() {
+    function hasValidParticipantSelfCreateShape() {
       return request.resource.data.keys().hasOnly([
           "name",
           "nickname",
@@ -95,6 +101,11 @@ service cloud.firestore {
           "needsTransportInfo",
           "wantsToHelpCommittee",
           "notes",
+          "authUid",
+          "emailNormalized",
+          "registrationStatus",
+          "linkedAt",
+          "lastSelfUpdateAt",
           "paymentStatus",
           "totalPaid",
           "officialKit",
@@ -109,6 +120,9 @@ service cloud.firestore {
           "guestsCount",
           "needsHotelInfo",
           "needsTransportInfo",
+          "authUid",
+          "registrationStatus",
+          "linkedAt",
           "paymentStatus",
           "totalPaid",
           "officialKit",
@@ -128,9 +142,16 @@ service cloud.firestore {
         && request.resource.data.guestsCount <= 20
         && request.resource.data.needsHotelInfo is bool
         && request.resource.data.needsTransportInfo is bool
+        && request.resource.data.authUid is string
+        && request.resource.data.authUid == request.auth.uid
+        && request.resource.data.registrationStatus == "linked"
+        && request.resource.data.linkedAt is string
+        && request.resource.data.linkedAt.size() <= 40
         && request.resource.data.paymentStatus == "not_started"
         && request.resource.data.totalPaid == 0
         && isOptionalString("email", 160)
+        && isOptionalString("emailNormalized", 160)
+        && isOptionalString("lastSelfUpdateAt", 40)
         && isOptionalString("nickname", 80)
         && isOptionalString("instagram", 80)
         && isOptionalString("linkedin", 160)
@@ -258,8 +279,9 @@ service cloud.firestore {
       }
 
       match /participants/{participantId} {
-        allow create: if isEventAdmin(eventId) || hasValidPublicParticipantShape();
-        allow read, update, delete: if isEventAdmin(eventId);
+        allow create: if isEventAdmin(eventId) || (isSignedIn() && hasValidParticipantSelfCreateShape());
+        allow read: if isEventAdmin(eventId) || isParticipantOwner();
+        allow update, delete: if isEventAdmin(eventId);
       }
 
       match /publicStats/{statsId} {

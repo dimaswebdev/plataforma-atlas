@@ -152,11 +152,13 @@ async function listCollection(path) {
 
 function participant(id, overrides) {
   const now = new Date().toISOString();
+  const email = `participante.teste.${id}@atlas.local`;
   return {
     id,
     name: `Participante Teste ${id}`,
     nickname: `Teste ${id}`,
-    email: `participante.teste.${id}@atlas.local`,
+    email,
+    emailNormalized: email,
     phone: `(67) 9${String(90000000 + Number(id)).slice(1, 9)}-${String(1000 + Number(id)).slice(1, 5)}`,
     instagram: "",
     linkedin: "",
@@ -174,6 +176,8 @@ function participant(id, overrides) {
     needsTransportInfo: false,
     wantsToHelpCommittee: false,
     notes: "",
+    registrationStatus: "submitted",
+    lastSelfUpdateAt: now,
     paymentStatus: "not_started",
     totalPaid: 0,
     officialKit: {
@@ -209,11 +213,11 @@ function participant(id, overrides) {
 }
 
 const participants = [
-  participant("01", { guestsCount: 0, totalPaid: 500, paymentStatus: "paid", officialKit: { interest: "yes", shirtSize: "P", jacketSize: "P", pantsSize: "P" } }),
-  participant("02", { guestsCount: 1, totalPaid: 250, paymentStatus: "partial", officialKit: { interest: "yes", shirtSize: "M", jacketSize: "M", pantsSize: "M" } }),
-  participant("03", { guestsCount: 2, officialKit: { interest: "yes", shirtSize: "G", jacketSize: "G", pantsSize: "G" } }),
-  participant("04", { guestsCount: 3, officialKit: { interest: "maybe", shirtSize: "GG", jacketSize: "GG", pantsSize: "GG" } }),
-  participant("05", { guestsCount: 4, officialKit: { interest: "yes", shirtSize: "XG", jacketSize: "XG", pantsSize: "XG" } }),
+  participant("01", { authUid: "test-auth-uid-01", registrationStatus: "linked", linkedAt: new Date().toISOString(), guestsCount: 0, totalPaid: 500, paymentStatus: "paid", officialKit: { interest: "yes", shirtSize: "P", jacketSize: "P", pantsSize: "P" } }),
+  participant("02", { authUid: "test-auth-uid-02", registrationStatus: "linked", linkedAt: new Date().toISOString(), guestsCount: 1, totalPaid: 250, paymentStatus: "partial", officialKit: { interest: "yes", shirtSize: "M", jacketSize: "M", pantsSize: "M" } }),
+  participant("03", { authUid: "test-auth-uid-03", registrationStatus: "linked", linkedAt: new Date().toISOString(), guestsCount: 2, officialKit: { interest: "yes", shirtSize: "G", jacketSize: "G", pantsSize: "G" } }),
+  participant("04", { authUid: "test-auth-uid-04", registrationStatus: "linked", linkedAt: new Date().toISOString(), guestsCount: 3, officialKit: { interest: "maybe", shirtSize: "GG", jacketSize: "GG", pantsSize: "GG" } }),
+  participant("05", { authUid: "test-auth-uid-05", registrationStatus: "linked", linkedAt: new Date().toISOString(), guestsCount: 4, officialKit: { interest: "yes", shirtSize: "XG", jacketSize: "XG", pantsSize: "XG" } }),
   participant("06", { guestsCount: 5, needsHotelInfo: true, city: "Sao Paulo", state: "SP", isFromOutOfState: true }),
   participant("07", { guestsCount: 10, needsTransportInfo: true, notes: "Teste com dez convidados adicionais." }),
   participant("08", { willAttend: "maybe", guestsCount: 4, officialKit: { interest: "maybe", shirtSize: "M", jacketSize: "G", pantsSize: "G" } }),
@@ -410,16 +414,49 @@ async function linkAdmin() {
   console.log(`Admin de teste vinculado em events/${EVENT_ID}/admins/${uid}.`);
 }
 
+async function portalReport() {
+  requireFirebaseEnv();
+  const docs = await listCollection(`events/${EVENT_ID}/participants`);
+  const participants = docs.map((doc) => doc.data);
+  const submittedRegistrations = participants.length;
+  const linkedAccounts = participants.filter((participant) => (
+    typeof participant.authUid === "string"
+    || participant.registrationStatus === "linked"
+  )).length;
+  const participantsWithEmail = participants.filter((participant) => (
+    typeof participant.email === "string" && participant.email.trim().length > 0
+  )).length;
+  const committeeVolunteers = participants.filter((participant) => participant.wantsToHelpCommittee === true).length;
+  const kitResponses = participants.filter((participant) => (
+    participant.officialKit
+    && typeof participant.officialKit === "object"
+    && ["yes", "maybe", "no"].includes(participant.officialKit.interest)
+  )).length;
+
+  console.log(JSON.stringify({
+    eventId: EVENT_ID,
+    submittedRegistrations,
+    linkedAccounts,
+    pendingAccountLink: Math.max(0, submittedRegistrations - linkedAccounts),
+    participantsWithEmail,
+    participantsWithoutEmail: Math.max(0, submittedRegistrations - participantsWithEmail),
+    committeeVolunteers,
+    kitResponses,
+  }, null, 2));
+}
+
 async function main() {
   if (COMMAND === "seed") return seed();
   if (COMMAND === "cleanup") return cleanup();
   if (COMMAND === "sync-public-stats") return syncPublicStats();
   if (COMMAND === "link-admin") return linkAdmin();
+  if (COMMAND === "portal-report") return portalReport();
 
   console.log(`Uso:
   npm run mvp:test-data:seed
   npm run mvp:test-data:cleanup
   npm run mvp:test-data:sync-public-stats
+  npm run mvp:test-data:portal-report
   TEST_ADMIN_UID=<uid> TEST_ADMIN_EMAIL=admin.teste@atlas.local npm run mvp:test-data:link-admin
 
 Requer FIREBASE_ID_TOKEN no ambiente. Nao salve tokens, senhas ou chaves no codigo.`);

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Lock, ShieldCheck, Menu, X } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { PARTICIPANT_LOGIN_PATH } from "@/lib/participant-portal-config";
 
 export function PublicNav() {
   const { user, isAdmin } = useAuth();
@@ -12,6 +13,7 @@ export function PublicNav() {
 
   const menuLinks = [
     { href: "/", label: "Início" },
+    { href: "/minha-participacao", label: "Minha Conta" },
     { href: "/programacao", label: "Programação" },
     { href: "/visitantes", label: "Visitantes" },
     { href: "/prestacao-contas", label: "Prestação de Contas" },
@@ -54,8 +56,8 @@ export function PublicNav() {
                 Comissão
               </Link>
             )}
-            <Link href="/confirmar-interesse" className="px-4 py-2 rounded bg-atlas-gold-main text-atlas-navy-deep font-bold hover:bg-atlas-gold-dark transition-all uppercase text-xs tracking-wider shadow-lg shadow-atlas-gold-main/20">
-              Cadastro
+            <Link href={PARTICIPANT_LOGIN_PATH} className="px-4 py-2 rounded bg-atlas-gold-main text-atlas-navy-deep font-bold hover:bg-atlas-gold-dark transition-all uppercase text-xs tracking-wider shadow-lg shadow-atlas-gold-main/20">
+              Entrar
             </Link>
           </div>
         </nav>
@@ -112,11 +114,11 @@ export function PublicNav() {
                 </Link>
               )}
               <Link 
-                href="/confirmar-interesse" 
+                href={PARTICIPANT_LOGIN_PATH}
                 onClick={() => setIsOpen(false)}
                 className="flex items-center justify-center rounded-lg bg-atlas-gold-main p-4 text-xs font-black uppercase tracking-widest text-atlas-navy-deep shadow-xl"
               >
-                Cadastro de Participante
+                Entrar como Participante
               </Link>
             </div>
           </nav>

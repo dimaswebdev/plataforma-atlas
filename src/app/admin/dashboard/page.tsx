@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Activity, DollarSign, Shirt, UserPlus, Users, UsersRound, Wallet } from "lucide-react";
+import Link from "next/link";
+import { Activity, ArrowRight, CheckCircle, Clock, DollarSign, KeyRound, Lock, ShieldCheck, Shirt, UserPlus, Users, UsersRound, Wallet } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminStatCard } from "@/components/admin/AdminStatCard";
 import { fetchWithAdminAuth } from "@/lib/client-auth";
@@ -29,12 +30,55 @@ function DashboardSectionHeader({
   );
 }
 
+function FlowStep({
+  icon: Icon,
+  title,
+  value,
+  description,
+  tone = "gold",
+}: {
+  icon: typeof Activity;
+  title: string;
+  value: React.ReactNode;
+  description: string;
+  tone?: "gold" | "green" | "blue" | "red";
+}) {
+  const toneClass = {
+    gold: "border-atlas-gold-main/30 bg-atlas-gold-main/10 text-atlas-gold-main",
+    green: "border-green-400/30 bg-green-400/10 text-green-400",
+    blue: "border-blue-400/30 bg-blue-400/10 text-blue-400",
+    red: "border-red-400/30 bg-red-400/10 text-red-400",
+  }[tone];
+
+  return (
+    <article className="relative min-w-0 overflow-hidden rounded-lg border border-white/10 bg-white/[0.035] p-4">
+      <div className="flex min-w-0 items-start gap-3">
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${toneClass}`}>
+          <Icon className="h-5 w-5" aria-hidden="true" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase text-atlas-text-muted">{title}</p>
+          <div className="mt-1 text-2xl font-black leading-none text-white">{value}</div>
+          <p className="mt-2 text-xs leading-relaxed text-atlas-text-muted">{description}</p>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalParticipants: 0,
     confirmedParticipants: 0,
     totalGuests: 0,
     totalPeople: 0,
+    submittedRegistrations: 0,
+    linkedAccounts: 0,
+    pendingAccountLink: 0,
+    participantsWithEmail: 0,
+    participantsWithoutEmail: 0,
+    committeeVolunteers: 0,
+    kitResponses: 0,
     kitInterest: 0,
     income: 0,
     expense: 0,
@@ -132,6 +176,86 @@ export default function AdminDashboard() {
                 helper="Todos os cadastros registrados"
               />
             </div>
+          </div>
+        </section>
+
+        <section className="min-w-0">
+          <DashboardSectionHeader
+            eyebrow="Portal do participante"
+            title="Fluxo de entrada e consolidação"
+            description="Acompanhamento da esteira: cadastro recebido, vínculo futuro de login, dados consolidados na página individual e bloqueios financeiros preservados."
+          />
+
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,0.5fr)]">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <FlowStep
+                icon={CheckCircle}
+                title="Formulários recebidos"
+                value={stats.submittedRegistrations}
+                description="Participantes que já passaram pelo cadastro passo a passo ou legado."
+                tone="green"
+              />
+              <FlowStep
+                icon={KeyRound}
+                title="Contas vinculadas"
+                value={stats.linkedAccounts}
+                description="Participantes já ligados a uma conta de login individual."
+                tone="blue"
+              />
+              <FlowStep
+                icon={Clock}
+                title="Aguardam login"
+                value={stats.pendingAccountLink}
+                description="Cadastros prontos para receber vínculo por e-mail e senha."
+                tone="gold"
+              />
+              <FlowStep
+                icon={Lock}
+                title="Financeiro"
+                value="Bloqueado"
+                description="Pagamentos, Asaas e cobranças permanecem fora da fase atual."
+                tone="red"
+              />
+            </div>
+
+            <article className="rounded-lg border border-atlas-gold-main/25 bg-atlas-gold-main/10 p-5">
+              <div className="mb-4 flex items-start gap-3">
+                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-atlas-gold-main" aria-hidden="true" />
+                <div>
+                  <h3 className="atlas-card-title text-white">Próximo passo operacional</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-atlas-text-muted">
+                    Com o login do participante ativo, membros sem cadastro entram pelo acesso individual e seguem para o formulário autenticado. Ao confirmar, o registro já nasce vinculado e aparece aqui, na lista de participantes e na página individual.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded border border-white/10 bg-white/[0.04] p-3">
+                  <p className="text-[10px] font-black uppercase text-atlas-text-muted">Com e-mail</p>
+                  <p className="mt-1 text-xl font-black text-white">{stats.participantsWithEmail}</p>
+                </div>
+                <div className="rounded border border-white/10 bg-white/[0.04] p-3">
+                  <p className="text-[10px] font-black uppercase text-atlas-text-muted">Sem e-mail</p>
+                  <p className="mt-1 text-xl font-black text-white">{stats.participantsWithoutEmail}</p>
+                </div>
+                <div className="rounded border border-white/10 bg-white/[0.04] p-3">
+                  <p className="text-[10px] font-black uppercase text-atlas-text-muted">Voluntários</p>
+                  <p className="mt-1 text-xl font-black text-white">{stats.committeeVolunteers}</p>
+                </div>
+                <div className="rounded border border-white/10 bg-white/[0.04] p-3">
+                  <p className="text-[10px] font-black uppercase text-atlas-text-muted">Kits mapeados</p>
+                  <p className="mt-1 text-xl font-black text-white">{stats.kitResponses}</p>
+                </div>
+              </div>
+
+              <Link
+                href="/minha-participacao"
+                className="mt-4 inline-flex items-center gap-2 text-xs font-black uppercase text-atlas-gold-main transition-colors hover:text-atlas-gold-dark"
+              >
+                Ver página individual
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </article>
           </div>
         </section>
 

@@ -2,6 +2,11 @@ import { Timestamp } from "firebase/firestore";
 
 export interface Participant {
   id?: string;
+  authUid?: string;
+  emailNormalized?: string;
+  registrationStatus?: "draft" | "submitted" | "linked" | "cancelled";
+  linkedAt?: Timestamp | Date | string;
+  lastSelfUpdateAt?: Timestamp | Date | string;
   name: string;
   nickname?: string;
   email?: string;

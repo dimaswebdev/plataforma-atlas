@@ -3,6 +3,7 @@ import { PublicFooter } from "@/components/public/PublicFooter";
 import { PageHeader } from "@/components/public/PageHeader";
 import { Plane, Hotel, Map, Car } from "lucide-react";
 import Link from "next/link";
+import { PARTICIPANT_LOGIN_PATH } from "@/lib/participant-portal-config";
 
 export default function VisitantesPage() {
   return (
@@ -71,10 +72,10 @@ export default function VisitantesPage() {
               Se você precisa de ajuda específica com logística, não deixe de marcar as opções no formulário de confirmação.
             </p>
             <Link 
-              href="/confirmar-interesse"
+              href={PARTICIPANT_LOGIN_PATH}
               className="inline-flex w-full justify-center rounded bg-atlas-gold-main px-6 py-2 text-sm font-semibold uppercase tracking-wider text-atlas-navy-deep transition-colors hover:bg-atlas-gold-dark sm:w-auto"
             >
-              Preencher Formulário
+              Entrar para informar dados
             </Link>
           </div>
         </div>

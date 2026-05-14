@@ -21,22 +21,22 @@ const MENU_ITEMS = [
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading, adminLoading, isAdmin } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && (!user || !isAdmin) && pathname !== "/admin/login") {
+    if (!loading && !adminLoading && (!user || !isAdmin) && pathname !== "/admin/login") {
       router.push("/admin/login");
     }
-    if (!loading && user && isAdmin && pathname === "/admin/login") {
+    if (!loading && !adminLoading && user && isAdmin && pathname === "/admin/login") {
       router.push("/admin/dashboard");
     }
-  }, [user, loading, isAdmin, router, pathname]);
+  }, [user, loading, adminLoading, isAdmin, router, pathname]);
 
-  if (loading) {
+  if (loading || adminLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-[#060e1c] text-atlas-gold-main font-bold animate-pulse">CARREGANDO SISTEMA...</div>;
   }
 

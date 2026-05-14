@@ -6,15 +6,18 @@ import {
   createStableParticipantDocumentId,
   firebaseConfigErrorResponse,
   FirestoreDocument,
+  type FirebaseUserSession,
   firestoreFetch,
   firestoreListAll,
   firestoreRunQuery,
+  getBearerToken,
   hasFirebaseServerConfig,
   JsonObject,
   parseFirestoreDoc,
   parseFirestoreQueryRows,
   requireAdminSession,
   serializeFirestoreFields,
+  verifyFirebaseIdToken,
 } from "@/lib/firebase-rest";
 import {
   normalizeEmail,
@@ -175,13 +178,13 @@ function sanitizeTerms(raw: unknown, request: Request, now: string) {
   };
 }
 
-function sanitizeParticipantSubmission(rawBody: unknown, request: Request) {
+function sanitizeParticipantSubmission(rawBody: unknown, request: Request, participantSession?: FirebaseUserSession) {
   const body = asRecord(rawBody);
   const now = new Date().toISOString();
   const name = normalizeName(body.name, 120);
   const phone = normalizePhone(body.phone);
   const phoneDigits = normalizePhoneDigits(body.phone);
-  const email = normalizeEmail(body.email, 160);
+  const email = normalizeEmail(body.email || participantSession?.email, 160);
   const willAttend = readEnum(body.willAttend, ["yes", "maybe", "no"] as const);
   const termsAcceptance = sanitizeTerms(body.termsAcceptance, request, now);
   const errors: string[] = [];
@@ -225,6 +228,9 @@ function sanitizeParticipantSubmission(rawBody: unknown, request: Request) {
     needsTransportInfo: readBoolean(body, "needsTransportInfo"),
     wantsToHelpCommittee: readBoolean(body, "wantsToHelpCommittee"),
     notes: readString(body, "notes", 1500),
+    emailNormalized: email,
+    registrationStatus: participantSession ? "linked" : "submitted",
+    lastSelfUpdateAt: now,
     paymentStatus: "not_started",
     totalPaid: 0,
     officialKit: officialKit || null,
@@ -232,6 +238,11 @@ function sanitizeParticipantSubmission(rawBody: unknown, request: Request) {
     createdAt: now,
     updatedAt: now,
   };
+
+  if (participantSession) {
+    participant.authUid = participantSession.uid;
+    participant.linkedAt = now;
+  }
 
   const stableSeed = phoneDigits || email || `${name}-${participant.birthDate}`;
 
@@ -399,7 +410,18 @@ async function createPublicParticipant(request: Request) {
     );
   }
 
-  const sanitized = sanitizeParticipantSubmission(body, request);
+  const token = getBearerToken(request);
+  const participantSession = token ? await verifyFirebaseIdToken(token) : null;
+
+  if (!participantSession) {
+    return jsonError(
+      "O cadastro público direto está desativado. Entre com e-mail e senha para continuar o cadastro do participante.",
+      401,
+      "participant-login-required"
+    );
+  }
+
+  const sanitized = sanitizeParticipantSubmission(body, request, participantSession);
 
   if (!sanitized.data) {
     return jsonError(sanitized.errors.join(" "), 400, "invalid-participant");
@@ -410,6 +432,7 @@ async function createPublicParticipant(request: Request) {
 
   const res = await firestoreFetch(`events/${DEFAULT_EVENT_ID}/participants`, {
     method: "POST",
+    token: participantSession.token,
     query,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ fields: serializeFirestoreFields(sanitized.data.participant) }),
@@ -458,6 +481,17 @@ function sanitizeAdminParticipantMutation(rawBody: unknown): JsonObject {
   if ("name" in body) result.name = normalizeName(body.name, 120);
   if ("nickname" in body) result.nickname = normalizeName(body.nickname, 80);
   if ("email" in body) result.email = normalizeEmail(body.email, 160);
+  if ("emailNormalized" in body) result.emailNormalized = normalizeEmail(body.emailNormalized, 160);
+  if ("authUid" in body) result.authUid = readString(body, "authUid", 128);
+  if ("registrationStatus" in body) {
+    result.registrationStatus = readEnum(
+      body.registrationStatus,
+      ["draft", "submitted", "linked", "cancelled"] as const,
+      "submitted"
+    );
+  }
+  if ("linkedAt" in body) result.linkedAt = readString(body, "linkedAt", 40);
+  if ("lastSelfUpdateAt" in body) result.lastSelfUpdateAt = readString(body, "lastSelfUpdateAt", 40);
   if ("phone" in body) result.phone = normalizePhone(body.phone);
   if ("instagram" in body) result.instagram = readString(body, "instagram", 80);
   if ("linkedin" in body) result.linkedin = readString(body, "linkedin", 160);

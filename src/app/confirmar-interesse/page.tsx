@@ -7,6 +7,11 @@ import { PublicFooter } from "@/components/public/PublicFooter";
 import { ShieldCheck, ArrowRight, ArrowLeft, CheckCircle, AlertTriangle } from "lucide-react";
 import { capitalizeName, formatPhone, formatZipCode } from "@/lib/utils";
 import { PageHeader } from "@/components/public/PageHeader";
+import { useAuth } from "@/lib/auth-context";
+import {
+  PARTICIPANT_HOME_PATH,
+  PARTICIPANT_LOGIN_PATH,
+} from "@/lib/participant-portal-config";
 import { 
   ADHESION_TERM_VERSION, 
   PRIVACY_POLICY_VERSION, 
@@ -44,6 +49,7 @@ function isEmailValid(value: string) {
 }
 
 export default function ConfirmarInteressePage() {
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -254,9 +260,17 @@ export default function ConfirmarInteressePage() {
     setLoading(true);
     setSubmitError("");
     try {
+      const token = await user?.getIdToken();
+      if (!token) {
+        throw new Error("Entre com e-mail e senha para continuar o cadastro do participante.");
+      }
+
       const res = await fetch("/api/data?collection=participants", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(pendingPayload)
       });
       
@@ -268,6 +282,10 @@ export default function ConfirmarInteressePage() {
       setCompletedSteps(prev => prev.includes(3) ? prev : [...prev, 3]);
       setValidationErrors([]);
       setSuccess(true);
+      await fetch("/api/participant/me", {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      }).catch(() => null);
       window.scrollTo(0, 0);
     } catch (error: unknown) {
       console.warn("Erro ao salvar participante:", error);
@@ -275,6 +293,50 @@ export default function ConfirmarInteressePage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen flex-col bg-atlas-navy-base">
+        <PublicNav />
+        <main className="flex flex-1 items-center justify-center px-4">
+          <div className="rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-6 text-center text-atlas-text-muted">
+            Verificando sessão do participante...
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex min-h-screen flex-col bg-atlas-navy-base">
+        <PublicNav />
+        <PageHeader
+          bgImage="/images/hero-bg.png"
+          accent="Portal ATLAS"
+          title="Cadastro com Login"
+          subtitle="O cadastro público direto está desativado nesta fase. Entre com e-mail e senha para continuar."
+        />
+        <main className="mx-auto w-full max-w-3xl flex-grow px-4 py-10 sm:px-6 md:px-8 md:py-12">
+          <div className="rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep p-6 text-center shadow-lg sm:p-8">
+            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-atlas-gold-main/40 bg-atlas-gold-main/10">
+              <ShieldCheck className="h-7 w-7 text-atlas-gold-main" />
+            </div>
+            <h2 className="atlas-section-title text-white">Entre para iniciar seu cadastro</h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-atlas-text-muted">
+              O formulário passo a passo foi preservado, mas agora só abre depois do login do participante. Isso evita duplicidade e prepara sua página Minha Conta.
+            </p>
+            <div className="mt-6">
+              <Link href={PARTICIPANT_LOGIN_PATH} className="atlas-primary-button">
+                Entrar como participante
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -300,10 +362,10 @@ export default function ConfirmarInteressePage() {
                 Seus dados foram salvos no Compêndio da Turma com sucesso. A comissão organizadora entrará em contato em breve.
               </p>
               <button 
-                onClick={() => window.location.href = "/"}
+                onClick={() => window.location.href = PARTICIPANT_HOME_PATH}
                 className="px-6 py-2 bg-atlas-gold-main text-atlas-navy-deep rounded font-semibold hover:bg-atlas-gold-dark uppercase tracking-wider transition-colors"
               >
-                Voltar ao Início
+                Ir para Minha Conta
               </button>
             </div>
           ) : (
@@ -413,7 +475,16 @@ export default function ConfirmarInteressePage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-atlas-text-light mb-1">E-mail</label>
-                        <input name="email" type="email" className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-4 py-2 text-white focus:outline-none focus:border-atlas-gold-main" />
+                        <input
+                          name="email"
+                          type="email"
+                          defaultValue={user.email || ""}
+                          readOnly={Boolean(user.email)}
+                          className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-4 py-2 text-white focus:outline-none focus:border-atlas-gold-main read-only:cursor-not-allowed read-only:opacity-80"
+                        />
+                        {user.email && (
+                          <p className="mt-1 text-xs text-atlas-text-muted">E-mail vinculado ao login do participante.</p>
+                        )}
                       </div>
                     </div>
 

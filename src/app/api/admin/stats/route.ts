@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { DEFAULT_EVENT_ID } from "@/lib/constants";
-import { calculateParticipantMetrics } from "@/lib/participant-metrics";
+import { calculateParticipantMetrics, calculateParticipantPortalMetrics } from "@/lib/participant-metrics";
 import {
   firestoreListAll,
   requireAdminSession,
@@ -33,6 +33,7 @@ export async function GET(request: Request) {
     const transactions = transactionsResult.ok ? transactionsResult.documents : [];
 
     const participantMetrics = calculateParticipantMetrics(participants);
+    const participantPortalMetrics = calculateParticipantPortalMetrics(participants);
     await syncPublicStatsSafely(DEFAULT_EVENT_ID, session.token);
 
     const kitInterest = participants.filter((participant) => {
@@ -54,6 +55,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       ...participantMetrics,
+      ...participantPortalMetrics,
       kitInterest,
       income,
       expense,
@@ -67,6 +69,13 @@ export async function GET(request: Request) {
         confirmedParticipants: 0,
         totalGuests: 0,
         totalPeople: 0,
+        submittedRegistrations: 0,
+        linkedAccounts: 0,
+        pendingAccountLink: 0,
+        participantsWithEmail: 0,
+        participantsWithoutEmail: 0,
+        committeeVolunteers: 0,
+        kitResponses: 0,
         kitInterest: 0,
         income: 0,
         expense: 0,

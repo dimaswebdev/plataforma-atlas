@@ -4,6 +4,7 @@ import { Shield } from "lucide-react";
 import Image from "next/image";
 import { PublicNav } from "@/components/public/PublicNav";
 import { PublicFooter } from "@/components/public/PublicFooter";
+import { PARTICIPANT_LOGIN_PATH } from "@/lib/participant-portal-config";
 
 export function EventHero({ event, children }: { event: Event; children?: React.ReactNode }) {
   return (
@@ -74,11 +75,11 @@ export function EventHero({ event, children }: { event: Event; children?: React.
 
           <div className="mb-6 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-4 lg:mb-8 lg:justify-start">
             <Link
-              href="/confirmar-interesse"
+              href={PARTICIPANT_LOGIN_PATH}
               className="group flex min-h-14 w-full items-center justify-center gap-2 rounded bg-atlas-gold-main px-5 py-4 text-xs font-black uppercase tracking-widest text-atlas-navy-deep shadow-xl shadow-atlas-gold-main/20 transition-all duration-300 hover:bg-atlas-gold-dark sm:w-auto sm:px-8 md:text-sm"
             >
               <Shield className="w-4 h-4" />
-              Cadastro de Participante
+              Entrar como Participante
             </Link>
             <Link
               href="/programacao"

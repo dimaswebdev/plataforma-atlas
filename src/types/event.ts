@@ -9,6 +9,28 @@ export interface Event {
   eventYear: number;
   mainDate?: string;
   status: "planning" | "open" | "closed" | "completed";
+  eventPhase?: "interest" | "committee" | "voting" | "budgeting" | "payment" | "adjustment" | "closed" | "post_event";
+  featureFlags?: {
+    participantPortal?: boolean;
+    payments?: boolean;
+    asaas?: boolean;
+    voting?: boolean;
+    requests?: boolean;
+  };
+  deadlines?: {
+    guestFreeChangeUntil?: string;
+    guestApprovalChangeUntil?: string;
+    souvenirInterestUntil?: string;
+    paymentDueAt?: string;
+    withdrawalUntil?: string;
+  };
+  financeConfig?: {
+    costsDefined: boolean;
+    baseQuota?: number;
+    extraGuestQuota?: number;
+    optionalItemsEnabled?: boolean;
+    calculationVersion?: string;
+  };
   budgetGoal: number;
   publicPaymentLink?: string;
   whatsappGroupLink?: string;

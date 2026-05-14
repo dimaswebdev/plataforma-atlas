@@ -213,7 +213,7 @@ export default function AdminParticipants() {
                   <Link
                     href={`/admin/participantes/${p.id}`}
                     className="rounded-lg border border-white/10 p-2 text-atlas-text-light transition-colors hover:text-white"
-                    title="Visualizar DossiÃª"
+                    title="Visualizar Dossiê"
                   >
                     <Eye className="h-4 w-4" />
                   </Link>
