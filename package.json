@@ -12,7 +12,8 @@
     "mvp:test-data:cleanup": "node scripts/mvp-test-data.mjs cleanup",
     "mvp:test-data:sync-public-stats": "node scripts/mvp-test-data.mjs sync-public-stats",
     "mvp:test-data:portal-report": "node scripts/mvp-test-data.mjs portal-report",
-    "mvp:test-data:link-admin": "node scripts/mvp-test-data.mjs link-admin"
+    "mvp:test-data:link-admin": "node scripts/mvp-test-data.mjs link-admin",
+    "functional:test": "node scripts/functional-flow-test.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",

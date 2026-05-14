@@ -214,6 +214,7 @@ A variavel publica `NEXT_PUBLIC_FIREBASE_PROJECT_ID` tambem foi conferida em Dev
 Arquivo:
 
 - `scripts/mvp-test-data.mjs`
+- `scripts/functional-flow-test.mjs`
 
 O seed de teste foi ajustado para simular tambem o fluxo do portal:
 
@@ -230,6 +231,45 @@ Comandos disponiveis:
 - `npm run mvp:test-data:portal-report`
 
 Esses comandos exigem `FIREBASE_ID_TOKEN` de um usuario autorizado no ambiente. Nao salvar tokens, senhas ou chaves no codigo.
+
+### Teste funcional ponta a ponta
+
+Arquivo:
+
+- `scripts/functional-flow-test.mjs`
+
+Comando:
+
+```bash
+npm run functional:test
+```
+
+Objetivo:
+
+- criar uma rodada temporaria e isolada de usuarios Firebase Auth;
+- criar registros ficticios marcados com `testData: true`, `createdFor: "functional-flow-tests"` e `runId`;
+- testar paginas publicas essenciais;
+- testar bloqueio do cadastro publico direto sem login;
+- testar `/api/participant/me` sem token e com token invalido;
+- testar vinculo automatico de participante existente por e-mail;
+- testar primeiro acesso com `needs_registration`;
+- testar criacao de cadastro autenticado pelo formulario passo a passo;
+- testar consolidacao dos dados na area individual do participante;
+- testar bloqueio de vinculo automatico quando houver e-mail duplicado;
+- testar reconhecimento de admin pela API;
+- testar listagem de participantes pelo admin;
+- testar metricas do dashboard admin;
+- testar interesse publico em souvenir disponivel;
+- restaurar `publicStats/main` para o estado anterior;
+- remover usuarios e documentos temporarios ao final.
+
+Por padrao, o teste limpa todos os dados temporarios criados. Para preservar a massa temporaria em uma rodada especifica:
+
+```bash
+npm run functional:test -- --keep
+```
+
+Essa opcao deve ser usada apenas quando a intencao for inspecionar manualmente os registros criados.
 
 ### Regras Firestore atualizadas
 
@@ -421,6 +461,12 @@ So liberar calculo e UI com valores quando a comissao definir custos finais.
 
 - `npm run lint`
 - `npm run build`
+- `npm run functional:test`
+  - data: 2026-05-14
+  - alvo: `https://plataforma-atlas.vercel.app`
+  - resultado: 16 verificacoes passaram, 0 falhou
+  - dados temporarios: removidos ao final da rodada
+  - fluxos cobertos: paginas publicas, login do participante, cadastro autenticado, vinculo por e-mail, conflito por e-mail duplicado, admin/check, listagem admin, metricas do dashboard e interesse em souvenir
 - verificacao no navegador em `/minha-participacao`
 - verificacao de navegacao entre `Minha Conta` e `Financeiro`
 - verificacao do fluxo visual de edicao com confirmacao antes do formulario resumido
