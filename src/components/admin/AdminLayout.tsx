@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, Home, Users, DollarSign, Gift, Calendar, Settings, Megaphone, Briefcase, ChevronLeft, ChevronRight, Menu, ShieldCheck } from "lucide-react";
+import { LogOut, Home, Users, DollarSign, Gift, Calendar, Settings, Megaphone, Briefcase, ChevronLeft, ChevronRight, Menu, ShieldCheck, Moon, Sun } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 
@@ -20,12 +20,28 @@ const MENU_ITEMS = [
   { label: "Configurações", href: "/admin/configuracoes", icon: Settings },
 ];
 
+type AdminTheme = "light" | "dark";
+
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, adminLoading, isAdmin } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [adminTheme, setAdminTheme] = useState<AdminTheme>(() => {
+    if (typeof window === "undefined") return "light";
+    const savedTheme = window.localStorage.getItem("atlas-admin-theme");
+    return savedTheme === "dark" || savedTheme === "light" ? savedTheme : "light";
+  });
   const router = useRouter();
   const pathname = usePathname();
+
+  useEffect(() => {
+    document.documentElement.dataset.adminTheme = adminTheme;
+    window.localStorage.setItem("atlas-admin-theme", adminTheme);
+
+    return () => {
+      delete document.documentElement.dataset.adminTheme;
+    };
+  }, [adminTheme]);
 
   useEffect(() => {
     if (!loading && !adminLoading && (!user || !isAdmin) && pathname !== "/admin/login") {
@@ -47,6 +63,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   if (!user || !isAdmin) {
     return null; // Will redirect
   }
+
+  const nextTheme = adminTheme === "light" ? "dark" : "light";
+  const ThemeIcon = adminTheme === "light" ? Moon : Sun;
+  const themeLabel = adminTheme === "light" ? "Usar modo escuro" : "Usar modo claro";
 
   const renderSidebarContent = () => (
     <>
@@ -123,7 +143,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="atlas-admin-shell relative flex h-dvh min-w-0 overflow-hidden font-sans text-white">
+    <div data-admin-theme={adminTheme} className="atlas-admin-shell relative flex h-dvh min-w-0 overflow-hidden font-sans text-white">
       <aside className={`hidden lg:flex flex-col bg-[#060e1c]/88 backdrop-blur-xl border-r border-atlas-gold-main/20 z-40 relative shadow-2xl transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
         {renderSidebarContent()}
       </aside>
@@ -147,11 +167,23 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               Gestão operacional do Reencontro 30 Anos da Turma ATLAS.
             </p>
           </div>
-          <div className="flex min-w-0 items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-atlas-gold-main" aria-hidden="true" />
-            <div className="min-w-0 text-right">
-              <p className="text-[10px] font-bold uppercase text-atlas-text-muted">Sessão segura</p>
-              <p className="max-w-56 truncate text-xs font-semibold text-white">{user.email}</p>
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setAdminTheme(nextTheme)}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-atlas-text-muted transition-colors hover:border-atlas-gold-main/35 hover:text-atlas-gold-main"
+              aria-label={themeLabel}
+              aria-pressed={adminTheme === "light"}
+              title={themeLabel}
+            >
+              <ThemeIcon className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <div className="flex min-w-0 items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-atlas-gold-main" aria-hidden="true" />
+              <div className="min-w-0 text-right">
+                <p className="text-[10px] font-bold uppercase text-atlas-text-muted">Sessão segura</p>
+                <p className="max-w-56 truncate text-xs font-semibold text-white">{user.email}</p>
+              </div>
             </div>
           </div>
         </header>
@@ -171,9 +203,19 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <span className="font-black text-atlas-gold-main uppercase tracking-widest text-[10px]">Administração</span>
           </div>
 
-          <button onClick={() => signOut(auth)} className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-500/10" aria-label="Desconectar">
-            <LogOut className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setAdminTheme(nextTheme)}
+              className="rounded-lg p-2 text-atlas-text-muted transition-colors hover:bg-white/5 hover:text-atlas-gold-main"
+              aria-label={themeLabel}
+              aria-pressed={adminTheme === "light"}
+            >
+              <ThemeIcon className="h-5 w-5" />
+            </button>
+            <button onClick={() => signOut(auth)} className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-500/10" aria-label="Desconectar">
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
         </header>
 
         <main className="custom-scrollbar min-w-0 flex-1 overflow-y-auto overflow-x-hidden">

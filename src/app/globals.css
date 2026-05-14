@@ -457,6 +457,110 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+.atlas-admin-shell[data-admin-theme="light"] {
+  --admin-panel: rgb(255 255 255 / 0.96);
+  --admin-panel-strong: rgb(255 255 255 / 0.98);
+  --admin-border: rgb(203 213 225 / 0.95);
+  --admin-border-soft: rgb(203 213 225 / 0.82);
+  --admin-muted: #64748b;
+  background:
+    linear-gradient(135deg, #f8fafc 0%, #eef4fb 48%, #f5f7fb 100%);
+  color: #0f172a;
+}
+
+.atlas-admin-shell[data-admin-theme="light"] aside,
+.atlas-admin-shell[data-admin-theme="light"] header,
+.atlas-admin-shell[data-admin-theme="light"] [class*="bg-[#060e1c]"],
+.atlas-admin-shell[data-admin-theme="light"] [class*="bg-[#071A2F]"],
+.atlas-admin-shell[data-admin-theme="light"] [class*="bg-[#020617]"],
+.atlas-admin-shell[data-admin-theme="light"] [class*="bg-atlas-navy"] {
+  background-color: rgb(255 255 255 / 0.94) !important;
+}
+
+.atlas-admin-shell[data-admin-theme="light"] .atlas-admin-card,
+.atlas-admin-shell[data-admin-theme="light"] .atlas-table-card,
+.atlas-admin-shell[data-admin-theme="light"] .atlas-empty-state,
+.atlas-admin-shell[data-admin-theme="light"] .atlas-stat-card,
+html[data-admin-theme="light"] .atlas-admin-modal .atlas-modal-panel {
+  border-color: rgb(203 213 225 / 0.95) !important;
+  background: rgb(255 255 255 / 0.98) !important;
+  box-shadow: 0 18px 45px rgb(15 23 42 / 0.08);
+}
+
+.atlas-admin-shell[data-admin-theme="light"] .atlas-admin-card-muted,
+.atlas-admin-shell[data-admin-theme="light"] [class*="bg-white/"],
+.atlas-admin-shell[data-admin-theme="light"] [class*="bg-white["],
+html[data-admin-theme="light"] .atlas-admin-modal [class*="bg-white/"],
+html[data-admin-theme="light"] .atlas-admin-modal [class*="bg-white["],
+html[data-admin-theme="light"] .atlas-admin-modal [class*="bg-atlas-navy"] {
+  background-color: #f8fafc !important;
+}
+
+.atlas-admin-shell[data-admin-theme="light"] .atlas-admin-table,
+.atlas-admin-shell[data-admin-theme="light"] .text-white,
+.atlas-admin-shell[data-admin-theme="light"] .text-atlas-text-light,
+html[data-admin-theme="light"] .atlas-admin-modal .text-white,
+html[data-admin-theme="light"] .atlas-admin-modal .text-atlas-text-light {
+  color: #0f172a !important;
+}
+
+.atlas-admin-shell[data-admin-theme="light"] .text-atlas-text-muted,
+html[data-admin-theme="light"] .atlas-admin-modal .text-atlas-text-muted {
+  color: #64748b !important;
+}
+
+html[data-admin-theme="light"] .atlas-admin-modal .atlas-danger-button {
+  background: #dc2626 !important;
+  color: white !important;
+}
+
+.atlas-admin-shell[data-admin-theme="light"] [class*="border-white/"],
+.atlas-admin-shell[data-admin-theme="light"] [class*="border-atlas-navy"],
+html[data-admin-theme="light"] .atlas-admin-modal [class*="border-white/"],
+html[data-admin-theme="light"] .atlas-admin-modal [class*="border-atlas-navy"] {
+  border-color: rgb(203 213 225 / 0.95) !important;
+}
+
+.atlas-admin-shell[data-admin-theme="light"] .hover\:text-white:hover,
+html[data-admin-theme="light"] .atlas-admin-modal .hover\:text-white:hover {
+  color: #0f172a !important;
+}
+
+.atlas-admin-shell[data-admin-theme="light"] .atlas-admin-table thead {
+  background: #eef4fb !important;
+  color: #475569;
+}
+
+.atlas-admin-shell[data-admin-theme="light"] .atlas-admin-table tbody tr {
+  border-bottom-color: rgb(203 213 225 / 0.65);
+}
+
+.atlas-admin-shell[data-admin-theme="light"] .atlas-admin-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.atlas-admin-shell[data-admin-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.atlas-admin-shell[data-admin-theme="light"] select,
+.atlas-admin-shell[data-admin-theme="light"] textarea,
+html[data-admin-theme="light"] .atlas-admin-modal input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-admin-theme="light"] .atlas-admin-modal select,
+html[data-admin-theme="light"] .atlas-admin-modal textarea {
+  border-color: rgb(203 213 225 / 0.95) !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.atlas-admin-shell[data-admin-theme="light"] input::placeholder,
+.atlas-admin-shell[data-admin-theme="light"] textarea::placeholder,
+html[data-admin-theme="light"] .atlas-admin-modal input::placeholder,
+html[data-admin-theme="light"] .atlas-admin-modal textarea::placeholder {
+  color: rgb(100 116 139 / 0.72);
+}
+
+.atlas-admin-shell[data-admin-theme="light"] .custom-scrollbar::-webkit-scrollbar-track {
+  background: #eef4fb;
+}
+
 @media (min-width: 640px) {
   .atlas-hero-title {
     font-size: 2.8rem;

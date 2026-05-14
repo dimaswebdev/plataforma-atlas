@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Participant } from "@/types/participant";
 import Image from "next/image";
@@ -8,37 +8,65 @@ import Link from "next/link";
 import { 
   Edit, MapPin, Phone, Mail, AtSign, Globe, Briefcase, 
   DollarSign, FileText, CheckCircle, CreditCard, 
-  ArrowLeft, Shirt, Scissors, Ruler, Loader2, ShieldCheck
+  ArrowLeft, Shirt, Scissors, Ruler, Loader2, ShieldCheck, Trash2
 } from "lucide-react";
 import { calculateAge, formatCurrencyBRL } from "@/lib/utils";
 import { fetchWithAdminAuth } from "@/lib/client-auth";
 import { getConfirmedGuestCount, getParticipantPeopleCount } from "@/lib/participant-metrics";
+import { ParticipantEditForm } from "@/components/admin/ParticipantEditForm";
+import { AdminConfirmDialog } from "@/components/admin/AdminConfirmDialog";
 
 export default function ParticipantDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const [participant, setParticipant] = useState<Participant | null>(null);
   const [loading, setLoading] = useState(true);
+  const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  const participantId = Array.isArray(params.id) ? params.id[0] : params.id;
+
+  const loadParticipant = useCallback(async () => {
+    if (!participantId) return;
+    try {
+      const res = await fetchWithAdminAuth(`/api/data?collection=participants&id=${participantId}`);
+      const data = await res.json();
+      if (data) {
+        setParticipant(data as Participant);
+      } else {
+        router.push("/admin/participantes");
+      }
+    } catch (error) {
+      console.error("Failed to load participant", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [participantId, router]);
 
   useEffect(() => {
-    async function loadParticipant() {
-      if (!params.id) return;
-      try {
-        const res = await fetchWithAdminAuth(`/api/data?collection=participants&id=${params.id}`);
-        const data = await res.json();
-        if (data) {
-          setParticipant(data as Participant);
-        } else {
-          router.push("/admin/participantes");
-        }
-      } catch (error) {
-        console.error("Failed to load participant", error);
-      } finally {
-        setLoading(false);
-      }
+    const timeoutId = window.setTimeout(() => {
+      void loadParticipant();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [loadParticipant]);
+
+  const confirmDelete = async () => {
+    if (!participant?.id) return;
+
+    setDeleting(true);
+    setDeleteError("");
+
+    try {
+      const res = await fetchWithAdminAuth(`/api/data?collection=participants&id=${participant.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+      router.push("/admin/participantes");
+    } catch {
+      setDeleteError("Não foi possível excluir este participante agora. Verifique sua sessão administrativa e tente novamente.");
+      setDeleting(false);
     }
-    loadParticipant();
-  }, [params.id, router]);
+  };
 
   if (loading) {
     return (
@@ -106,12 +134,23 @@ export default function ParticipantDetailsPage() {
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           <span className="text-sm font-bold uppercase tracking-widest">Voltar para Lista</span>
         </Link>
-        <button 
-          onClick={() => { /* will open edit form logic */ }}
-          className="flex w-full items-center justify-center gap-2 rounded border border-atlas-gold-main/20 bg-atlas-gold-main/10 px-4 py-2 text-xs font-black uppercase tracking-widest text-atlas-gold-main transition-all hover:bg-atlas-gold-main/20 sm:w-auto"
-        >
-          <Edit className="w-3 h-3" /> Editar (Em breve)
-        </button>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <button
+            onClick={() => setEditingParticipant(participant)}
+            className="flex w-full items-center justify-center gap-2 rounded border border-atlas-gold-main/20 bg-atlas-gold-main/10 px-4 py-2 text-xs font-black uppercase tracking-widest text-atlas-gold-main transition-all hover:bg-atlas-gold-main/20 sm:w-auto"
+          >
+            <Edit className="w-3 h-3" /> Editar participante
+          </button>
+          <button
+            onClick={() => {
+              setDeleteError("");
+              setDeleteOpen(true);
+            }}
+            className="flex w-full items-center justify-center gap-2 rounded border border-red-400/25 bg-red-500/10 px-4 py-2 text-xs font-black uppercase tracking-widest text-red-300 transition-all hover:bg-red-500/15 sm:w-auto"
+          >
+            <Trash2 className="w-3 h-3" /> Excluir
+          </button>
+        </div>
       </div>
 
       {/* Dossiê Container */}
@@ -486,6 +525,32 @@ export default function ParticipantDetailsPage() {
         </div>
 
       </div>
+
+      {editingParticipant && (
+        <ParticipantEditForm
+          participant={editingParticipant}
+          onClose={() => setEditingParticipant(null)}
+          onSuccess={() => void loadParticipant()}
+        />
+      )}
+
+      <AdminConfirmDialog
+        open={deleteOpen}
+        title="Excluir participante?"
+        description={`Deseja realmente excluir ${participant.name}? Esta ação remove o cadastro da lista administrativa e não deve ser usada para correções simples.`}
+        confirmLabel="Excluir participante"
+        cancelLabel="Cancelar"
+        destructive
+        loading={deleting}
+        error={deleteError}
+        onClose={() => {
+          if (!deleting) {
+            setDeleteOpen(false);
+            setDeleteError("");
+          }
+        }}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

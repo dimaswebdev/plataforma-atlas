@@ -323,6 +323,46 @@ async function adminFlow() {
     assert(typeof body.totalParticipants === "number", "Metricas admin sem totalParticipants numerico.");
     assert(typeof body.linkedAccounts === "number", "Metricas admin sem linkedAccounts numerico.");
   });
+
+  await step("Admin cria e exclui participante pela API usada nos botoes de acao", async () => {
+    const createRes = await api("/api/data?collection=participants", {
+      method: "POST",
+      token,
+      body: {
+        name: "Participante Excluir Funcional ATLAS",
+        nickname: "EXCLUIR",
+        email: emailFor("admin-delete"),
+        phone: phoneFor(16),
+        city: "Campo Grande",
+        state: "MS",
+        country: "BR",
+        willAttend: "maybe",
+        guestsCount: 0,
+        wantsToHelpCommittee: false,
+        totalPaid: 0,
+        paymentStatus: "not_started",
+        officialKit: { interest: "no", wantsNameCustomization: false, needsSpecialSize: false },
+        testData: true,
+        createdFor: "functional-flow-tests",
+        runId: RUN_ID,
+      },
+    });
+    assertStatus(createRes, 200);
+    const created = await json(createRes);
+    assert(created.success === true && created.id, "Criacao administrativa para exclusao nao retornou sucesso.");
+
+    const createdRef = participantsRef.doc(created.id);
+    createdDocs.push(createdRef);
+
+    const deleteRes = await api(`/api/data?collection=participants&id=${created.id}`, {
+      method: "DELETE",
+      token,
+    });
+    assertStatus(deleteRes, 200);
+
+    const deletedSnap = await createdRef.get();
+    assert(!deletedSnap.exists, "Participante excluido pela API administrativa ainda existe no Firestore.");
+  });
 }
 
 async function souvenirInterestFlow() {

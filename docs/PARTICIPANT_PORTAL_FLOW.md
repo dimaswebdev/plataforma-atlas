@@ -259,6 +259,7 @@ Objetivo:
 - testar reconhecimento de admin pela API;
 - testar listagem de participantes pelo admin;
 - testar metricas do dashboard admin;
+- testar criacao e exclusao administrativa de participante pela API usada nos botoes de acao;
 - testar interesse publico em souvenir disponivel;
 - restaurar `publicStats/main` para o estado anterior;
 - remover usuarios e documentos temporarios ao final.
@@ -294,6 +295,11 @@ Arquivos:
 - `src/lib/participant-metrics.ts`
 - `src/app/api/admin/stats/route.ts`
 - `src/app/admin/dashboard/page.tsx`
+- `src/app/admin/participantes/page.tsx`
+- `src/app/admin/participantes/[id]/page.tsx`
+- `src/components/admin/AdminConfirmDialog.tsx`
+- `src/components/admin/AdminLayout.tsx`
+- `src/app/globals.css`
 
 Foram adicionadas metricas para acompanhar a esteira do portal:
 
@@ -315,6 +321,19 @@ O dashboard ganhou uma secao `Portal do participante` com:
 - voluntarios para comissao;
 - respostas de kit mapeadas;
 - link para a pagina individual.
+
+Atualizacao de 2026-05-14:
+
+- botoes de acao na lista de membros ficaram mais explicitos e clicaveis;
+- visualizar abre a ficha individual administrativa do participante;
+- editar abre o formulario real de edicao do participante;
+- excluir abre modal de confirmacao antes de chamar a API administrativa;
+- a ficha individual tambem ganhou edicao real e exclusao com confirmacao;
+- o `confirm()` nativo do navegador foi substituido por um modal padrao reutilizavel;
+- foi criada base de tema claro/escuro apenas para areas administrativas protegidas;
+- a home publica permanece fora desse fluxo de tema;
+- o tema administrativo fica salvo em `localStorage` como `atlas-admin-theme`;
+- o tema claro usa overrides escopados em `data-admin-theme="light"` para facilitar novas telas de dashboard.
 
 ## Decisoes tomadas
 
@@ -464,9 +483,9 @@ So liberar calculo e UI com valores quando a comissao definir custos finais.
 - `npm run functional:test`
   - data: 2026-05-14
   - alvo: `https://plataforma-atlas.vercel.app`
-  - resultado: 16 verificacoes passaram, 0 falhou
+  - resultado: 17 verificacoes passaram, 0 falhou
   - dados temporarios: removidos ao final da rodada
-  - fluxos cobertos: paginas publicas, login do participante, cadastro autenticado, vinculo por e-mail, conflito por e-mail duplicado, admin/check, listagem admin, metricas do dashboard e interesse em souvenir
+  - fluxos cobertos: paginas publicas, login do participante, cadastro autenticado, vinculo por e-mail, conflito por e-mail duplicado, admin/check, listagem admin, metricas do dashboard, exclusao administrativa e interesse em souvenir
 - verificacao no navegador em `/minha-participacao`
 - verificacao de navegacao entre `Minha Conta` e `Financeiro`
 - verificacao do fluxo visual de edicao com confirmacao antes do formulario resumido

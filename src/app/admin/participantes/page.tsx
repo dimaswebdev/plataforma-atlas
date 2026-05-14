@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Participant } from "@/types/participant";
 import { Users, CheckCircle, XCircle, HelpCircle, Edit, Trash2, Eye, Shirt } from "lucide-react";
 import { ParticipantEditForm } from "@/components/admin/ParticipantEditForm";
+import { AdminConfirmDialog } from "@/components/admin/AdminConfirmDialog";
 import { calculateAge, formatCurrencyBRL } from "@/lib/utils";
 import { TrendingUp, AlertCircle } from "lucide-react";
 import Link from "next/link";
@@ -19,6 +20,9 @@ export default function AdminParticipants() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Participant | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   async function load() {
     setLoading(true);
@@ -60,15 +64,27 @@ export default function AdminParticipants() {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Tem certeza que deseja EXCLUIR permanentemente o cadastro de ${name}?`)) {
-      try {
-        const res = await fetchWithAdminAuth(`/api/data?collection=participants&id=${id}`, { method: "DELETE" });
-        if (!res.ok) throw new Error("Failed to delete");
-        await load();
-      } catch {
-        alert("Erro ao excluir participante.");
-      }
+  const requestDelete = (participant: Participant) => {
+    setDeleteError("");
+    setDeleteTarget(participant);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget?.id) return;
+
+    setDeleting(true);
+    setDeleteError("");
+
+    try {
+      const res = await fetchWithAdminAuth(`/api/data?collection=participants&id=${deleteTarget.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+      setParticipants((current) => current.filter((participant) => participant.id !== deleteTarget.id));
+      setDeleteTarget(null);
+      await load();
+    } catch {
+      setDeleteError("Não foi possível excluir este participante agora. Verifique sua sessão administrativa e tente novamente.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -212,22 +228,25 @@ export default function AdminParticipants() {
                 <div className="mt-4 flex items-center justify-end gap-2">
                   <Link
                     href={`/admin/participantes/${p.id}`}
-                    className="rounded-lg border border-white/10 p-2 text-atlas-text-light transition-colors hover:text-white"
-                    title="Visualizar Dossiê"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-atlas-text-light transition-colors hover:border-blue-400/40 hover:text-blue-300"
+                    title="Visualizar página individual"
+                    aria-label={`Visualizar página individual de ${p.name}`}
                   >
                     <Eye className="h-4 w-4" />
                   </Link>
                   <button
                     onClick={() => setEditingParticipant(p)}
-                    className="rounded-lg border border-white/10 p-2 text-atlas-text-light transition-colors hover:text-atlas-gold-main"
-                    title="Editar"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-atlas-text-light transition-colors hover:border-atlas-gold-main/40 hover:text-atlas-gold-main"
+                    title="Editar participante"
+                    aria-label={`Editar dados de ${p.name}`}
                   >
                     <Edit className="h-4 w-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(p.id!, p.name)}
-                    className="rounded-lg border border-white/10 p-2 text-atlas-text-light transition-colors hover:text-red-400"
-                    title="Excluir"
+                    onClick={() => requestDelete(p)}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-atlas-text-light transition-colors hover:border-red-400/40 hover:text-red-400"
+                    title="Excluir participante"
+                    aria-label={`Excluir participante ${p.name}`}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -340,24 +359,27 @@ export default function AdminParticipants() {
                         <div className="flex items-center justify-center space-x-3">
                           <Link 
                             href={`/admin/participantes/${p.id}`}
-                            className="text-atlas-text-light hover:text-white transition-colors"
-                            title="Visualizar Dossiê"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-atlas-text-light transition-colors hover:border-blue-400/30 hover:bg-blue-400/10 hover:text-blue-300"
+                            title="Visualizar página individual"
+                            aria-label={`Visualizar página individual de ${p.name}`}
                           >
-                            <Eye className="w-3 h-3" />
+                            <Eye className="w-3.5 h-3.5" />
                           </Link>
                           <button 
                             onClick={() => setEditingParticipant(p)}
-                            className="text-atlas-text-light hover:text-atlas-gold-main transition-colors"
-                            title="Editar"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-atlas-text-light transition-colors hover:border-atlas-gold-main/30 hover:bg-atlas-gold-main/10 hover:text-atlas-gold-main"
+                            title="Editar participante"
+                            aria-label={`Editar dados de ${p.name}`}
                           >
-                            <Edit className="w-3 h-3" />
+                            <Edit className="w-3.5 h-3.5" />
                           </button>
                           <button 
-                            onClick={() => handleDelete(p.id!, p.name)}
-                            className="text-atlas-text-light hover:text-red-400 transition-colors"
-                            title="Excluir"
+                            onClick={() => requestDelete(p)}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-atlas-text-light transition-colors hover:border-red-400/30 hover:bg-red-500/10 hover:text-red-400"
+                            title="Excluir participante"
+                            aria-label={`Excluir participante ${p.name}`}
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </td>
@@ -377,6 +399,24 @@ export default function AdminParticipants() {
           onSuccess={load} 
         />
       )}
+
+      <AdminConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Excluir participante?"
+        description={`Deseja realmente excluir ${deleteTarget?.name || "este participante"}? Esta ação remove o cadastro da lista administrativa e não deve ser usada para correções simples.`}
+        confirmLabel="Excluir participante"
+        cancelLabel="Cancelar"
+        destructive
+        loading={deleting}
+        error={deleteError}
+        onClose={() => {
+          if (!deleting) {
+            setDeleteTarget(null);
+            setDeleteError("");
+          }
+        }}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
