@@ -190,20 +190,24 @@ Verificacao local realizada:
 - evento padrao `reencontro-30-anos-atlas-2027` encontrado no Firestore;
 - subcolecao `participants` acessivel via Admin SDK.
 
-Deploy recomendado das regras, quando a comissao autorizar publicar a politica atual:
+Deploy das regras:
 
 ```bash
 npx firebase use plataforma-atlas
 npx firebase deploy --only firestore:rules
 ```
 
-Variaveis que tambem precisam existir na Vercel em Production, Preview e Development:
+Status: regras publicadas no projeto `plataforma-atlas`.
+
+Variaveis Vercel validadas em Production, Preview e Development:
 
 - `FIREBASE_ADMIN_PROJECT_ID`
 - `FIREBASE_ADMIN_CLIENT_EMAIL`
 - `FIREBASE_ADMIN_PRIVATE_KEY`
 
 Essas variaveis nao devem usar prefixo `NEXT_PUBLIC_`.
+
+A variavel publica `NEXT_PUBLIC_FIREBASE_PROJECT_ID` tambem foi conferida em Development para uso com `vercel dev`.
 
 ### Massa ficticia e validacao
 
