@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { createPortal } from "react-dom";
+import type { ChangeEvent, FormEvent } from "react";
+import { Save } from "lucide-react";
 import { Participant } from "@/types/participant";
-import { X, Save } from "lucide-react";
+import { AppButton, AppField, AppInput, AppModal, AppSelect, AppTextarea } from "@/components/ui";
 import { capitalizeName, formatPhone, formatZipCode } from "@/lib/utils";
 import { fetchWithAdminAuth } from "@/lib/client-auth";
 
@@ -13,6 +14,30 @@ interface ParticipantEditFormProps {
   onSuccess: () => void;
 }
 
+const presenceOptions = [
+  { value: "yes", label: "Confirmado" },
+  { value: "maybe", label: "Talvez" },
+  { value: "no", label: "Não irá" },
+];
+
+const kitInterestOptions = [
+  { value: "yes", label: "Sim" },
+  { value: "maybe", label: "Talvez" },
+  { value: "no", label: "Não" },
+];
+
+const kitSizeOptions = [
+  { value: "", label: "-" },
+  { value: "PP", label: "PP" },
+  { value: "P", label: "P" },
+  { value: "M", label: "M" },
+  { value: "G", label: "G" },
+  { value: "GG", label: "GG" },
+  { value: "XG", label: "XG" },
+  { value: "XGG", label: "XGG" },
+  { value: "SPECIAL", label: "Especial" },
+];
+
 export function ParticipantEditForm({ participant, onClose, onSuccess }: ParticipantEditFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -21,7 +46,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
   const [phoneInput, setPhoneInput] = useState(participant.phone || "");
   const [zipInput, setZipInput] = useState(participant.zipCode || "");
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/\D/g, "");
     if (val.length <= 11) {
       setPhoneInput(formatPhone(val));
@@ -30,7 +55,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
     }
   };
 
-  const handleZipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleZipChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/\D/g, "");
     if (val.length <= 8) {
       setZipInput(formatZipCode(val));
@@ -39,7 +64,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
     }
   };
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -54,7 +79,7 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
       const totalPaid = Number(formData.get("totalPaid") || 0);
       let paymentStatus: "not_started" | "partial" | "paid" | "overdue" = "not_started";
       const META_VALOR = 0;
-      
+
       if (totalPaid >= META_VALOR) {
         paymentStatus = "paid";
       } else if (totalPaid > 0) {
@@ -112,196 +137,221 @@ export function ParticipantEditForm({ participant, onClose, onSuccess }: Partici
     }
   }
 
-  const modal = (
-    <div className="atlas-admin-modal fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/75 p-3 py-4 backdrop-blur-sm sm:items-center sm:p-6">
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="participant-edit-title"
-        className="atlas-modal-panel my-auto flex max-h-[calc(100dvh-2rem)] w-full max-w-3xl flex-col overflow-hidden rounded-lg border border-atlas-navy-aero/30 bg-atlas-navy-deep shadow-2xl"
-      >
-        <div className="flex items-center justify-between border-b border-atlas-navy-aero/30 bg-atlas-navy-base p-4">
-          <h2 id="participant-edit-title" className="atlas-section-title text-white">Editar Participante</h2>
-          <button onClick={onClose} className="rounded-lg p-2 text-atlas-text-muted transition-colors hover:bg-white/5 hover:text-white" aria-label="Fechar modal">
-            <X className="w-5 h-5" />
-          </button>
+  return (
+    <AppModal
+      open
+      onClose={onClose}
+      title="Editar participante"
+      description="Atualize os dados administrativos do participante mantendo o cadastro consolidado."
+      size="xl"
+      closeOnEscape={!loading}
+      closeOnOverlayClick={!loading}
+      showCloseButton={!loading}
+    >
+      {error ? (
+        <div className="mb-5 rounded-lg border border-error-200 bg-error-50 p-3 text-center text-sm text-error-700 dark:border-error-500/30 dark:bg-error-500/10 dark:text-error-500" aria-live="polite">
+          {error}
         </div>
+      ) : null}
 
-        <div className="overflow-y-auto p-4 sm:p-6">
-          {error && (
-            <div className="bg-red-900/30 border border-red-500/50 text-red-200 p-3 rounded mb-4 text-sm text-center">
-              {error}
-            </div>
-          )}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <section className="space-y-4">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white/90">Identificação</h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Dados principais usados na ficha administrativa.</p>
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Nome</label>
-                <input type="text" name="name" defaultValue={participant.name} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" required />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Apelido</label>
-                <input type="text" name="nickname" defaultValue={participant.nickname} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
-              </div>
-            </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <AppField label="Nome">
+              <AppInput type="text" name="name" defaultValue={participant.name} required />
+            </AppField>
+            <AppField label="Nome de guerra">
+              <AppInput type="text" name="nickname" defaultValue={participant.nickname} />
+            </AppField>
+          </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Telefone</label>
-                <input type="text" name="phone" value={phoneInput} onChange={handlePhoneChange} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" required />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">E-mail</label>
-                <input type="email" name="email" defaultValue={participant.email} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
-              </div>
-            </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <AppField label="Data de nascimento">
+              <AppInput type="date" name="birthDate" defaultValue={participant.birthDate} />
+            </AppField>
+            <AppField label="Profissão atual / patente">
+              <AppInput type="text" name="currentFunction" defaultValue={participant.currentFunction} />
+            </AppField>
+          </div>
+        </section>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Instagram</label>
-                <input type="text" name="instagram" defaultValue={participant.instagram} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">LinkedIn</label>
-                <input type="text" name="linkedin" defaultValue={participant.linkedin} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
-              </div>
-            </div>
+        <section className="space-y-4 border-t border-gray-100 pt-5 dark:border-gray-800">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white/90">Contato</h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Canais privados visíveis à administração.</p>
+          </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Nascimento</label>
-                <input type="date" name="birthDate" defaultValue={participant.birthDate} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Profissão Atual</label>
-                <input type="text" name="currentFunction" defaultValue={participant.currentFunction} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
-              </div>
-            </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <AppField label="Telefone">
+              <AppInput type="text" name="phone" value={phoneInput} onChange={handlePhoneChange} required />
+            </AppField>
+            <AppField label="E-mail">
+              <AppInput type="email" name="email" defaultValue={participant.email} />
+            </AppField>
+          </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Endereço</label>
-                <input type="text" name="address" defaultValue={participant.address} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">CEP</label>
-                <input type="text" name="zipCode" value={zipInput} onChange={handleZipChange} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
-              </div>
-            </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <AppField label="Instagram">
+              <AppInput type="text" name="instagram" defaultValue={participant.instagram} />
+            </AppField>
+            <AppField label="LinkedIn">
+              <AppInput type="text" name="linkedin" defaultValue={participant.linkedin} />
+            </AppField>
+          </div>
+        </section>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Cidade</label>
-                <input type="text" name="city" defaultValue={participant.city} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" required />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Estado (UF)</label>
-                <input type="text" name="state" defaultValue={participant.state} maxLength={2} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none uppercase" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">País</label>
-                <input type="text" name="country" defaultValue={participant.country} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
-              </div>
-            </div>
+        <section className="space-y-4 border-t border-gray-100 pt-5 dark:border-gray-800">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white/90">Endereço</h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Localização atual e dados complementares.</p>
+          </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Convidados</label>
-                <input type="number" name="guestsCount" defaultValue={participant.guestsCount} min="0" max="20" className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
-                <p className="mt-1 text-[11px] leading-relaxed text-atlas-text-muted">A contagem administrativa considera estes convidados apenas se a presença estiver confirmada.</p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <AppField label="Endereço" className="sm:col-span-2">
+              <AppInput type="text" name="address" defaultValue={participant.address} />
+            </AppField>
+            <AppField label="CEP">
+              <AppInput type="text" name="zipCode" value={zipInput} onChange={handleZipChange} />
+            </AppField>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <AppField label="Cidade">
+              <AppInput type="text" name="city" defaultValue={participant.city} required />
+            </AppField>
+            <AppField label="Estado (UF)">
+              <AppInput type="text" name="state" defaultValue={participant.state} maxLength={2} className="uppercase" />
+            </AppField>
+            <AppField label="País">
+              <AppInput type="text" name="country" defaultValue={participant.country} />
+            </AppField>
+          </div>
+        </section>
+
+        <section className="space-y-4 border-t border-gray-100 pt-5 dark:border-gray-800">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white/90">Participação</h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Presença, convidados, comissão e controle financeiro inicial.</p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <AppField label="Presença">
+              <AppSelect name="willAttend" options={presenceOptions} defaultValue={participant.willAttend} required />
+            </AppField>
+            <AppField label="Convidados">
+              <AppInput type="number" name="guestsCount" defaultValue={participant.guestsCount} min="0" max="20" />
+            </AppField>
+            <AppField label="Valor pago (R$)">
+              <AppInput type="number" step="0.01" name="totalPaid" defaultValue={participant.totalPaid} min="0" />
+            </AppField>
+          </div>
+
+          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-white/[0.03]">
+            <input
+              type="checkbox"
+              name="wantsToHelpCommittee"
+              defaultChecked={participant.wantsToHelpCommittee}
+              className="mt-0.5 rounded border-gray-300 text-brand-500 focus:ring-brand-500 dark:border-gray-700"
+            />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Voluntário para a Comissão Organizadora
+            </span>
+          </label>
+
+          <AppField label="Observações / notas">
+            <AppTextarea name="notes" defaultValue={participant.notes} rows={3} />
+          </AppField>
+        </section>
+
+        <section className="space-y-4 border-t border-gray-100 pt-5 dark:border-gray-800">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white/90">Kit oficial ATLAS</h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Interesse, medidas e personalização inicial.</p>
+          </div>
+
+          <AppField label="Interesse no kit">
+            <AppSelect
+              name="adminKitInterest"
+              options={kitInterestOptions}
+              value={kitInterest}
+              onChange={(event) => setKitInterest(event.target.value)}
+              placeholder="Selecione"
+            />
+          </AppField>
+
+          {kitInterest && kitInterest !== "no" ? (
+            <div className="space-y-4 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <AppField label="Camiseta">
+                  <AppSelect name="kitShirtSize" options={kitSizeOptions} defaultValue={participant.officialKit?.shirtSize || ""} />
+                </AppField>
+                <AppField label="Jaqueta">
+                  <AppSelect name="kitJacketSize" options={kitSizeOptions} defaultValue={participant.officialKit?.jacketSize || ""} />
+                </AppField>
+                <AppField label="Calça">
+                  <AppSelect name="kitPantsSize" options={kitSizeOptions} defaultValue={participant.officialKit?.pantsSize || ""} />
+                </AppField>
               </div>
-              <div>
-                <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Presença</label>
-                <select name="willAttend" defaultValue={participant.willAttend} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" required>
-                  <option value="yes">Confirmado</option>
-                  <option value="maybe">Talvez</option>
-                  <option value="no">Não irá</option>
-                </select>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <AppField label="Altura (cm)">
+                  <AppInput type="number" name="kitHeightCm" defaultValue={participant.officialKit?.heightCm} min="0" />
+                </AppField>
+                <AppField label="Peso aprox. (kg)">
+                  <AppInput type="number" name="kitWeightKg" defaultValue={participant.officialKit?.approximateWeightKg} min="0" />
+                </AppField>
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Valor Pago (R$)</label>
-              <input type="number" step="0.01" name="totalPaid" defaultValue={participant.totalPaid} min="0" className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none" />
-            </div>
-
-            <div>
-              <label className="flex cursor-pointer items-start gap-2 rounded border border-atlas-navy-aero/20 bg-atlas-navy-base/50 p-2">
-                <input type="checkbox" name="wantsToHelpCommittee" defaultChecked={participant.wantsToHelpCommittee} className="rounded text-atlas-gold-main focus:ring-atlas-gold-main bg-atlas-navy-deep border-atlas-navy-aero/50" />
-                <span className="text-white text-xs font-medium uppercase tracking-wider">Voluntário para a Comissão Organizadora</span>
-              </label>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-atlas-text-light mb-1 uppercase tracking-wider">Observações / Notas</label>
-              <textarea name="notes" defaultValue={participant.notes} rows={2} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm focus:border-atlas-gold-main outline-none"></textarea>
-            </div>
-
-            {/* Kit Oficial */}
-            <div className="border-t border-atlas-navy-aero/30 pt-4">
-              <p className="text-xs font-bold text-atlas-gold-main uppercase tracking-widest mb-3">Kit Oficial ATLAS</p>
-              <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                {["yes","maybe","no"].map(v => (
-                  <label key={v} className={`flex items-center justify-center gap-2 px-3 py-2 rounded border cursor-pointer text-xs font-bold uppercase tracking-wider transition-all ${
-                    kitInterest === v ? 'bg-atlas-gold-main/10 border-atlas-gold-main/50 text-atlas-gold-main' : 'border-atlas-navy-aero/30 text-atlas-text-muted hover:border-white/20'
-                  }`}>
-                    <input type="radio" name="adminKitInterest" value={v} checked={kitInterest === v} onChange={() => setKitInterest(v)} className="hidden" />
-                    {v === "yes" ? "Sim" : v === "maybe" ? "Talvez" : "Não"}
-                  </label>
-                ))}
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
+                  <input
+                    type="checkbox"
+                    name="kitNeedsSpecialSize"
+                    defaultChecked={participant.officialKit?.needsSpecialSize}
+                    className="mt-0.5 rounded border-gray-300 text-brand-500 focus:ring-brand-500 dark:border-gray-700"
+                  />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Precisa de tamanho especial</span>
+                </label>
+                <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
+                  <input
+                    type="checkbox"
+                    name="kitWantsCustomization"
+                    defaultChecked={participant.officialKit?.wantsNameCustomization}
+                    className="mt-0.5 rounded border-gray-300 text-brand-500 focus:ring-brand-500 dark:border-gray-700"
+                  />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Deseja personalização de nome</span>
+                </label>
               </div>
-              {kitInterest && kitInterest !== "no" && (
-                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  <div>
-                    <label className="block text-[10px] text-atlas-text-muted mb-1 uppercase tracking-wider">Camiseta</label>
-                    <select name="kitShirtSize" defaultValue={participant.officialKit?.shirtSize || ""} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm">
-                      <option value="">-</option>
-                      {["PP","P","M","G","GG","XG","XGG","SPECIAL"].map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[10px] text-atlas-text-muted mb-1 uppercase tracking-wider">Jaqueta</label>
-                    <select name="kitJacketSize" defaultValue={participant.officialKit?.jacketSize || ""} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm">
-                      <option value="">-</option>
-                      {["PP","P","M","G","GG","XG","XGG","SPECIAL"].map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[10px] text-atlas-text-muted mb-1 uppercase tracking-wider">Calça</label>
-                    <select name="kitPantsSize" defaultValue={participant.officialKit?.pantsSize || ""} className="w-full bg-atlas-navy-base border border-atlas-navy-aero/50 rounded px-3 py-2 text-white text-sm">
-                      <option value="">-</option>
-                      {["PP","P","M","G","GG","XG","XGG","SPECIAL"].map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </div>
-                </div>
-              )}
-            </div>
 
-            <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
-              <button 
-                type="button" 
-                onClick={onClose}
-                className="px-4 py-2 text-sm text-atlas-text-muted hover:text-white transition-colors"
-                disabled={loading}
-              >
-                Cancelar
-              </button>
-              <button 
-                type="submit" 
-                disabled={loading}
-                className="px-6 py-2 bg-atlas-gold-main text-atlas-navy-deep font-bold rounded hover:bg-atlas-gold-dark transition-colors text-sm uppercase tracking-wider disabled:opacity-70 flex items-center"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                {loading ? "Salvando..." : "Salvar Alterações"}
-              </button>
+              <AppField label="Nome para personalização">
+                <AppInput type="text" name="kitCustomizationName" defaultValue={participant.officialKit?.customizationName} />
+              </AppField>
+
+              <AppField label="Observações do kit">
+                <AppTextarea name="kitNotes" defaultValue={participant.officialKit?.notes} rows={3} />
+              </AppField>
             </div>
-          </form>
+          ) : null}
+        </section>
+
+        <div className="flex flex-col-reverse gap-3 border-t border-gray-100 pt-5 dark:border-gray-800 sm:flex-row sm:justify-end">
+          <AppButton type="button" variant="outline" onClick={onClose} disabled={loading}>
+            Cancelar
+          </AppButton>
+          <AppButton
+            type="submit"
+            loading={loading}
+            startIcon={!loading ? <Save className="h-4 w-4" /> : undefined}
+          >
+            {loading ? "Salvando..." : "Salvar alterações"}
+          </AppButton>
         </div>
-      </div>
-    </div>
+      </form>
+    </AppModal>
   );
-
-  if (typeof document === "undefined") return null;
-  return createPortal(modal, document.body);
 }

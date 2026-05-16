@@ -1,13 +1,32 @@
 "use client";
 
-import { useAuth } from "@/lib/auth-context";
-import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
-import { LogOut, Home, Users, DollarSign, Gift, Calendar, Settings, Megaphone, Briefcase, ChevronLeft, ChevronRight, Menu, ShieldCheck, Moon, Sun } from "lucide-react";
-import { auth } from "@/lib/firebase";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  Bell,
+  Briefcase,
+  Calendar,
+  ChevronDown,
+  DollarSign,
+  Gift,
+  Home,
+  LogOut,
+  Megaphone,
+  Menu,
+  Moon,
+  Search,
+  Settings,
+  ShieldCheck,
+  Sun,
+  UserCircle,
+  Users,
+} from "lucide-react";
 import { signOut } from "firebase/auth";
+import { AppHeader, AppShell, AppSidebar } from "@/components/layout";
+import { useAuth } from "@/lib/auth-context";
+import { auth } from "@/lib/firebase";
 
 const MENU_ITEMS = [
   { label: "Dashboard", href: "/admin/dashboard", icon: Home },
@@ -26,6 +45,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, adminLoading, isAdmin } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [adminTheme, setAdminTheme] = useState<AdminTheme>(() => {
     if (typeof window === "undefined") return "light";
     const savedTheme = window.localStorage.getItem("atlas-admin-theme");
@@ -53,7 +74,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   }, [user, loading, adminLoading, isAdmin, router, pathname]);
 
   if (loading || adminLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-[#060e1c] text-atlas-gold-main font-bold animate-pulse">CARREGANDO SISTEMA...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-950 font-semibold text-brand-400">
+        CARREGANDO SISTEMA...
+      </div>
+    );
   }
 
   if (pathname === "/admin/login") {
@@ -61,52 +86,76 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   }
 
   if (!user || !isAdmin) {
-    return null; // Will redirect
+    return null;
   }
 
   const nextTheme = adminTheme === "light" ? "dark" : "light";
   const ThemeIcon = adminTheme === "light" ? Moon : Sun;
   const themeLabel = adminTheme === "light" ? "Usar modo escuro" : "Usar modo claro";
+  const userEmail = user.email || "admin@atlas.com";
+  const userInitial = userEmail.trim().charAt(0).toUpperCase() || "A";
+
+  const handleSignOut = () => {
+    void signOut(auth);
+  };
+
+  const closeTransientMenus = () => {
+    setIsMobileOpen(false);
+    setIsNotificationsOpen(false);
+    setIsProfileOpen(false);
+  };
 
   const renderSidebarContent = () => (
     <>
-      <div className={`flex h-20 items-center ${isCollapsed ? 'justify-center' : 'px-5 sm:px-6'} border-b border-atlas-gold-main/20 bg-gradient-to-b from-white/5 to-transparent transition-all duration-300`}>
+      <div className={`flex h-20 items-center border-b border-gray-200 bg-white transition-all duration-300 dark:border-gray-800 dark:bg-gray-900 ${isCollapsed ? "justify-center" : "px-5 sm:px-6"}`}>
         <div className="flex items-center gap-3">
-          <Image
-            src="/logo-fab.svg"
-            alt="Logo FAB"
-            width={28}
-            height={28}
-            style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }}
-          />
+          <div className="tailadmin-brand-mark h-10 w-10 shrink-0 shadow-theme-sm">
+            <Image
+              src="/logo-fab.svg"
+              alt="Logo FAB"
+              width={24}
+              height={24}
+              style={{ filter: "brightness(0) invert(1)" }}
+            />
+          </div>
           {!isCollapsed && (
-            <div className="flex flex-col animate-in fade-in duration-500">
-              <span className="font-black text-atlas-gold-main uppercase tracking-widest text-sm leading-none">Comando</span>
-              <span className="text-[9px] text-atlas-text-muted tracking-[0.2em] uppercase mt-1">ATLAS 30 Anos</span>
+            <div className="flex min-w-0 flex-col">
+              <span className="truncate text-sm font-semibold leading-none text-gray-900 dark:text-white">Comando</span>
+              <span className="mt-1 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">ATLAS 30 Anos</span>
             </div>
           )}
         </div>
       </div>
-      
-      <nav className="flex-1 py-6 overflow-y-auto custom-scrollbar">
-        <ul className={`space-y-1.5 ${isCollapsed ? 'px-2' : 'px-4'}`}>
+
+      <nav className="custom-scrollbar flex-1 overflow-y-auto py-6">
+        <ul className={`space-y-1.5 ${isCollapsed ? "px-2" : "px-4"}`}>
           {MENU_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = pathname.startsWith(item.href);
+
             return (
               <li key={item.href}>
-                <Link 
+                <Link
                   href={item.href}
-                  onClick={() => setIsMobileOpen(false)}
-                  className={`flex items-center ${isCollapsed ? 'justify-center py-4' : 'px-4 py-3'} text-sm rounded-lg transition-all duration-300 group ${
-                    isActive 
-                      ? "bg-gradient-to-r from-atlas-gold-main/10 to-transparent text-atlas-gold-main border-l-2 border-atlas-gold-main" 
-                      : "text-atlas-text-muted hover:text-white hover:bg-white/5 border-l-2 border-transparent"
+                  onClick={closeTransientMenus}
+                  className={`group flex h-11 items-center rounded-lg text-sm font-medium transition duration-200 ${
+                    isCollapsed ? "justify-center px-0" : "gap-3 px-3"
+                  } ${
+                    isActive
+                      ? "bg-brand-50 text-brand-600 dark:bg-brand-500/[0.12] dark:text-brand-400"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
                   }`}
-                  title={isCollapsed ? item.label : ""}
+                  title={item.label}
                 >
-                  <Icon className={`w-4 h-4 ${isCollapsed ? '' : 'mr-3'} transition-colors duration-300 ${isActive ? "text-atlas-gold-main" : "group-hover:text-atlas-gold-main/70"}`} />
-                  {!isCollapsed && <span className="font-medium tracking-wide whitespace-nowrap">{item.label}</span>}
+                  <Icon
+                    className={`h-5 w-5 shrink-0 transition-colors ${
+                      isActive
+                        ? "text-brand-600 dark:text-brand-400"
+                        : "text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300"
+                    }`}
+                    aria-hidden="true"
+                  />
+                  {!isCollapsed && <span className="truncate whitespace-nowrap">{item.label}</span>}
                 </Link>
               </li>
             );
@@ -114,116 +163,260 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         </ul>
       </nav>
 
-      <div className={`p-4 border-t border-atlas-gold-main/20 space-y-2 bg-black/20 transition-all duration-300`}>
-        <Link 
+      <div className="space-y-2 border-t border-gray-200 bg-white p-4 transition-all duration-300 dark:border-gray-800 dark:bg-gray-900">
+        <Link
           href="/"
-          className={`flex items-center ${isCollapsed ? 'justify-center' : 'px-4'} py-2 text-sm text-atlas-text-muted hover:text-white hover:bg-white/5 rounded-lg transition-all duration-300 group`}
-          title={isCollapsed ? "Site Público" : ""}
+          onClick={closeTransientMenus}
+          className={`group flex h-10 items-center rounded-lg text-sm font-medium text-gray-700 transition duration-200 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white ${
+            isCollapsed ? "justify-center px-0" : "gap-3 px-3"
+          }`}
+          title="Site Público"
         >
-          <Home className={`w-4 h-4 ${isCollapsed ? '' : 'mr-3'} group-hover:text-atlas-gold-main/70 transition-colors`} />
-          {!isCollapsed && <span className="tracking-wide">Site Público</span>}
+          <Home className="h-5 w-5 shrink-0 text-gray-500 transition-colors group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300" aria-hidden="true" />
+          {!isCollapsed && <span className="truncate">Site Público</span>}
         </Link>
-        <button 
-          onClick={() => signOut(auth)}
-          className={`flex items-center w-full ${isCollapsed ? 'justify-center' : 'px-4'} py-2 text-sm text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-300`}
-          title={isCollapsed ? "Desconectar" : ""}
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className={`flex h-10 w-full items-center rounded-lg text-sm font-medium text-error-600 transition duration-200 hover:bg-error-50 hover:text-error-700 dark:text-error-500 dark:hover:bg-error-500/10 ${
+            isCollapsed ? "justify-center px-0" : "gap-3 px-3"
+          }`}
+          title="Desconectar"
         >
-          <LogOut className={`w-4 h-4 ${isCollapsed ? '' : 'mr-3'}`} />
-          {!isCollapsed && <span className="tracking-wide">Desconectar</span>}
+          <LogOut className="h-5 w-5 shrink-0" aria-hidden="true" />
+          {!isCollapsed && <span className="truncate">Desconectar</span>}
         </button>
       </div>
-
-      <button 
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="hidden lg:flex absolute -right-3 top-24 bg-atlas-gold-main text-atlas-navy-deep p-1 rounded-full border-2 border-atlas-navy-deep hover:scale-110 transition-transform z-50"
-      >
-        {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-      </button>
     </>
   );
 
-  return (
-    <div data-admin-theme={adminTheme} className="atlas-admin-shell relative flex h-dvh min-w-0 overflow-hidden font-sans text-white">
-      <aside className={`hidden lg:flex flex-col bg-[#060e1c]/88 backdrop-blur-xl border-r border-atlas-gold-main/20 z-40 relative shadow-2xl transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
-        {renderSidebarContent()}
-      </aside>
+  const desktopHeader = (
+    <AppHeader>
+      <div className="flex min-w-0 items-center gap-4">
+        <button
+          type="button"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 shadow-theme-xs transition hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+          aria-label={isCollapsed ? "Expandir menu" : "Recolher menu"}
+        >
+          <Menu className="h-5 w-5" aria-hidden="true" />
+        </button>
 
-      {isMobileOpen && (
-        <div 
-          className="lg:hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[60]"
-          onClick={() => setIsMobileOpen(false)}
-        />
-      )}
+        <div className="relative hidden w-[min(430px,34vw)] xl:block">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" aria-hidden="true" />
+          <input
+            type="search"
+            readOnly
+            placeholder="Pesquisar ou digitar comando..."
+            className="h-11 w-full rounded-lg border border-gray-200 bg-white py-2 pl-12 pr-16 text-sm text-gray-700 shadow-theme-xs outline-none transition placeholder:text-gray-400 focus:border-brand-300 focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:placeholder:text-gray-500"
+            aria-label="Pesquisa administrativa"
+          />
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-gray-200 px-2 py-1 text-theme-xs font-medium text-gray-500 dark:border-gray-800 dark:text-gray-400">
+            Ctrl K
+          </span>
+        </div>
 
-      <aside className={`fixed left-0 top-0 z-[70] h-full w-[min(18rem,85vw)] border-r border-atlas-gold-main/20 bg-[#060e1c] transition-transform duration-300 lg:hidden ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        {renderSidebarContent()}
-      </aside>
+        <div className="min-w-0 xl:hidden">
+          <p className="text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">Área administrativa</p>
+          <p className="mt-0.5 truncate text-sm text-gray-500 dark:text-gray-400">
+            Gestão operacional do Reencontro 30 Anos da Turma ATLAS.
+          </p>
+        </div>
+      </div>
 
-      <div className="relative z-10 flex h-full min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="hidden h-16 shrink-0 items-center justify-between border-b border-white/10 bg-[#060e1c]/82 px-6 backdrop-blur-xl lg:flex">
-          <div className="min-w-0">
-            <p className="atlas-admin-breadcrumb">Área administrativa</p>
-            <p className="mt-0.5 truncate text-sm text-atlas-text-muted">
-              Gestão operacional do Reencontro 30 Anos da Turma ATLAS.
-            </p>
-          </div>
-          <div className="flex min-w-0 items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setAdminTheme(nextTheme)}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-atlas-text-muted transition-colors hover:border-atlas-gold-main/35 hover:text-atlas-gold-main"
-              aria-label={themeLabel}
-              aria-pressed={adminTheme === "light"}
-              title={themeLabel}
-            >
-              <ThemeIcon className="h-4 w-4" aria-hidden="true" />
-            </button>
-            <div className="flex min-w-0 items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">
-              <ShieldCheck className="h-4 w-4 shrink-0 text-atlas-gold-main" aria-hidden="true" />
-              <div className="min-w-0 text-right">
-                <p className="text-[10px] font-bold uppercase text-atlas-text-muted">Sessão segura</p>
-                <p className="max-w-56 truncate text-xs font-semibold text-white">{user.email}</p>
+      <div className="relative flex min-w-0 items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setAdminTheme(nextTheme)}
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-theme-xs transition hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+          aria-label={themeLabel}
+          aria-pressed={adminTheme === "light"}
+          title={themeLabel}
+        >
+          <ThemeIcon className="h-4 w-4" aria-hidden="true" />
+        </button>
+
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => {
+              setIsNotificationsOpen((current) => !current);
+              setIsProfileOpen(false);
+            }}
+            className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-theme-xs transition hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+            aria-label="Abrir notificações"
+            aria-expanded={isNotificationsOpen}
+          >
+            <Bell className="h-5 w-5" aria-hidden="true" />
+            <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-warning-500 ring-2 ring-white dark:ring-gray-900" />
+          </button>
+
+          {isNotificationsOpen ? (
+            <div className="absolute right-0 top-14 z-[90] w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-800 dark:bg-gray-900">
+              <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-800">
+                <p className="text-sm font-semibold text-gray-800 dark:text-white/90">Notificações</p>
+                <p className="mt-0.5 text-theme-xs text-gray-500 dark:text-gray-400">Espaço reservado para alertas do sistema.</p>
+              </div>
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                <div className="px-4 py-3">
+                  <p className="text-sm font-medium text-gray-800 dark:text-white/90">Fluxo de participantes</p>
+                  <p className="mt-1 text-theme-xs text-gray-500 dark:text-gray-400">Cadastro e vínculo prontos para acompanhamento.</p>
+                </div>
+                <div className="px-4 py-3">
+                  <p className="text-sm font-medium text-gray-800 dark:text-white/90">Financeiro</p>
+                  <p className="mt-1 text-theme-xs text-gray-500 dark:text-gray-400">Valores finais aguardam deliberação da comissão.</p>
+                </div>
               </div>
             </div>
-          </div>
-        </header>
+          ) : null}
+        </div>
 
-        <header className="lg:hidden h-16 flex items-center justify-between px-4 bg-[#060e1c]/90 border-b border-atlas-gold-main/20 backdrop-blur-md">
-          <button 
-            onClick={() => setIsMobileOpen(true)}
-            className="rounded-lg p-2 text-atlas-gold-main transition-colors hover:bg-white/5"
-            aria-label="Abrir menu administrativo"
-            aria-expanded={isMobileOpen}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => {
+              setIsProfileOpen((current) => !current);
+              setIsNotificationsOpen(false);
+            }}
+            className="flex h-11 items-center gap-3 rounded-full border border-gray-200 bg-white py-1 pl-1 pr-3 shadow-theme-xs transition hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-gray-800"
+            aria-label="Abrir menu do perfil"
+            aria-expanded={isProfileOpen}
           >
-            <Menu className="w-6 h-6" />
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-50 text-sm font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
+              {userInitial}
+            </span>
+            <span className="hidden min-w-0 text-left xl:block">
+              <span className="block max-w-40 truncate text-sm font-medium text-gray-800 dark:text-white/90">
+                Administração
+              </span>
+              <span className="block max-w-40 truncate text-theme-xs text-gray-500 dark:text-gray-400">
+                {userEmail}
+              </span>
+            </span>
+            <ChevronDown className={`h-4 w-4 shrink-0 text-gray-500 transition-transform dark:text-gray-400 ${isProfileOpen ? "rotate-180" : ""}`} aria-hidden="true" />
           </button>
-          
-          <div className="flex items-center gap-2">
-            <Image src="/logo-fab.svg" alt="Logo FAB" width={24} height={24} style={{ filter: "brightness(0) saturate(100%) invert(77%) sepia(56%) saturate(600%) hue-rotate(3deg) brightness(103%) contrast(97%)" }} />
-            <span className="font-black text-atlas-gold-main uppercase tracking-widest text-[10px]">Administração</span>
-          </div>
 
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setAdminTheme(nextTheme)}
-              className="rounded-lg p-2 text-atlas-text-muted transition-colors hover:bg-white/5 hover:text-atlas-gold-main"
-              aria-label={themeLabel}
-              aria-pressed={adminTheme === "light"}
-            >
-              <ThemeIcon className="h-5 w-5" />
-            </button>
-            <button onClick={() => signOut(auth)} className="rounded-lg p-2 text-red-400 transition-colors hover:bg-red-500/10" aria-label="Desconectar">
-              <LogOut className="w-5 h-5" />
-            </button>
-          </div>
-        </header>
-
-        <main className="custom-scrollbar min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="mx-auto w-full max-w-[1600px] min-w-0 p-4 sm:p-6 lg:p-8">
-            {children}
-          </div>
-        </main>
+          {isProfileOpen ? (
+            <div className="absolute right-0 top-14 z-[90] w-72 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-800 dark:bg-gray-900">
+              <div className="border-b border-gray-100 px-4 py-4 dark:border-gray-800">
+                <p className="text-sm font-semibold text-gray-800 dark:text-white/90">Comando ATLAS</p>
+                <p className="mt-1 truncate text-theme-xs text-gray-500 dark:text-gray-400">{userEmail}</p>
+              </div>
+              <div className="space-y-1 p-2">
+                <Link
+                  href="/admin/configuracoes"
+                  onClick={closeTransientMenus}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5"
+                >
+                  <Settings className="h-4 w-4 text-gray-500 dark:text-gray-400" aria-hidden="true" />
+                  Configurações de conta
+                </Link>
+                <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <ShieldCheck className="h-4 w-4 text-brand-500" aria-hidden="true" />
+                  Sessão segura
+                </div>
+                <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <UserCircle className="h-4 w-4 text-gray-500 dark:text-gray-400" aria-hidden="true" />
+                  Perfil administrativo
+                </div>
+              </div>
+              <div className="border-t border-gray-100 p-2 dark:border-gray-800">
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-error-600 transition hover:bg-error-50 dark:text-error-500 dark:hover:bg-error-500/10"
+                >
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
+                  Sair
+                </button>
+              </div>
+            </div>
+          ) : null}
+        </div>
       </div>
-    </div>
+    </AppHeader>
+  );
+
+  const mobileHeader = (
+    <AppHeader mobile>
+      <button
+        type="button"
+        onClick={() => setIsMobileOpen(true)}
+        className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-brand-600 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-brand-400"
+        aria-label="Abrir menu administrativo"
+        aria-expanded={isMobileOpen}
+      >
+        <Menu className="h-6 w-6" aria-hidden="true" />
+      </button>
+
+      <div className="flex items-center gap-2">
+        <div className="tailadmin-brand-mark h-8 w-8">
+          <Image src="/logo-fab.svg" alt="Logo FAB" width={20} height={20} style={{ filter: "brightness(0) invert(1)" }} />
+        </div>
+        <span className="text-theme-xs font-semibold uppercase text-gray-800 dark:text-white">Administração</span>
+      </div>
+
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={() => setIsNotificationsOpen((current) => !current)}
+          className="relative rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-brand-600 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-brand-400"
+          aria-label="Abrir notificações"
+        >
+          <Bell className="h-5 w-5" aria-hidden="true" />
+          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-warning-500" />
+        </button>
+        <button
+          type="button"
+          onClick={() => setAdminTheme(nextTheme)}
+          className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-brand-600 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-brand-400"
+          aria-label={themeLabel}
+          aria-pressed={adminTheme === "light"}
+        >
+          <ThemeIcon className="h-5 w-5" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="rounded-lg p-2 text-error-600 transition-colors hover:bg-error-50 dark:text-error-500 dark:hover:bg-error-500/10"
+          aria-label="Desconectar"
+        >
+          <LogOut className="h-5 w-5" aria-hidden="true" />
+        </button>
+      </div>
+    </AppHeader>
+  );
+
+  return (
+    <AppShell
+      theme={adminTheme}
+      sidebar={<AppSidebar collapsed={isCollapsed}>{renderSidebarContent()}</AppSidebar>}
+      mobileOverlay={
+        isMobileOpen ? (
+          <div
+            className="fixed inset-0 z-[60] bg-gray-950/70 backdrop-blur-sm lg:hidden"
+            onClick={() => setIsMobileOpen(false)}
+          />
+        ) : null
+      }
+      mobileSidebar={<AppSidebar mobile open={isMobileOpen}>{renderSidebarContent()}</AppSidebar>}
+      header={desktopHeader}
+      mobileHeader={mobileHeader}
+      floatingLayer={
+        isNotificationsOpen ? (
+          <div className="absolute right-4 top-[72px] z-[80] w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-800 dark:bg-gray-900 lg:hidden">
+            <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-800">
+              <p className="text-sm font-semibold text-gray-800 dark:text-white/90">Notificações</p>
+              <p className="mt-0.5 text-theme-xs text-gray-500 dark:text-gray-400">Alertas administrativos aparecerão aqui.</p>
+            </div>
+            <div className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+              Nenhuma notificação crítica no momento.
+            </div>
+          </div>
+        ) : null
+      }
+    >
+      {children}
+    </AppShell>
   );
 }

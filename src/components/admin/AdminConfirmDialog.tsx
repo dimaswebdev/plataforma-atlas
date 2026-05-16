@@ -1,7 +1,8 @@
-"use client";
+﻿"use client";
 
-import { createPortal } from "react-dom";
-import { AlertTriangle, Loader2, X } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
+import { AdminButton } from "./AdminButton";
+import { AdminModal } from "./AdminModal";
 
 interface AdminConfirmDialogProps {
   open: boolean;
@@ -28,70 +29,57 @@ export function AdminConfirmDialog({
   onConfirm,
   onClose,
 }: AdminConfirmDialogProps) {
-  if (!open || typeof document === "undefined") return null;
+  const handleClose = () => {
+    if (!loading) onClose();
+  };
 
-  const modal = (
-    <div className="atlas-admin-modal fixed inset-0 z-[120] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div
-        role="alertdialog"
-        aria-modal="true"
-        aria-labelledby="admin-confirm-title"
-        aria-describedby="admin-confirm-description"
-        className="atlas-modal-panel w-full max-w-md overflow-hidden rounded-lg border border-atlas-navy-aero/35 bg-atlas-navy-deep shadow-2xl"
-      >
-        <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5">
-          <div className="flex min-w-0 items-start gap-3">
-            <div className={`mt-0.5 rounded-lg border p-2 ${destructive ? "border-red-400/30 bg-red-500/10 text-red-300" : "border-atlas-gold-main/30 bg-atlas-gold-main/10 text-atlas-gold-main"}`}>
-              <AlertTriangle className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <div className="min-w-0">
-              <h2 id="admin-confirm-title" className="atlas-section-title text-white">
-                {title}
-              </h2>
-              <p id="admin-confirm-description" className="mt-2 text-sm leading-relaxed text-atlas-text-muted">
-                {description}
-              </p>
-            </div>
-          </div>
-          <button
+  return (
+    <AdminModal
+      open={open}
+      onClose={handleClose}
+      title={title}
+      description={description}
+      size="sm"
+      closeOnEscape={!loading}
+      closeOnOverlayClick={!loading}
+      showCloseButton={!loading}
+      footer={
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <AdminButton
             type="button"
-            onClick={onClose}
+            variant="outline"
+            onClick={handleClose}
             disabled={loading}
-            className="rounded-lg p-2 text-atlas-text-muted transition-colors hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-            aria-label="Fechar confirmação"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        {error && (
-          <div className="mx-5 mt-5 rounded-lg border border-red-400/35 bg-red-500/10 p-3 text-sm leading-relaxed text-red-200">
-            {error}
-          </div>
-        )}
-
-        <div className="flex flex-col-reverse gap-3 p-5 sm:flex-row sm:justify-end">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={loading}
-            className="atlas-muted-button"
           >
             {cancelLabel}
-          </button>
-          <button
+          </AdminButton>
+          <AdminButton
             type="button"
+            variant="primary"
             onClick={onConfirm}
-            disabled={loading}
-            className={`atlas-primary-button ${destructive ? "atlas-danger-button bg-red-500 text-white hover:bg-red-600" : ""}`}
+            loading={loading}
           >
-            {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
             {confirmLabel}
-          </button>
+          </AdminButton>
+        </div>
+      }
+    >
+      <div className="flex items-start gap-4">
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${destructive ? "bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-500" : "bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400"}`}>
+          <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
+            Confirme a ação para continuar.
+          </p>
+          {error ? (
+            <div className="mt-4 rounded-lg border border-error-200 bg-error-50 p-3 text-sm leading-relaxed text-error-700 dark:border-error-500/30 dark:bg-error-500/10 dark:text-error-500">
+              {error}
+            </div>
+          ) : null}
         </div>
       </div>
-    </div>
+    </AdminModal>
   );
-
-  return createPortal(modal, document.body);
 }
+

@@ -2,67 +2,66 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Activity, ArrowRight, CheckCircle, Clock, DollarSign, KeyRound, Lock, ShieldCheck, Shirt, UserPlus, Users, UsersRound, Wallet } from "lucide-react";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { AdminStatCard } from "@/components/admin/AdminStatCard";
+import type { LucideIcon } from "lucide-react";
+import {
+  Activity,
+  AlertCircle,
+  ArrowRight,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  KeyRound,
+  Loader2,
+  Lock,
+  ShieldCheck,
+  Shirt,
+  UserPlus,
+  Users,
+  UsersRound,
+  Wallet,
+} from "lucide-react";
+import {
+  AdminCard,
+  AdminMetricCard,
+  AdminMetricGrid,
+  AdminPage,
+  AdminPageHeader,
+  AdminSection,
+} from "@/components/admin";
 import { fetchWithAdminAuth } from "@/lib/client-auth";
 import { formatCurrencyBRL } from "@/lib/utils";
 
-function DashboardSectionHeader({
-  eyebrow,
-  title,
-  description,
-}: {
-  eyebrow: string;
+interface ActionCardProps {
   title: string;
   description: string;
-}) {
-  return (
-    <div className="mb-4 flex min-w-0 flex-col gap-2 sm:mb-5 sm:flex-row sm:items-end sm:justify-between">
-      <div className="min-w-0">
-        <p className="atlas-stat-card-label text-atlas-gold-main">{eyebrow}</p>
-        <h2 className="atlas-section-title">{title}</h2>
-      </div>
-      <p className="max-w-xl text-sm leading-relaxed text-atlas-text-muted sm:text-right">
-        {description}
-      </p>
-    </div>
-  );
+  href: string;
+  icon: LucideIcon;
 }
 
-function FlowStep({
-  icon: Icon,
-  title,
-  value,
-  description,
-  tone = "gold",
-}: {
-  icon: typeof Activity;
-  title: string;
-  value: React.ReactNode;
-  description: string;
-  tone?: "gold" | "green" | "blue" | "red";
-}) {
-  const toneClass = {
-    gold: "border-atlas-gold-main/30 bg-atlas-gold-main/10 text-atlas-gold-main",
-    green: "border-green-400/30 bg-green-400/10 text-green-400",
-    blue: "border-blue-400/30 bg-blue-400/10 text-blue-400",
-    red: "border-red-400/30 bg-red-400/10 text-red-400",
-  }[tone];
-
+function ActionCard({ title, description, href, icon: Icon }: ActionCardProps) {
   return (
-    <article className="relative min-w-0 overflow-hidden rounded-lg border border-white/10 bg-white/[0.035] p-4">
-      <div className="flex min-w-0 items-start gap-3">
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${toneClass}`}>
+    <Link
+      href={href}
+      className="group block h-full rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-theme-md dark:border-gray-800 dark:bg-white/[0.03] dark:hover:border-brand-500/30"
+    >
+      <div className="flex min-w-0 items-start gap-4">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 ring-1 ring-brand-500/10 transition-transform duration-200 group-hover:scale-105 dark:bg-brand-500/15 dark:text-brand-400">
           <Icon className="h-5 w-5" aria-hidden="true" />
         </div>
-        <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase text-atlas-text-muted">{title}</p>
-          <div className="mt-1 text-2xl font-black leading-none text-white">{value}</div>
-          <p className="mt-2 text-xs leading-relaxed text-atlas-text-muted">{description}</p>
+        <div className="min-w-0 flex-1">
+          <h3 className="tailadmin-title text-base font-semibold text-gray-900 dark:text-white">
+            {title}
+          </h3>
+          <p className="mt-1 text-sm leading-6 text-gray-500 dark:text-gray-400">
+            {description}
+          </p>
+          <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-brand-600 dark:text-brand-400">
+            Acessar
+            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
+          </span>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 
@@ -98,229 +97,263 @@ export default function AdminDashboard() {
         setLoading(false);
       }
     }
+
     loadStats();
   }, []);
-
-  if (loading) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <div className="atlas-loading-label animate-pulse">Carregando métricas...</div>
-      </div>
-    );
-  }
 
   const balance = stats.income - stats.expense;
 
   return (
-    <div className="atlas-admin-page">
+    <AdminPage>
       <AdminPageHeader
-        title="Visão geral"
+        title="Dashboard administrativo"
         icon={Activity}
-        description="Resumo rápido dos indicadores mais importantes para acompanhar participação, interesse em kits e situação financeira do evento."
+        description="Painel executivo para acompanhar presença, pendências, financeiro, kits e próximas ações operacionais do Reencontro ATLAS 30 Anos."
       />
 
-      <div className="space-y-8">
-        <section className="min-w-0">
-          <DashboardSectionHeader
-            eyebrow="Participação no evento"
-            title="Demanda principal do reencontro"
-            description="Indicadores usados para decisões de logística, alimentação, espaço e organização geral."
-          />
-
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.18fr)_minmax(18rem,0.82fr)]">
-            <article className="relative min-h-full overflow-hidden rounded-lg border border-atlas-gold-main/35 bg-gradient-to-br from-atlas-gold-main/20 via-white/[0.06] to-white/[0.03] p-5 shadow-[0_24px_70px_rgb(0_0_0/0.28)] sm:p-6">
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-atlas-gold-main/80 to-transparent" />
-              <div className="flex min-w-0 items-start justify-between gap-5">
-                <div className="min-w-0">
-                  <p className="atlas-stat-card-label text-atlas-gold-main">
-                    Total geral de pessoas
-                  </p>
-                  <div className="mt-3 flex flex-wrap items-end gap-x-3 gap-y-1">
-                    <span className="text-5xl font-black leading-none text-white sm:text-6xl">
-                      {stats.totalPeople}
-                    </span>
-                    <span className="mb-1 text-sm font-bold uppercase text-atlas-text-muted">
-                      pessoas
-                    </span>
-                  </div>
-                </div>
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg border border-atlas-gold-main/35 bg-atlas-gold-main/10 text-atlas-gold-main">
-                  <UsersRound className="h-6 w-6" aria-hidden="true" />
-                </div>
-              </div>
-              <p className="mt-5 max-w-2xl text-sm leading-relaxed text-atlas-text-muted">
-                Soma dos militares com presença confirmada mais os convidados informados por eles.
-              </p>
-            </article>
-
-            <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
-              <AdminStatCard
-                icon={Activity}
-                label="Militares confirmados"
-                value={stats.confirmedParticipants}
-                tone="green"
-                helper="Cadastros com presença confirmada"
-              />
-              <AdminStatCard
-                icon={UserPlus}
-                label="Total de convidados"
-                value={stats.totalGuests}
-                tone="blue"
-                helper="Somente convidados de militares confirmados"
-              />
-              <AdminStatCard
-                icon={Users}
-                label="Interessados"
-                value={stats.totalParticipants}
-                tone="gold"
-                helper="Todos os cadastros registrados"
-              />
-            </div>
+      {loading ? (
+        <AdminCard className="flex min-h-[45vh] items-center justify-center p-8 text-gray-500 dark:text-gray-400">
+          <div className="flex items-center gap-3">
+            <Loader2 className="h-5 w-5 animate-spin text-brand-500" aria-hidden="true" />
+            <span>Carregando métricas...</span>
           </div>
-        </section>
-
-        <section className="min-w-0">
-          <DashboardSectionHeader
-            eyebrow="Portal do participante"
-            title="Fluxo de entrada e consolidação"
-            description="Acompanhamento da esteira: cadastro recebido, vínculo futuro de login, dados consolidados na página individual e bloqueios financeiros preservados."
-          />
-
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,0.5fr)]">
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <FlowStep
-                icon={CheckCircle}
-                title="Formulários recebidos"
-                value={stats.submittedRegistrations}
-                description="Participantes que já passaram pelo cadastro passo a passo ou legado."
-                tone="green"
-              />
-              <FlowStep
-                icon={KeyRound}
-                title="Contas vinculadas"
-                value={stats.linkedAccounts}
-                description="Participantes já ligados a uma conta de login individual."
-                tone="blue"
-              />
-              <FlowStep
-                icon={Clock}
-                title="Aguardam login"
-                value={stats.pendingAccountLink}
-                description="Cadastros prontos para receber vínculo por e-mail e senha."
-                tone="gold"
-              />
-              <FlowStep
-                icon={Lock}
-                title="Financeiro"
-                value="Bloqueado"
-                description="Pagamentos, Asaas e cobranças permanecem fora da fase atual."
-                tone="red"
-              />
-            </div>
-
-            <article className="rounded-lg border border-atlas-gold-main/25 bg-atlas-gold-main/10 p-5">
-              <div className="mb-4 flex items-start gap-3">
-                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-atlas-gold-main" aria-hidden="true" />
-                <div>
-                  <h3 className="atlas-card-title text-white">Próximo passo operacional</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-atlas-text-muted">
-                    Com o login do participante ativo, membros sem cadastro entram pelo acesso individual e seguem para o formulário autenticado. Ao confirmar, o registro já nasce vinculado e aparece aqui, na lista de participantes e na página individual.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="rounded border border-white/10 bg-white/[0.04] p-3">
-                  <p className="text-[10px] font-black uppercase text-atlas-text-muted">Com e-mail</p>
-                  <p className="mt-1 text-xl font-black text-white">{stats.participantsWithEmail}</p>
-                </div>
-                <div className="rounded border border-white/10 bg-white/[0.04] p-3">
-                  <p className="text-[10px] font-black uppercase text-atlas-text-muted">Sem e-mail</p>
-                  <p className="mt-1 text-xl font-black text-white">{stats.participantsWithoutEmail}</p>
-                </div>
-                <div className="rounded border border-white/10 bg-white/[0.04] p-3">
-                  <p className="text-[10px] font-black uppercase text-atlas-text-muted">Voluntários</p>
-                  <p className="mt-1 text-xl font-black text-white">{stats.committeeVolunteers}</p>
-                </div>
-                <div className="rounded border border-white/10 bg-white/[0.04] p-3">
-                  <p className="text-[10px] font-black uppercase text-atlas-text-muted">Kits mapeados</p>
-                  <p className="mt-1 text-xl font-black text-white">{stats.kitResponses}</p>
-                </div>
-              </div>
-
-              <Link
-                href="/minha-participacao"
-                className="mt-4 inline-flex items-center gap-2 text-xs font-black uppercase text-atlas-gold-main transition-colors hover:text-atlas-gold-dark"
-              >
-                Ver página individual
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </article>
-          </div>
-        </section>
-
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,0.45fr)]">
-          <section className="min-w-0">
-            <DashboardSectionHeader
-              eyebrow="Financeiro"
-              title="Resumo de caixa"
-              description="Saldo, arrecadação e despesas permanecem conectados para leitura rápida da situação financeira."
-            />
-
-            <div className="grid gap-4 md:grid-cols-3">
-              <article className="relative overflow-hidden rounded-lg border border-atlas-gold-main/30 bg-gradient-to-br from-atlas-gold-main/10 via-white/[0.055] to-white/[0.025] p-5">
-                <div className="flex min-w-0 items-center gap-4">
-                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-atlas-gold-main/30 bg-atlas-gold-main/10 text-atlas-gold-main">
-                    <Wallet className="h-5 w-5" aria-hidden="true" />
-                  </div>
+        </AdminCard>
+      ) : (
+        <>
+          <AdminSection
+            title="Resumo geral do evento"
+            description="Indicadores prioritários para leitura rápida da situação atual."
+          >
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)]">
+              <AdminCard className="relative overflow-hidden p-6">
+                <div className="flex min-w-0 items-start justify-between gap-6">
                   <div className="min-w-0">
-                    <p className="atlas-stat-card-label text-atlas-gold-main">Saldo atual</p>
-                    <div
-                      className={`atlas-metric-value break-words ${
-                        balance >= 0 ? "text-green-400" : "text-red-400"
-                      }`}
-                    >
-                      {formatCurrencyBRL(balance)}
+                    <p className="text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">
+                      Total geral de pessoas
+                    </p>
+                    <div className="mt-3 flex flex-wrap items-end gap-x-3 gap-y-1">
+                      <span className="text-5xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-6xl">
+                        {stats.totalPeople}
+                      </span>
+                      <span className="mb-2 text-sm font-medium uppercase text-gray-500 dark:text-gray-400">
+                        pessoas
+                      </span>
                     </div>
-                    <p className="mt-2 text-xs leading-relaxed text-atlas-text-muted">
-                      Receitas menos despesas registradas
+                    <p className="mt-5 max-w-2xl text-sm leading-6 text-gray-500 dark:text-gray-400">
+                      Soma dos militares com presença confirmada mais os convidados informados.
                     </p>
                   </div>
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 ring-1 ring-brand-500/10 dark:bg-brand-500/15 dark:text-brand-400">
+                    <UsersRound className="h-7 w-7" aria-hidden="true" />
+                  </div>
                 </div>
-              </article>
+              </AdminCard>
 
-              <AdminStatCard
+              <AdminMetricGrid columns={2}>
+                <AdminMetricCard
+                  icon={CheckCircle}
+                  label="Confirmados"
+                  value={stats.confirmedParticipants}
+                  tone="green"
+                  helper="Presença confirmada"
+                  priority="primary"
+                />
+                <AdminMetricCard
+                  icon={Wallet}
+                  label="Saldo atual"
+                  value={formatCurrencyBRL(balance)}
+                  tone={balance >= 0 ? "green" : "red"}
+                  helper="Entradas menos saídas"
+                  priority="primary"
+                />
+              </AdminMetricGrid>
+            </div>
+          </AdminSection>
+
+          <AdminSection
+            title="Alertas e pendências"
+            description="Itens que pedem acompanhamento antes da abertura das próximas fases."
+          >
+            <AdminMetricGrid columns={4}>
+              <AdminMetricCard
+                icon={Clock}
+                label="Aguardam login"
+                value={stats.pendingAccountLink}
+                tone="gold"
+                helper="Cadastros pendentes de vínculo por e-mail e senha"
+                priority="operational"
+              />
+              <AdminMetricCard
+                icon={AlertCircle}
+                label="Sem e-mail"
+                value={stats.participantsWithoutEmail}
+                tone="red"
+                helper="Registros que exigem conferência antes do login individual"
+                priority="operational"
+              />
+              <AdminMetricCard
+                icon={Lock}
+                label="Financeiro final"
+                value="A definir"
+                tone="gray"
+                helper="Pagamentos e cobranças dependem de deliberação da comissão"
+                priority="operational"
+              />
+              <AdminMetricCard
+                icon={Shirt}
+                label="Kits"
+                value="Aguardando"
+                tone="gold"
+                helper="Custos e regras finais ainda não foram definidos"
+                priority="operational"
+              />
+            </AdminMetricGrid>
+          </AdminSection>
+
+          <AdminSection
+            title="Financeiro"
+            description="Valores internos já registrados pela administração. Custos finais do evento continuam aguardando definição."
+          >
+            <AdminMetricGrid columns={4}>
+              <AdminMetricCard
+                icon={Wallet}
+                label="Saldo atual"
+                value={formatCurrencyBRL(balance)}
+                tone={balance >= 0 ? "green" : "red"}
+                helper="Receitas menos despesas registradas"
+                priority="primary"
+              />
+              <AdminMetricCard
                 icon={DollarSign}
                 label="Arrecadado"
                 value={formatCurrencyBRL(stats.income)}
                 tone="blue"
+                helper="Entradas lançadas no financeiro"
               />
-              <AdminStatCard
+              <AdminMetricCard
                 icon={Wallet}
                 label="Despesas"
                 value={formatCurrencyBRL(stats.expense)}
                 tone="red"
+                helper="Saídas lançadas no financeiro"
+              />
+              <AdminMetricCard
+                icon={AlertCircle}
+                label="Pendência final"
+                value="A definir"
+                tone="gold"
+                helper="Cota, convidados extras e itens opcionais serão calculados em fase futura"
+              />
+            </AdminMetricGrid>
+          </AdminSection>
+
+          <AdminSection
+            title="Participantes"
+            description="Consolidação de presença, adesão inicial e volume estimado de pessoas."
+          >
+            <AdminMetricGrid columns={5}>
+              <AdminMetricCard
+                icon={Users}
+                label="Total de membros"
+                value={stats.totalParticipants}
+                tone="blue"
+              />
+              <AdminMetricCard
+                icon={CheckCircle}
+                label="Confirmados"
+                value={stats.confirmedParticipants}
+                tone="green"
+                helper="Presença confirmada"
+              />
+              <AdminMetricCard
+                icon={UserPlus}
+                label="Convidados"
+                value={stats.totalGuests}
+                tone="gold"
+                helper="Dos confirmados"
+              />
+              <AdminMetricCard
+                icon={UsersRound}
+                label="Total pessoas"
+                value={stats.totalPeople}
+                tone="blue"
+                helper="Membros + convidados"
+              />
+              <AdminMetricCard
+                icon={ShieldCheck}
+                label="Adesões recebidas"
+                value={stats.submittedRegistrations}
+                tone="gray"
+                helper="Formulários/cadastros registrados"
+              />
+            </AdminMetricGrid>
+          </AdminSection>
+
+          <AdminSection
+            title="Kits/Souvenirs"
+            description="Demanda operacional para planejamento do kit oficial e itens de souvenir."
+          >
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,0.42fr)]">
+              <AdminMetricGrid columns={3}>
+                <AdminMetricCard
+                  icon={Shirt}
+                  label="Kits oficiais"
+                  value={stats.kitInterest}
+                  tone="blue"
+                  helper="Interesses registrados para kits e souvenirs"
+                />
+                <AdminMetricCard
+                  icon={ShieldCheck}
+                  label="Demandas mapeadas"
+                  value={stats.kitResponses}
+                  tone="green"
+                  helper="Participantes com medidas ou resposta de kit"
+                />
+                <AdminMetricCard
+                  icon={Clock}
+                  label="Definições"
+                  value="Em aberto"
+                  tone="gold"
+                  helper="Custos, itens e regras aguardam deliberação"
+                />
+              </AdminMetricGrid>
+
+              <ActionCard
+                title="Gestão de kits"
+                description="Abrir a visão detalhada de tamanhos, solicitações e interesses registrados."
+                href="/admin/souvenirs"
+                icon={Shirt}
               />
             </div>
-          </section>
+          </AdminSection>
 
-          <section className="min-w-0">
-            <DashboardSectionHeader
-              eyebrow="Kits/Souvenirs"
-              title="Demanda operacional"
-              description="Indicadores de itens ficam separados dos números de presença."
-            />
-
-            <AdminStatCard
-              icon={Shirt}
-              label="Kits oficiais"
-              value={stats.kitInterest}
-              tone="blue"
-              helper="Interesses registrados para kits e souvenirs"
-            />
-          </section>
-        </div>
-      </div>
-    </div>
+          <AdminSection
+            title="Próximas ações operacionais"
+            description="Atalhos para as rotinas administrativas mais importantes nesta fase."
+          >
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+              <ActionCard
+                title="Revisar participantes"
+                description="Conferir cadastros, presença, convidados, progresso e ações individuais."
+                href="/admin/participantes"
+                icon={Users}
+              />
+              <ActionCard
+                title="Acompanhar financeiro"
+                description="Ver lançamentos, saldo atual, entradas, saídas e visibilidade pública."
+                href="/admin/financeiro"
+                icon={DollarSign}
+              />
+              <ActionCard
+                title="Preparar portal"
+                description="Acompanhar contas vinculadas, cadastros com e-mail e pendências de acesso."
+                href="/minha-participacao"
+                icon={KeyRound}
+              />
+            </div>
+          </AdminSection>
+        </>
+      )}
+    </AdminPage>
   );
 }

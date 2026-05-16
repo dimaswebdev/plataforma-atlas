@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../design-system/tailadmin/tokens.css";
 
 @theme {
   --color-atlas-navy-base: #071A2F;
@@ -131,11 +132,19 @@ h1, h2, h3, h4, h5, h6 {
     --admin-muted: rgb(203 213 225 / 0.76);
     background:
       linear-gradient(135deg, rgb(2 6 23) 0%, rgb(7 26 47) 48%, rgb(3 12 24) 100%);
+    font-family: var(--font-tailadmin);
+    letter-spacing: 0;
   }
 
   .atlas-admin-page {
     min-width: 0;
+    color: var(--color-gray-800);
     animation: atlas-fade-in 0.35s ease-out both;
+  }
+
+  .atlas-admin-shell.dark .atlas-admin-page,
+  .atlas-admin-shell[data-admin-theme="dark"] .atlas-admin-page {
+    color: rgb(255 255 255 / 0.92);
   }
 
   .atlas-admin-page-header {
@@ -199,7 +208,7 @@ h1, h2, h3, h4, h5, h6 {
   .atlas-modal-panel {
     min-width: 0;
     border: 1px solid var(--admin-border);
-    border-radius: 0.5rem;
+    border-radius: 1rem;
     background: var(--admin-panel);
     box-shadow: 0 20px 55px rgb(0 0 0 / 0.24);
     backdrop-filter: blur(18px);
@@ -207,11 +216,18 @@ h1, h2, h3, h4, h5, h6 {
 
   .atlas-admin-card {
     padding: 1.25rem;
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background-color 180ms ease;
+  }
+
+  .atlas-admin-shell .atlas-admin-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--color-brand-200);
+    box-shadow: var(--shadow-theme-md);
   }
 
   .atlas-admin-card-muted {
     border: 1px solid var(--admin-border-soft);
-    border-radius: 0.5rem;
+    border-radius: 1rem;
     background: rgb(255 255 255 / 0.045);
   }
 
@@ -344,6 +360,70 @@ h1, h2, h3, h4, h5, h6 {
   .atlas-muted-button:disabled {
     cursor: not-allowed;
     opacity: 0.55;
+  }
+
+  .atlas-admin-shell .atlas-primary-button {
+    border: 1px solid transparent;
+    background: var(--color-brand-500);
+    color: white;
+    box-shadow: var(--shadow-theme-xs);
+    font-weight: 500;
+    text-transform: none;
+  }
+
+  .atlas-admin-shell .atlas-primary-button:hover {
+    background: var(--color-brand-600);
+  }
+
+  .atlas-admin-shell .atlas-secondary-button {
+    border: 1px solid var(--color-gray-300);
+    background: white;
+    color: var(--color-gray-700);
+    box-shadow: var(--shadow-theme-xs);
+    font-weight: 500;
+    text-transform: none;
+  }
+
+  .atlas-admin-shell .atlas-secondary-button:hover {
+    background: var(--color-gray-50);
+    color: var(--color-gray-800);
+  }
+
+  .atlas-admin-shell .atlas-muted-button {
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--color-gray-600);
+    font-weight: 500;
+    text-transform: none;
+  }
+
+  .atlas-admin-shell .atlas-muted-button:hover {
+    background: var(--color-gray-100);
+    color: var(--color-gray-800);
+  }
+
+  .atlas-admin-shell.dark .atlas-secondary-button,
+  .atlas-admin-shell[data-admin-theme="dark"] .atlas-secondary-button {
+    border-color: var(--color-gray-700);
+    background: var(--color-gray-900);
+    color: var(--color-gray-300);
+  }
+
+  .atlas-admin-shell.dark .atlas-secondary-button:hover,
+  .atlas-admin-shell[data-admin-theme="dark"] .atlas-secondary-button:hover {
+    background: rgb(255 255 255 / 0.03);
+    color: white;
+  }
+
+  .atlas-admin-shell.dark .atlas-muted-button,
+  .atlas-admin-shell[data-admin-theme="dark"] .atlas-muted-button {
+    color: var(--color-gray-400);
+  }
+
+  .atlas-admin-shell.dark .atlas-muted-button:hover,
+  .atlas-admin-shell[data-admin-theme="dark"] .atlas-muted-button:hover {
+    background: rgb(255 255 255 / 0.05);
+    color: white;
   }
 
   .atlas-empty-state {
@@ -504,14 +584,19 @@ html[data-admin-theme="light"] .atlas-admin-modal .text-atlas-text-light {
   color: #0f172a !important;
 }
 
+.atlas-admin-shell[data-admin-theme="light"] .tailadmin-title,
+.atlas-admin-shell[data-admin-theme="light"] .atlas-admin-title,
+.atlas-admin-shell[data-admin-theme="light"] .atlas-card-title,
+.atlas-admin-shell[data-admin-theme="light"] .atlas-section-title,
+.atlas-admin-shell[data-admin-theme="light"] .dark\:text-white,
+.atlas-admin-shell[data-admin-theme="light"] .dark\:text-white\/90,
+.atlas-admin-shell[data-admin-theme="light"] .dark\:text-white\/80 {
+  color: var(--color-gray-900) !important;
+}
+
 .atlas-admin-shell[data-admin-theme="light"] .text-atlas-text-muted,
 html[data-admin-theme="light"] .atlas-admin-modal .text-atlas-text-muted {
   color: #64748b !important;
-}
-
-html[data-admin-theme="light"] .atlas-admin-modal .atlas-danger-button {
-  background: #dc2626 !important;
-  color: white !important;
 }
 
 .atlas-admin-shell[data-admin-theme="light"] [class*="border-white/"],
@@ -536,7 +621,7 @@ html[data-admin-theme="light"] .atlas-admin-modal .hover\:text-white:hover {
 }
 
 .atlas-admin-shell[data-admin-theme="light"] .atlas-admin-table tbody tr:hover {
-  background: #f8fafc;
+  background: var(--color-brand-25);
 }
 
 .atlas-admin-shell[data-admin-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
@@ -642,6 +727,44 @@ html[data-admin-theme="light"] .atlas-admin-modal textarea::placeholder {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.atlas-admin-shell[data-admin-theme="light"] {
+  background: var(--color-gray-50) !important;
+}
+
+.atlas-admin-shell[data-admin-theme="dark"] {
+  background: var(--color-gray-950) !important;
+}
+
+.atlas-admin-shell[data-admin-theme="light"] main,
+.atlas-admin-shell[data-admin-theme="light"] .tailadmin-surface {
+  background: var(--color-gray-50) !important;
+}
+
+.atlas-admin-shell[data-admin-theme="dark"] main,
+.atlas-admin-shell[data-admin-theme="dark"] .tailadmin-surface {
+  background: var(--color-gray-950) !important;
+}
+
+.atlas-admin-shell ::-webkit-scrollbar-track {
+  background: var(--color-gray-100);
+}
+
+.atlas-admin-shell ::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+}
+
+.atlas-admin-shell ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-400);
+}
+
+.atlas-admin-shell[data-admin-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--color-gray-900);
+}
+
+.atlas-admin-shell[data-admin-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--color-gray-700);
 }
 
 /* Responsive Container Adjustments */

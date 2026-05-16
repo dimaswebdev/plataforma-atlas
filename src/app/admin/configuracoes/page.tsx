@@ -1,21 +1,25 @@
-"use client";
+﻿"use client";
 
-import { Settings, Save } from "lucide-react";
+import { Save, Settings } from "lucide-react";
 import { AdminEmptyState } from "@/components/admin/AdminEmptyState";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { AdminButton, AdminPage } from "@/components/admin";
 
 export default function AdminConfiguracoes() {
   return (
-    <div className="atlas-admin-page">
+    <AdminPage>
       <AdminPageHeader
         title="Configurações do evento"
         icon={Settings}
         description="Área reservada para preferências gerais, links externos e textos operacionais da plataforma."
         actions={
-          <button className="atlas-primary-button w-full sm:w-auto" disabled>
-            <Save className="h-4 w-4" />
+          <AdminButton
+            className="w-full text-white sm:w-auto"
+            startIcon={<Save className="h-4 w-4" aria-hidden="true" />}
+            disabled
+          >
             Salvar alterações
-          </button>
+          </AdminButton>
         }
       />
 
@@ -24,6 +28,10 @@ export default function AdminConfiguracoes() {
         title="Módulo em construção"
         description="A configuração de links externos e edição do texto principal estará disponível em breve."
       />
-    </div>
+    </AdminPage>
   );
 }
+
+
+
+

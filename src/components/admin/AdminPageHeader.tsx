@@ -1,10 +1,13 @@
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
+import { AppPageHeader } from "@/components/ui";
 
 interface AdminPageHeaderProps {
   title: string;
-  description?: string;
+  description?: ReactNode;
   icon?: LucideIcon;
-  actions?: React.ReactNode;
+  actions?: ReactNode;
+  eyebrow?: ReactNode;
 }
 
 export function AdminPageHeader({
@@ -12,23 +15,9 @@ export function AdminPageHeader({
   description,
   icon: Icon,
   actions,
+  eyebrow,
 }: AdminPageHeaderProps) {
   return (
-    <header className="atlas-admin-page-header">
-      <div className="min-w-0">
-        <div className="atlas-admin-breadcrumb">
-          <span>Painel</span>
-          <span>/</span>
-          <span>{title}</span>
-        </div>
-        <div className="atlas-admin-title-row mt-2">
-          {Icon && <Icon className="atlas-admin-title-icon" aria-hidden="true" />}
-          <h1 className="atlas-admin-title min-w-0 break-words text-white">{title}</h1>
-        </div>
-        {description && <p className="atlas-admin-description">{description}</p>}
-      </div>
-
-      {actions && <div className="atlas-admin-actions">{actions}</div>}
-    </header>
+    <AppPageHeader title={title} description={description} icon={Icon} actions={actions} eyebrow={eyebrow} />
   );
 }
